@@ -862,9 +862,9 @@ function coinPop(x,y,txt){
 const FG={
   canvas:null,ctx:null,active:false,animId:null,
   spd:1.8,level:1,lives:3,coins:0,score:0,frame:0,bgY:0,
-  px:0,py:0,pw:48,ph:70,pvx:0,
+  px:0,py:0,pw:48,ph:70,pvx:0,pvy:0,
   walls:[],obs:[],stars:[],
-  touchX:0,trickAttempts:0,trickQ:null,
+  touchX:0,touchY:0,trickAttempts:0,trickQ:null,
   trickIdx:0
 };
 
@@ -882,7 +882,7 @@ function initFall(){
   FG.ctx=FG.canvas.getContext('2d');
   FG.active=true;FG.spd=1.8;FG.level=1;FG.score=0;FG.frame=0;FG.bgY=0;
   FG.lives=G.lives;FG.coins=0;
-  FG.px=FG.canvas.width/2-FG.pw/2;FG.py=50;FG.pvx=0;
+  FG.px=FG.canvas.width/2-FG.pw/2;FG.py=FG.canvas.height-FG.ph-20;FG.pvx=0;FG.pvy=0;
   FG.walls=[];FG.obs=[];FG.stars=[];
   document.getElementById('fall-coins').textContent=0;
   document.getElementById('fall-lives').textContent=livesStr(FG.lives);
@@ -894,20 +894,29 @@ function initFall(){
 
 function setupFallControls(){
   const cv=FG.canvas;
-  cv.ontouchstart=e=>{e.preventDefault();FG.touchX=e.touches[0].clientX};
+  cv.ontouchstart=e=>{e.preventDefault();FG.touchX=e.touches[0].clientX;FG.touchY=e.touches[0].clientY};
   cv.ontouchmove=e=>{
     e.preventDefault();if(!FG.active)return;
     const dx=e.touches[0].clientX-FG.touchX;
-    FG.pvx=dx*.18;FG.touchX=e.touches[0].clientX;
+    const dy=e.touches[0].clientY-FG.touchY;
+    FG.pvx=dx*.18;FG.pvy=dy*.18;
+    FG.touchX=e.touches[0].clientX;FG.touchY=e.touches[0].clientY;
   };
-  cv.ontouchend=()=>{FG.pvx*=.4};
+  cv.ontouchend=()=>{FG.pvx*=.4;FG.pvy*=.4};
   cv.onmousemove=e=>{
     if(!FG.active)return;
     const r=cv.getBoundingClientRect();
     FG.px=e.clientX-r.left-FG.pw/2;
+    FG.py=e.clientY-r.top-FG.ph/2;
   };
-  document.onkeydown=e=>{if(!FG.active)return;if(e.key==='ArrowLeft')FG.pvx=-7;if(e.key==='ArrowRight')FG.pvx=7};
-  document.onkeyup=()=>{FG.pvx*=.2};
+  document.onkeydown=e=>{
+    if(!FG.active)return;
+    if(e.key==='ArrowLeft')FG.pvx=-7;
+    if(e.key==='ArrowRight')FG.pvx=7;
+    if(e.key==='ArrowUp'){e.preventDefault();FG.pvy=-7;}
+    if(e.key==='ArrowDown'){e.preventDefault();FG.pvy=7;}
+  };
+  document.onkeyup=()=>{FG.pvx*=.2;FG.pvy*=.2};
   // Gyro
   if(window.DeviceOrientationEvent){
     window.addEventListener('deviceorientation',e=>{if(e.gamma)FG.pvx+=e.gamma*.15});
@@ -951,6 +960,8 @@ function fallLoop(){
   // Player move
   FG.pvx*=.88;FG.px+=FG.pvx;
   FG.px=Math.max(0,Math.min(W-FG.pw,FG.px));
+  FG.pvy*=.88;FG.py+=FG.pvy;
+  FG.py=Math.max(0,Math.min(H-FG.ph,FG.py));
 
   let hit=false;
 
