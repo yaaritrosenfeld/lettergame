@@ -132,7 +132,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 
 /* World Islands grid */
 .worlds-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;position:relative;z-index:2;margin-top:60px}
-.worlds-grid .island:nth-child(5){grid-column:1/-1;max-width:200px;margin:0 auto}
 
 .island{display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .2s}
 .island:active{transform:scale(.93)}
@@ -151,6 +150,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .ic-magic{background:linear-gradient(160deg,#ab47bc,#6a1b9a);border-color:#4a148c}
 .ic-jungle{background:linear-gradient(160deg,#26a69a,#00695c);border-color:#004d40}
 .ic-gold{background:linear-gradient(160deg,#ffa726,#e65100);border-color:#bf360c}
+.ic-sky{background:linear-gradient(160deg,#42a5f5,#1565c0);border-color:#0d47a1}
+.ic-sunset{background:linear-gradient(160deg,#ef5350,#b71c1c);border-color:#7f0000}
+.ic-star{background:linear-gradient(160deg,#ffd54f,#ff8f00);border-color:#e65100}
 
 /* Map walking character */
 .map-char-wrap{position:fixed;bottom:70px;right:50%;transform:translateX(50%);z-index:20;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:2px;animation:mapFloat 2.5s ease-in-out infinite}
@@ -472,6 +474,30 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
             <div class="island-stars" id="w-stars-5">☆☆☆</div>
           </div>
         </div>
+        <div class="island" onclick="openWorld(6)">
+          <div class="island-card ic-sky">
+            <div class="island-big-letter">ו</div>
+            <div class="island-emoji">🌈</div>
+            <div class="island-name">עולם הקשת</div>
+            <div class="island-stars" id="w-stars-6">☆☆☆</div>
+          </div>
+        </div>
+        <div class="island" onclick="openWorld(7)">
+          <div class="island-card ic-sunset">
+            <div class="island-big-letter">ז</div>
+            <div class="island-emoji">🚀</div>
+            <div class="island-name">עולם החלל</div>
+            <div class="island-stars" id="w-stars-7">☆☆☆</div>
+          </div>
+        </div>
+        <div class="island" onclick="openWorld(8)">
+          <div class="island-card ic-star">
+            <div class="island-big-letter">ח</div>
+            <div class="island-emoji">⭐</div>
+            <div class="island-name">עולם הכוכבים</div>
+            <div class="island-stars" id="w-stars-8">☆☆☆</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -597,7 +623,7 @@ const G = {
   name:'שחקן', shirt:'#e74c3c', pants:'#2c3e50',
   hair:'short', bottom:'pants', photo:null, photoImg:null,
   coins:0, lives:3, world:1,
-  worldStars:{1:0,2:0,3:0,4:0,5:0},
+  worldStars:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0},
   lastLife:Date.now(), audioCtx:null
 };
 
@@ -606,7 +632,10 @@ const WORLDS = {
   2:{icon:'🌊',name:'עולם הים',letters:['ד','ה','ו']},
   3:{icon:'🔮',name:'עולם הקסם',letters:['ז','ח','ט']},
   4:{icon:'🦁',name:'עולם הג׳ונגל',letters:['י','כ','ל']},
-  5:{icon:'🏆',name:'עולם הגיבורים',letters:['מ','נ','ס']}
+  5:{icon:'🏆',name:'עולם הגיבורים',letters:['מ','נ','ס']},
+  6:{icon:'🌈',name:'עולם הקשת',letters:['ע','פ','צ']},
+  7:{icon:'🚀',name:'עולם החלל',letters:['ק','ר','ש']},
+  8:{icon:'⭐',name:'עולם הכוכבים',letters:['ת']}
 };
 
 const LETTERS = [
@@ -614,7 +643,10 @@ const LETTERS = [
   {l:'ד',n:'דלת',p:'דָּלֶת',w:'דג'},{l:'ה',n:'הא',p:'הֵא',w:'הרים'},{l:'ו',n:'וו',p:'וָו',w:'ורד'},
   {l:'ז',n:'זיין',p:'זַיִן',w:'זברה'},{l:'ח',n:'חית',p:'חֵית',w:'חתול'},{l:'ט',n:'טית',p:'טֵית',w:'טלה'},
   {l:'י',n:'יוד',p:'יוֹד',w:'ים'},{l:'כ',n:'כף',p:'כַּף',w:'כלב'},{l:'ל',n:'למד',p:'לָמֶד',w:'לב'},
-  {l:'מ',n:'מם',p:'מֵם',w:'מכונית'},{l:'נ',n:'נון',p:'נוּן',w:'נחש'},{l:'ס',n:'סמך',p:'סָמֶךְ',w:'סוס'}
+  {l:'מ',n:'מם',p:'מֵם',w:'מכונית'},{l:'נ',n:'נון',p:'נוּן',w:'נחש'},{l:'ס',n:'סמך',p:'סָמֶךְ',w:'סוס'},
+  {l:'ע',n:'עין',p:'עַיִן',w:'עוגה'},{l:'פ',n:'פא',p:'פֵּא',w:'פיל'},{l:'צ',n:'צדי',p:'צַדִּי',w:'צב'},
+  {l:'ק',n:'קוף',p:'קוֹף',w:'קוף'},{l:'ר',n:'ריש',p:'רֵישׁ',w:'רכבת'},{l:'ש',n:'שין',p:'שִׁין',w:'שמש'},
+  {l:'ת',n:'תו',p:'תָּו',w:'תפוח'}
 ];
 
 /* ═══════════════════════════════
@@ -876,6 +908,13 @@ const TRICK_QS=[
   {q:'לחץ על האות: ג',ans:'ג'},{q:'לחץ על האות: ד',ans:'ד'},
   {q:'לחץ על האות: ה',ans:'ה'},{q:'לחץ על האות: ו',ans:'ו'},
   {q:'לחץ על האות: ז',ans:'ז'},{q:'לחץ על האות: ח',ans:'ח'},
+  {q:'לחץ על האות: ט',ans:'ט'},{q:'לחץ על האות: י',ans:'י'},
+  {q:'לחץ על האות: כ',ans:'כ'},{q:'לחץ על האות: ל',ans:'ל'},
+  {q:'לחץ על האות: מ',ans:'מ'},{q:'לחץ על האות: נ',ans:'נ'},
+  {q:'לחץ על האות: ס',ans:'ס'},{q:'לחץ על האות: ע',ans:'ע'},
+  {q:'לחץ על האות: פ',ans:'פ'},{q:'לחץ על האות: צ',ans:'צ'},
+  {q:'לחץ על האות: ק',ans:'ק'},{q:'לחץ על האות: ר',ans:'ר'},
+  {q:'לחץ על האות: ש',ans:'ש'},{q:'לחץ על האות: ת',ans:'ת'},
 ];
 
 function initFall(){
