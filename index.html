@@ -728,14 +728,14 @@ const G = {
 };
 
 const WORLDS = {
-  1:{icon:'🌋',name:'עולם אלף-בית',letters:['א','ב','ג']},
-  2:{icon:'🌊',name:'עולם הים',letters:['ד','ה','ו']},
-  3:{icon:'🔮',name:'עולם הקסם',letters:['ז','ח','ט']},
-  4:{icon:'🦁',name:'עולם הג׳ונגל',letters:['י','כ','ל']},
-  5:{icon:'🏆',name:'עולם הגיבורים',letters:['מ','נ','ס']},
-  6:{icon:'🌈',name:'עולם הקשת',letters:['ע','פ','צ']},
-  7:{icon:'🚀',name:'עולם החלל',letters:['ק','ר','ש']},
-  8:{icon:'⭐',name:'עולם הכוכבים',letters:['ת']}
+  1:{icon:'🌋',name:'עולם אלף-בית',letters:['א','ב','ג'],game:'letters'},
+  2:{icon:'🌊',name:'עולם הים',letters:['ד','ה','ו'],game:'fall'},
+  3:{icon:'🔮',name:'עולם הקסם',letters:['ז','ח','ט'],game:'letters'},
+  4:{icon:'🦁',name:'עולם הג׳ונגל',letters:['י','כ','ל'],game:'fall'},
+  5:{icon:'🏆',name:'עולם הגיבורים',letters:['מ','נ','ס'],game:'letters'},
+  6:{icon:'🌈',name:'עולם הקשת',letters:['ע','פ','צ'],game:'fall'},
+  7:{icon:'🚀',name:'עולם החלל',letters:['ק','ר','ש'],game:'letters'},
+  8:{icon:'⭐',name:'עולם הכוכבים',letters:['ת'],game:'fall'}
 };
 
 const LETTERS = [
@@ -950,12 +950,8 @@ function livesStr(n){return Array.from({length:3},(_,i)=>i<n?'❤️':'🖤').jo
 
 function openWorld(id){
   G.world=id;
-  const w=WORLDS[id];
-  document.getElementById('popup-icon').textContent=w.icon;
-  document.getElementById('popup-title').textContent=w.name;
-  document.getElementById('world-popup').classList.add('show');
-  speak('בְּחַר מִשְׂחָק!');
   snd_click();
+  launchGame(WORLDS[id].game);
 }
 function closePopup(){document.getElementById('world-popup').classList.remove('show');snd_click()}
 
