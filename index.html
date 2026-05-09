@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>עולם האותיות - Letter World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- SCREEN 1: PROMO / SPLASH -->
+<div id="screen-promo" class="screen active">
+  <div class="promo-bg">
+    <div class="floating-block b1">א</div>
+    <div class="floating-block b2">ב</div>
+    <div class="floating-block b3">ג</div>
+    <div class="floating-block b4">ד</div>
+    <div class="floating-block b5">★</div>
+    <div class="floating-block b6">💎</div>
+    <div class="floating-block b7">ה</div>
+    <div class="floating-block b8">ו</div>
+  </div>
+  <div class="promo-content">
+    <div class="game-logo">
+      <div class="logo-block logo-top">עולם</div>
+      <div class="logo-block logo-bottom">האותיות</div>
+      <div class="logo-stars">⭐⭐⭐</div>
+    </div>
+    <div class="roblox-char-promo">
+      <div class="char-head-promo">😄</div>
+      <div class="char-body-promo"></div>
+      <div class="char-legs-promo"><div></div><div></div></div>
+    </div>
+    <div class="promo-tagline">למד אותיות &#8226; אסוף כוכבים &#8226; תהיה גיבור!</div>
+    <button class="btn-start bounce-btn" onclick="goToScreen('screen-avatar')">
+      <span class="btn-icon">🚀</span> בואו נתחיל!
+    </button>
+    <div class="promo-badge">לגילאי 5-7</div>
+  </div>
+</div>
+
+<!-- SCREEN 2: AVATAR BUILDER -->
+<div id="screen-avatar" class="screen">
+  <div class="screen-header">
+    <div class="top-bar">
+      <div class="coins-counter"><span>💎</span> <span id="coins-display">0</span></div>
+      <div class="lives-counter"><span>❤️</span><span>❤️</span><span>❤️</span></div>
+    </div>
+    <h2 class="screen-title">בוא נבנה את הדמות שלך!</h2>
+  </div>
+
+  <div class="avatar-builder">
+    <!-- Live Preview -->
+    <div class="avatar-preview-box">
+      <div class="avatar-preview" id="avatar-preview">
+        <div class="av-head" id="av-head">
+          <canvas id="face-canvas" width="80" height="80"></canvas>
+          <div class="av-hair" id="av-hair"></div>
+        </div>
+        <div class="av-body" id="av-body"></div>
+        <div class="av-legs" id="av-legs">
+          <div class="av-leg" id="av-leg-l"></div>
+          <div class="av-leg" id="av-leg-r"></div>
+        </div>
+        <div class="av-name-tag" id="av-name-tag">?</div>
+      </div>
+      <div class="preview-platform"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="builder-controls">
+      <!-- Photo Upload -->
+      <div class="control-section">
+        <div class="control-label">📷 תמונה שלך</div>
+        <label class="upload-btn" for="photo-upload">
+          <span>📸 העלה תמונה</span>
+          <input type="file" id="photo-upload" accept="image/*" onchange="handlePhotoUpload(event)">
+        </label>
+      </div>
+
+      <!-- Name -->
+      <div class="control-section">
+        <div class="control-label">✏️ מה שמך?</div>
+        <input type="text" id="player-name" placeholder="הכנס שם..." maxlength="10" oninput="updateName(this.value)" class="name-input">
+      </div>
+
+      <!-- Hair -->
+      <div class="control-section">
+        <div class="control-label">💇 סגנון שיער</div>
+        <div class="option-row">
+          <button class="opt-btn active" onclick="setHair('short', this)">
+            <div class="hair-icon short-hair"></div>
+            <span>קצר</span>
+          </button>
+          <button class="opt-btn" onclick="setHair('long', this)">
+            <div class="hair-icon long-hair"></div>
+            <span>ארוך</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Shirt Color -->
+      <div class="control-section">
+        <div class="control-label">👕 צבע חולצה</div>
+        <div class="color-row">
+          <button class="color-btn active" style="background:#e74c3c" onclick="setShirtColor('#e74c3c', this)"></button>
+          <button class="color-btn" style="background:#3498db" onclick="setShirtColor('#3498db', this)"></button>
+          <button class="color-btn" style="background:#2ecc71" onclick="setShirtColor('#2ecc71', this)"></button>
+          <button class="color-btn" style="background:#f39c12" onclick="setShirtColor('#f39c12', this)"></button>
+          <button class="color-btn" style="background:#9b59b6" onclick="setShirtColor('#9b59b6', this)"></button>
+          <button class="color-btn" style="background:#1abc9c" onclick="setShirtColor('#1abc9c', this)"></button>
+        </div>
+      </div>
+
+      <!-- Pants/Skirt -->
+      <div class="control-section">
+        <div class="control-label">👖 בגד תחתון</div>
+        <div class="option-row">
+          <button class="opt-btn active" onclick="setBottom('pants', this)">
+            <span style="font-size:1.5rem">👖</span>
+            <span>מכנסיים</span>
+          </button>
+          <button class="opt-btn" onclick="setBottom('skirt', this)">
+            <span style="font-size:1.5rem">👗</span>
+            <span>חצאית</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pants Color -->
+      <div class="control-section">
+        <div class="control-label">🎨 צבע מכנסיים</div>
+        <div class="color-row">
+          <button class="color-btn active" style="background:#2c3e50" onclick="setPantsColor('#2c3e50', this)"></button>
+          <button class="color-btn" style="background:#e74c3c" onclick="setPantsColor('#e74c3c', this)"></button>
+          <button class="color-btn" style="background:#3498db" onclick="setPantsColor('#3498db', this)"></button>
+          <button class="color-btn" style="background:#27ae60" onclick="setPantsColor('#27ae60', this)"></button>
+          <button class="color-btn" style="background:#8e44ad" onclick="setPantsColor('#8e44ad', this)"></button>
+          <button class="color-btn" style="background:#f39c12" onclick="setPantsColor('#f39c12', this)"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ready-section">
+    <button class="btn-ready" onclick="goToWorldMap()" id="btn-ready">
+      <span>🗺️</span> אני מוכן, בואו נתחיל!
+    </button>
+  </div>
+</div>
+
+<!-- SCREEN 3: WORLD MAP -->
+<div id="screen-map" class="screen">
+  <div class="top-bar fixed-bar">
+    <div class="player-info-bar">
+      <div class="player-avatar-mini" id="mini-avatar-map">
+        <div class="mini-head">😊</div>
+      </div>
+      <div class="player-name-bar" id="bar-name">שחקן</div>
+    </div>
+    <div class="coins-counter"><span>💎</span> <span id="coins-map">0</span></div>
+    <div class="lives-bar"><span id="lives-icons">❤️❤️❤️</span></div>
+  </div>
+
+  <div class="map-container">
+    <div class="map-world">
+      <!-- Sky / clouds -->
+      <div class="map-cloud c1">☁️</div>
+      <div class="map-cloud c2">☁️</div>
+      <div class="map-cloud c3">☁️</div>
+
+      <!-- World Islands -->
+      <div class="world-island island-1 unlocked" onclick="enterWorld(1)" id="island-1">
+        <div class="island-platform">
+          <div class="island-letter">א</div>
+          <div class="island-icon">🏔️</div>
+          <div class="island-name">עולם אלף</div>
+          <div class="island-stars" id="stars-1">☆☆☆</div>
+        </div>
+        <div class="island-path-connector right"></div>
+      </div>
+
+      <div class="world-island island-2 unlocked" onclick="enterWorld(2)" id="island-2">
+        <div class="island-platform">
+          <div class="island-letter">ב</div>
+          <div class="island-icon">🌊</div>
+          <div class="island-name">עולם בית</div>
+          <div class="island-stars" id="stars-2">☆☆☆</div>
+        </div>
+        <div class="island-path-connector right"></div>
+      </div>
+
+      <div class="world-island island-3 unlocked" onclick="enterWorld(3)" id="island-3">
+        <div class="island-platform">
+          <div class="island-letter">ג</div>
+          <div class="island-icon">🌋</div>
+          <div class="island-name">עולם גימל</div>
+          <div class="island-stars" id="stars-3">☆☆☆</div>
+        </div>
+        <div class="island-path-connector right"></div>
+      </div>
+
+      <div class="world-island island-4 unlocked" onclick="enterWorld(4)" id="island-4">
+        <div class="island-platform">
+          <div class="island-letter">ד</div>
+          <div class="island-icon">🏝️</div>
+          <div class="island-name">עולם דלת</div>
+          <div class="island-stars" id="stars-4">☆☆☆</div>
+        </div>
+        <div class="island-path-connector right"></div>
+      </div>
+
+      <div class="world-island island-5 unlocked" onclick="enterWorld(5)" id="island-5">
+        <div class="island-platform">
+          <div class="island-letter">ה</div>
+          <div class="island-icon">🏰</div>
+          <div class="island-name">עולם הה</div>
+          <div class="island-stars" id="stars-5">☆☆☆</div>
+        </div>
+      </div>
+
+      <!-- Walking character on map -->
+      <div class="map-character" id="map-character">
+        <div class="map-char-avatar">
+          <div class="mc-head" id="mc-head">😊</div>
+          <div class="mc-body" id="mc-body"></div>
+          <div class="mc-legs">
+            <div id="mc-leg-l"></div>
+            <div id="mc-leg-r"></div>
+          </div>
+        </div>
+        <div class="map-char-name" id="mc-name">שחקן</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: WORLD SELECT POPUP -->
+<div id="world-popup" class="popup-overlay hidden">
+  <div class="popup-box">
+    <div class="popup-world-icon" id="popup-icon">🏔️</div>
+    <div class="popup-world-title" id="popup-title">עולם אלף</div>
+    <div class="popup-subtitle">בחר מיני-משחק!</div>
+    <div class="popup-games">
+      <button class="popup-game-btn" onclick="startGame('falling')">
+        <div class="game-thumb falling-thumb">⬇️🏃</div>
+        <div class="game-btn-name">משחק הנפילה</div>
+        <div class="game-btn-desc">הימנע ממכשולים!</div>
+      </button>
+      <button class="popup-game-btn" onclick="startGame('letters')">
+        <div class="game-thumb letters-thumb">🔤✨</div>
+        <div class="game-btn-name">משחק האותיות</div>
+        <div class="game-btn-desc">מצא את האות!</div>
+      </button>
+    </div>
+    <button class="popup-close-btn" onclick="closeWorldPopup()">✕ סגור</button>
+  </div>
+</div>
+
+<!-- SCREEN 4: FALLING GAME -->
+<div id="screen-falling" class="screen">
+  <div class="game-top-bar">
+    <button class="back-btn" onclick="exitGame()">🏠</button>
+    <div class="game-score-bar">
+      <span>💎 <span id="fall-coins">0</span></span>
+      <span id="fall-lives-display">❤️❤️❤️</span>
+      <span>⚡ <span id="fall-speed">1</span>x</span>
+    </div>
+  </div>
+
+  <canvas id="falling-canvas"></canvas>
+
+  <!-- Trick Question Popup -->
+  <div id="trick-popup" class="trick-popup hidden">
+    <div class="trick-box">
+      <div class="trick-icon">🤔</div>
+      <div class="trick-title">שאלת הצלה!</div>
+      <div class="trick-question" id="trick-question-text">מצא את האות: א</div>
+      <div class="trick-audio-btn" onclick="playTrickAudio()">🔊 שמע שוב</div>
+      <div class="trick-keyboard" id="trick-keyboard"></div>
+      <div class="trick-feedback" id="trick-feedback"></div>
+      <div class="trick-attempts" id="trick-attempts">נסיון 1 מתוך 2</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 5: LETTER SELECTION GAME -->
+<div id="screen-letters" class="screen">
+  <div class="game-top-bar">
+    <button class="back-btn" onclick="exitGame()">🏠</button>
+    <div class="game-score-bar">
+      <span>💎 <span id="letter-coins">0</span></span>
+      <span id="letter-lives-display">❤️❤️❤️</span>
+    </div>
+  </div>
+
+  <div class="letter-game-container">
+    <div class="letter-game-header">
+      <div class="letter-prompt" id="letter-prompt">האזן ובחר את האות הנכונה!</div>
+      <button class="audio-play-btn" id="audio-play-btn" onclick="playLetterAudio()">🔊 שמע</button>
+    </div>
+
+    <div class="letter-scene" id="letter-scene">
+      <div class="letter-character" id="letter-char">
+        <div class="lc-head">😊</div>
+        <div class="lc-body" id="lc-body-el"></div>
+        <div class="lc-legs"><div id="lc-leg-l"></div><div id="lc-leg-r"></div></div>
+      </div>
+      <div class="letter-speech-bubble" id="speech-bubble">?</div>
+    </div>
+
+    <div class="letter-choices" id="letter-choices"></div>
+
+    <div class="letter-feedback" id="letter-feedback" style="display:none">
+      <div class="feedback-icon" id="feedback-icon">✅</div>
+      <div class="feedback-text" id="feedback-text">כל הכבוד!</div>
+      <button class="next-btn" onclick="nextLetterRound()">הבא ➜</button>
+    </div>
+
+    <div class="letter-progress">
+      <div class="progress-label">שאלה <span id="letter-round">1</span> מתוך 5</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="letter-progress-fill" style="width:20%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- WIN SCREEN -->
+<div id="screen-win" class="screen">
+  <div class="win-content">
+    <div class="win-stars">⭐⭐⭐</div>
+    <div class="win-title">כל הכבוד! 🎉</div>
+    <div class="win-coins">קיבלת <span id="win-coins-earned">0</span> יהלומים!</div>
+    <div class="win-char" id="win-char">
+      <div class="wc-head">🎉</div>
+      <div class="wc-body" id="wc-body"></div>
+      <div class="wc-legs"><div></div><div></div></div>
+    </div>
+    <button class="btn-start" onclick="goToScreen('screen-map')">🗺️ חזרה למפה</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
