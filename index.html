@@ -652,11 +652,13 @@ if('speechSynthesis' in window){
 function speak(txt){
   if(!('speechSynthesis' in window))return;
   window.speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(txt);
-  if(_heVoice){u.voice=_heVoice;u.lang=_heVoice.lang;}
-  else{u.lang='he-IL';}
-  u.rate=.8;u.pitch=1.2;
-  window.speechSynthesis.speak(u);
+  setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance(txt);
+    if(_heVoice){u.voice=_heVoice;u.lang=_heVoice.lang;}
+    else{u.lang='he-IL';}
+    u.rate=.8;u.pitch=1.2;
+    window.speechSynthesis.speak(u);
+  },80);
 }
 
 /* ═══════════════════════════════
