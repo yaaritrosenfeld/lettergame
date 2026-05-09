@@ -235,7 +235,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .trick-title{font-size:1.6rem;color:var(--yellow);text-shadow:2px 2px 0 rgba(0,0,0,.5)}
 .trick-q{font-size:1.15rem;color:#fff;background:rgba(255,255,255,.1);padding:10px 20px;border-radius:10px;border:3px solid rgba(255,255,255,.2);text-align:center;width:100%}
 .trick-audio-btn{background:var(--blue);color:#fff;font-family:'Fredoka One',sans-serif;font-size:1rem;padding:10px 24px;border-radius:10px;cursor:pointer;border:3px solid rgba(255,255,255,.3);box-shadow:var(--sh)}
-.trick-kb{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:100%}
+.trick-kb{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%}
 .trick-key{background:var(--blue);color:#fff;font-family:'Fredoka One',sans-serif;font-size:1.5rem;font-weight:700;padding:12px 4px;border-radius:9px;cursor:pointer;text-align:center;border:3px solid rgba(255,255,255,.3);box-shadow:0 5px 0 rgba(0,0,0,.4);transition:transform .1s}
 .trick-key:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.4)}
 .trick-key.kc{background:var(--green);animation:keyPop .3s}
@@ -1263,7 +1263,11 @@ function showTrick(){
   document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
   const kb=document.getElementById('trick-kb');
   kb.innerHTML='';
-  ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'].forEach(l=>{
+  const allLetters=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+  const ans=FG.trickQ.ans;
+  const distractors=allLetters.filter(l=>l!==ans).sort(()=>Math.random()-.5).slice(0,3);
+  const choices=[ans,...distractors].sort(()=>Math.random()-.5);
+  choices.forEach(l=>{
     const btn=document.createElement('button');
     btn.className='trick-key';btn.textContent=l;
     btn.onclick=()=>checkTrick(l,btn);
