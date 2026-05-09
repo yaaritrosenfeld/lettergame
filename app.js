@@ -28,6 +28,11 @@ const HEBREW_LETTERS = [
   { letter: 'ח', name: 'חית', word: 'חתול' },
   { letter: 'ט', name: 'טית', word: 'טלה' },
   { letter: 'י', name: 'יוד', word: 'ים' },
+  { letter: 'כ', name: 'כף', word: 'כלב' },
+  { letter: 'ל', name: 'למד', word: 'לימון' },
+  { letter: 'מ', name: 'מם', word: 'מכונית' },
+  { letter: 'נ', name: 'נון', word: 'נחש' },
+  { letter: 'ס', name: 'סמך', word: 'סוס' },
 ];
 
 const WORLD_DATA = {
@@ -164,7 +169,7 @@ function setHair(style, btn) {
 
 function setShirtColor(color, btn) {
   state.shirtColor = color;
-  document.querySelectorAll('.color-row:nth-of-type(1) .color-btn').forEach(b => b.classList.remove('active'));
+  btn.parentElement.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   const body = document.getElementById('av-body');
   if (body) body.style.background = color;
@@ -823,7 +828,6 @@ function checkLetterAnswer(choice, btn) {
     btn.classList.add('correct');
     playSuccess();
     LG.coins += 10;
-    addCoins(10);
     document.getElementById('speech-bubble').textContent = '✅';
     speakText('כל הכבוד! ' + choice.name + '!');
 
