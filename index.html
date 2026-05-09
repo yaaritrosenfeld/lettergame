@@ -802,7 +802,7 @@ function enterMap(){
   }
   updateMapUI();
   snd_ok();
-  speak('יאללה! בואו נתחיל את ההרפתקה!');
+  speak('יַאלָּה! בֹּואוּ נַתְחִיל אֶת הַהַרְפַּתְקָה!');
   goScreen('s-map');
   startLifeTimer();
 }
@@ -822,7 +822,7 @@ function openWorld(id){
   document.getElementById('popup-icon').textContent=w.icon;
   document.getElementById('popup-title').textContent=w.name;
   document.getElementById('world-popup').classList.add('show');
-  speak('בחר משחק!');
+  speak('בְּחַר מִשְׂחָק!');
   snd_click();
 }
 function closePopup(){document.getElementById('world-popup').classList.remove('show');snd_click()}
@@ -841,7 +841,7 @@ function startLifeTimer(){
   setInterval(()=>{
     if(Date.now()-G.lastLife>=5*60*1000){
       G.lastLife=Date.now();
-      if(G.lives<6){G.lives++;updateMapUI();speak('קיבלת חיים נוספים!');coinPop(window.innerWidth/2,100,'+❤️')}
+      if(G.lives<6){G.lives++;updateMapUI();speak('קִיבַּלְתָּ חַיִּים נוֹסָפִים!');coinPop(window.innerWidth/2,100,'+❤️')}
     }
   },30000);
 }
@@ -933,7 +933,7 @@ function fallLoop(){
   const spd=FG.spd;
 
   // Level up
-  if(FG.score>0&&FG.score%400===0){FG.level++;FG.spd=Math.min(8,FG.spd+.35);speak('רמה '+FG.level+'!')}
+  if(FG.score>0&&FG.score%400===0){FG.level++;FG.spd=Math.min(8,FG.spd+.35);speak('רָמָה '+FG.level+'!')}
 
   // Scrolling BG
   FG.bgY=(FG.bgY+spd)%80;
@@ -1139,7 +1139,7 @@ function checkTrick(l,btn){
   if(l===FG.trickQ.ans){
     btn.classList.add('kc');snd_ok();
     document.getElementById('trick-fb').textContent='🎉 כל הכבוד! קיבלת 3 חיים!';
-    speak('כל הכבוד!');
+    speak('כֹּל הַכָּבוֹד!');
     addCoins(20);
     setTimeout(()=>{
       document.getElementById('trick-overlay').classList.remove('show');
@@ -1151,7 +1151,7 @@ function checkTrick(l,btn){
     },1600);
   }else{
     btn.classList.add('kw');btn.disabled=true;snd_no();
-    FG.trickAttempts++;speak('נסה שוב!');
+    FG.trickAttempts++;speak('נַסֶּה שׁוּב!');
     if(FG.trickAttempts>=2){
       document.getElementById('trick-fb').textContent='😊 בפעם הבאה! ננסה שאלה אחרת...';
       setTimeout(()=>{
@@ -1162,7 +1162,7 @@ function checkTrick(l,btn){
         document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
         FG.trickAttempts=0;
         document.querySelectorAll('.trick-key').forEach(b=>{b.classList.remove('kw','kc');b.disabled=false});
-        speak(FG.trickQ.q);
+        const newLd=LETTERS.find(l=>l.l===FG.trickQ.ans);speak(newLd?(newLd.p||newLd.n):FG.trickQ.ans);
       },2000);
     }else{
       document.getElementById('trick-tries').textContent='נסיון 2 מתוך 2';
@@ -1212,12 +1212,12 @@ function nextLetRound(){
     btn.onclick=()=>checkLet(ch,btn);
     el.appendChild(btn);
   });
-  setTimeout(()=>speak('מצא את האות '+(LG.cur.p||LG.cur.n)),350);
+  setTimeout(()=>speak('מְצָא אֶת הָאוֹת '+(LG.cur.p||LG.cur.n)),350);
 }
 
 function playLetAudio(){
   if(!LG.cur)return;
-  speak(`מצא את האות ${LG.cur.p||LG.cur.n}. ${LG.cur.p||LG.cur.n}, כמו ${LG.cur.w}`);
+  speak(`מְצָא אֶת הָאוֹת ${LG.cur.p||LG.cur.n}. ${LG.cur.p||LG.cur.n}, כְּמוֹ ${LG.cur.w}`);
   snd_click();
   document.getElementById('speech-bub').textContent=LG.cur.l;
   setTimeout(()=>{if(!LG.answered)document.getElementById('speech-bub').textContent='?'},2200);
@@ -1236,7 +1236,7 @@ function checkLet(ch,btn){
     document.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
   }else{
     btn.classList.add('cw');btn.disabled=true;snd_no();
-    LG.lives--;speak('נסה שוב!');
+    LG.lives--;speak('נַסֶּה שׁוּב!');
     document.getElementById('let-lives').textContent=livesStr(LG.lives);
     if(LG.lives<=0){
       LG.answered=true;
@@ -1247,7 +1247,7 @@ function checkLet(ch,btn){
       document.getElementById('fb-icon').textContent='💪';
       document.getElementById('fb-text').textContent='האות הנכונה היא '+LG.cur.l+' - '+LG.cur.n;
       document.getElementById('let-feedback').classList.add('show');
-      speak('האות הנכונה היא '+(LG.cur.p||LG.cur.n));
+      speak('הָאוֹת הַנְּכוֹנָה הִיא '+(LG.cur.p||LG.cur.n));
     }
   }
 }
@@ -1258,7 +1258,7 @@ function endLetters(){
   const stars=Math.min(3,Math.max(1,Math.ceil(LG.coins/10)));
   G.worldStars[G.world]=Math.max(G.worldStars[G.world],stars);
   document.getElementById('w-stars-'+G.world).textContent=['☆','☆','☆'].map((_,i)=>i<stars?'⭐':'☆').join('');
-  snd_ok();speak('כל הכבוד! סיימת את המשחק!');
+  snd_ok();speak('כֹּל הַכָּבוֹד! סִיַּמְתָּ אֶת הַמִּשְׂחָק!');
   goScreen('s-win');
 }
 
@@ -1287,7 +1287,7 @@ document.addEventListener('touchmove',e=>{if(e.target.tagName==='CANVAS')e.preve
 
 /* Init speak on load */
 window.addEventListener('load',()=>{
-  setTimeout(()=>speak('ברוכים הבאים לעולם האותיות!'),800);
+  setTimeout(()=>speak('בְּרוּכִים הַבָּאִים לְעוֹלַם הָאוֹתִיּוֹת!'),800);
 });
 </script>
 </body>
