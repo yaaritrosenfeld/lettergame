@@ -1006,11 +1006,12 @@ function fallLoop(){
   // HIT!
   if(hit){
     FG.lives--;snd_hit();flashRed();
-    FG.spd=Math.max(1.2,FG.spd*.75); // slow down on hit
+    FG.spd=Math.max(1.2,FG.spd*.75);
     document.getElementById('fall-speed').textContent=FG.spd.toFixed(1);
     document.getElementById('fall-lives').textContent=livesStr(FG.lives);
-    // Clear near obstacles
-    FG.walls=FG.walls.filter(w=>w.y<FG.py-70);
+    // Reset player to bottom center, clear all obstacles
+    FG.px=W/2-FG.pw/2;FG.py=H-FG.ph-20;FG.pvx=0;FG.pvy=0;
+    FG.walls=[];FG.obs=[];
     if(FG.lives<=0){FG.active=false;setTimeout(showTrick,500);return}
   }
 
@@ -1116,6 +1117,8 @@ function checkTrick(l,btn){
     setTimeout(()=>{
       document.getElementById('trick-overlay').classList.remove('show');
       FG.lives=3;FG.active=true;
+      FG.px=FG.canvas.width/2-FG.pw/2;FG.py=FG.canvas.height-FG.ph-20;FG.pvx=0;FG.pvy=0;
+      FG.walls=[];FG.obs=[];
       document.getElementById('fall-lives').textContent=livesStr(3);
       fallLoop();
     },1600);
