@@ -620,7 +620,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 ══════════════════════════════════ */
 const G = {
   name:'שחקן', shirt:'#e74c3c', pants:'#2c3e50',
-  hair:'short', bottom:'pants', photo:null,
+  hair:'short', bottom:'pants', photo:null, photoImg:null,
   coins:0, lives:3, world:1,
   worldStars:{1:0,2:0,3:0,4:0,5:0},
   lastLife:Date.now(), audioCtx:null
@@ -706,6 +706,7 @@ function handlePhoto(e){
     const face=document.getElementById('av-face');
     const img=new Image();
     img.onload=()=>{
+      G.photoImg=img;
       canvas.style.display='block';
       face.style.display='none';
       const c=canvas.getContext('2d');
@@ -1050,28 +1051,47 @@ function rr(ctx,x,y,w,h,r){
 }
 
 function drawFallPlayer(ctx,x,y,w,h){
-  const sk=G.shirt,pa=G.pants;
+  const shirt=G.shirt,pa=G.pants,skin='#FDBCB4';
+  const hh=h*.3, by=y+hh, bh=h*.28, ly=by+bh;
   // Shadow
   ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(x+w/2,y+h+3,w/2,6,0,0,Math.PI*2);ctx.fill();
-  // Legs
-  ctx.fillStyle=pa;rr(ctx,x+3,y+h*.56,w*.38,h*.44,4);rr(ctx,x+w*.59,y+h*.56,w*.38,h*.44,4);
-  // Body
-  ctx.fillStyle=sk;rr(ctx,x+2,y+h*.28,w-4,h*.3,5);
-  ctx.fillStyle='rgba(255,255,255,.2)';rr(ctx,x+2,y+h*.28,w-4,5,3);
-  // Arms (spread - falling effect)
-  ctx.fillStyle=sk;rr(ctx,x-12,y+h*.3,12,h*.2,3);rr(ctx,x+w,y+h*.3,12,h*.2,3);
+  // Legs / skirt
+  if(G.bottom==='skirt'){
+    ctx.fillStyle=pa;rr(ctx,x+2,ly,w-4,h*.38,5);
+  } else {
+    ctx.fillStyle=pa;rr(ctx,x+3,ly,w*.38,h*.42,4);rr(ctx,x+w*.59,ly,w*.38,h*.42,4);
+  }
+  // Body (shirt)
+  ctx.fillStyle=shirt;rr(ctx,x+2,by,w-4,bh,5);
+  ctx.fillStyle='rgba(255,255,255,.2)';rr(ctx,x+2,by,w-4,5,3);
+  // Arms — skin color, spread wide
+  ctx.fillStyle=skin;rr(ctx,x-12,by+2,12,h*.18,3);rr(ctx,x+w,by+2,12,h*.18,3);
   // Head
-  ctx.fillStyle='#FDBCB4';rr(ctx,x+5,y,w-10,h*.3,6);
-  // Face
-  ctx.fillStyle='#333';
-  ctx.beginPath();ctx.arc(x+w*.34,y+h*.12,3.5,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(x+w*.66,y+h*.12,3.5,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#333';ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(x+w/2,y+h*.21,6,.1,Math.PI-.1);ctx.stroke();
+  ctx.fillStyle=skin;rr(ctx,x+5,y,w-10,hh,6);
+  // Face: photo or default
+  if(G.photoImg){
+    ctx.save();
+    ctx.beginPath();
+    const hx=x+5,hy=y,hw=w-10;
+    ctx.moveTo(hx+6,hy);ctx.lineTo(hx+hw-6,hy);ctx.arcTo(hx+hw,hy,hx+hw,hy+6,6);
+    ctx.lineTo(hx+hw,hy+hh-6);ctx.arcTo(hx+hw,hy+hh,hx+hw-6,hy+hh,6);
+    ctx.lineTo(hx+6,hy+hh);ctx.arcTo(hx,hy+hh,hx,hy+hh-6,6);
+    ctx.lineTo(hx,hy+6);ctx.arcTo(hx,hy,hx+6,hy,6);ctx.closePath();
+    ctx.clip();
+    const s=Math.min(G.photoImg.width,G.photoImg.height);
+    ctx.drawImage(G.photoImg,(G.photoImg.width-s)/2,(G.photoImg.height-s)/2,s,s,hx,hy,hw,hh);
+    ctx.restore();
+  } else {
+    ctx.fillStyle='#333';
+    ctx.beginPath();ctx.arc(x+w*.34,y+hh*.38,3,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(x+w*.66,y+hh*.38,3,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#333';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(x+w/2,y+hh*.72,5,.1,Math.PI-.1);ctx.stroke();
+  }
   // Hair
   ctx.fillStyle='#5D4037';
   rr(ctx,x+5,y-5,w-10,10,4);
-  if(G.hair==='long'){ctx.fillRect(x+5,y,8,h*.2);ctx.fillRect(x+w-13,y,8,h*.2)}
+  if(G.hair==='long'){ctx.fillRect(x+5,y,8,hh*.7);ctx.fillRect(x+w-13,y,8,hh*.7)}
 }
 
 function rectsOverlap(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
