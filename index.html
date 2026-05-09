@@ -922,7 +922,7 @@ function initFall(){
   FG.canvas.width=window.innerWidth;
   FG.canvas.height=window.innerHeight-56;
   FG.ctx=FG.canvas.getContext('2d');
-  FG.active=true;FG.spd=1.8;FG.level=1;FG.score=0;FG.frame=0;FG.bgY=0;
+  FG.active=true;FG.spd=1.0;FG.level=1;FG.score=0;FG.frame=0;FG.bgY=0;
   FG.lives=G.lives;FG.coins=0;
   FG.px=FG.canvas.width/2-FG.pw/2;FG.py=FG.canvas.height-FG.ph-20;FG.pvx=0;FG.pvy=0;
   FG.walls=[];FG.obs=[];FG.stars=[];
@@ -972,16 +972,16 @@ function fallLoop(){
   const spd=FG.spd;
 
   // Level up
-  if(FG.score>0&&FG.score%400===0){FG.level++;FG.spd=Math.min(8,FG.spd+.35);speak('רָמָה '+FG.level+'!')}
+  if(FG.score>0&&FG.score%700===0){FG.level++;FG.spd=Math.min(7,FG.spd+.2);speak('רָמָה '+FG.level+'!')}
 
   // Scrolling BG
   FG.bgY=(FG.bgY+spd)%80;
   drawFallBG(ctx,W,H);
 
   // Spawn walls
-  const wInterval=Math.max(25,100-FG.level*8);
+  const wInterval=Math.max(35,180-FG.level*12);
   if(FG.frame%wInterval===0){
-    const gapW=Math.max(120,W*.45-FG.level*6);
+    const gapW=Math.max(160,W*.70-FG.level*15);
     const gapX=30+Math.random()*(W-gapW-60);
     const clr=wallClr();
     FG.walls.push({x:0,y:-50,w:gapX,h:44,c:clr});
@@ -989,8 +989,8 @@ function fallLoop(){
   }
 
   // Spawn obstacles
-  const obInterval=Math.max(55,180-FG.level*12);
-  if(FG.frame%obInterval===0){
+  const obInterval=Math.max(70,240-FG.level*14);
+  if(FG.level>=3&&FG.frame%obInterval===0){
     const types=[{e:'🪨',r:26},{e:'🌵',r:24},{e:'💀',r:25},{e:'🔥',r:23},{e:'⚡',r:22},{e:'🦠',r:20}];
     const t=types[Math.floor(Math.random()*types.length)];
     FG.obs.push({x:t.r+Math.random()*(W-t.r*2),baseX:t.r+Math.random()*(W-t.r*2),y:-60,r:t.r,e:t.e,osc:Math.random()>.5});
@@ -1048,12 +1048,19 @@ function fallLoop(){
   // HIT!
   if(hit){
     FG.lives--;snd_hit();flashRed();
-    FG.spd=Math.max(1.2,FG.spd*.75);
+    FG.spd=Math.max(1.0,FG.spd*.75);
     document.getElementById('fall-speed').textContent=FG.spd.toFixed(1);
     document.getElementById('fall-lives').textContent=livesStr(FG.lives);
-    // Reset player to bottom center, clear all obstacles
     FG.px=W/2-FG.pw/2;FG.py=H-FG.ph-20;FG.pvx=0;FG.pvy=0;
-    FG.walls=[];FG.obs=[];
+    FG.obs=[];
+    // Pre-fill screen with 3 spread-out walls so it's not blank on respawn
+    FG.walls=[];
+    const pgW=Math.max(160,W*.70-FG.level*15);
+    [H*.12,H*.38,H*.62].forEach(preY=>{
+      const pgX=30+Math.random()*(W-pgW-60);const pc=wallClr();
+      FG.walls.push({x:0,y:preY,w:pgX,h:44,c:pc});
+      FG.walls.push({x:pgX+pgW,y:preY,w:W-pgX-pgW,h:44,c:pc});
+    });
     if(FG.lives<=0){FG.active=false;setTimeout(showTrick,500);return}
   }
 
