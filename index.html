@@ -636,31 +636,23 @@ function snd_click(){tone(800,.08,'sine',.2)}
 function snd_coin(){[900,1100].forEach((f,i)=>setTimeout(()=>tone(f,.1,'sine',.2),i*60))}
 function snd_hit(){tone(120,.4,'sawtooth',.5)}
 
-let _heVoice=null;
-function _initVoices(){
-  const vs=speechSynthesis.getVoices();
-  _heVoice=vs.find(v=>v.lang==='he-IL')
-          ||vs.find(v=>v.lang==='iw')
-          ||vs.find(v=>v.lang.startsWith('he'))
-          ||null;
-}
-if('speechSynthesis' in window){
-  speechSynthesis.addEventListener('voiceschanged',_initVoices);
-  _initVoices();
-}
+let _currentAudio=null;
 
 function speak(txt){
-  if(!('speechSynthesis' in window))return;
-  window.speechSynthesis.cancel();
-  setTimeout(()=>{
-    window.speechSynthesis.resume();
-    _initVoices();
-    const u=new SpeechSynthesisUtterance(txt);
-    if(_heVoice){u.voice=_heVoice;u.lang=_heVoice.lang;}
-    else{u.lang='he-IL';}
-    u.rate=.8;u.pitch=1.2;
-    window.speechSynthesis.speak(u);
-  },150);
+  // Stop previous audio
+  if(_currentAudio){_currentAudio.pause();_currentAudio=null;}
+  const url='https://translate.google.com/translate_tts?ie=UTF-8&tl=he&client=tw-ob&q='+encodeURIComponent(txt);
+  _currentAudio=new Audio(url);
+  _currentAudio.play().catch(()=>{
+    // Fallback: Web Speech API
+    if(!('speechSynthesis' in window))return;
+    window.speechSynthesis.cancel();
+    setTimeout(()=>{
+      const u=new SpeechSynthesisUtterance(txt);
+      u.lang='he-IL';u.rate=.8;u.pitch=1.2;
+      window.speechSynthesis.speak(u);
+    },100);
+  });
 }
 
 /* ═══════════════════════════════
