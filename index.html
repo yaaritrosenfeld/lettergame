@@ -610,11 +610,11 @@ const WORLDS = {
 };
 
 const LETTERS = [
-  {l:'א',n:'אלף',w:'אמא'},{l:'ב',n:'בית',w:'בובה'},{l:'ג',n:'גימל',w:'גמל'},
-  {l:'ד',n:'דלת',w:'דג'},{l:'ה',n:'הא',w:'הרים'},{l:'ו',n:'וו',w:'ורד'},
-  {l:'ז',n:'זיין',w:'זברה'},{l:'ח',n:'חית',w:'חתול'},{l:'ט',n:'טית',w:'טלה'},
-  {l:'י',n:'יוד',w:'ים'},{l:'כ',n:'כף',w:'כלב'},{l:'ל',n:'למד',w:'לב'},
-  {l:'מ',n:'מם',w:'מכונית'},{l:'נ',n:'נון',w:'נחש'},{l:'ס',n:'סמך',w:'סוס'}
+  {l:'א',n:'אלף',p:'אָלֶף',w:'אמא'},{l:'ב',n:'בית',p:'בֵּית',w:'בובה'},{l:'ג',n:'גימל',p:'גִּימֶּל',w:'גמל'},
+  {l:'ד',n:'דלת',p:'דָּלֶת',w:'דג'},{l:'ה',n:'הא',p:'הֵא',w:'הרים'},{l:'ו',n:'וו',p:'וָו',w:'ורד'},
+  {l:'ז',n:'זיין',p:'זַיִן',w:'זברה'},{l:'ח',n:'חית',p:'חֵית',w:'חתול'},{l:'ט',n:'טית',p:'טֵית',w:'טלה'},
+  {l:'י',n:'יוד',p:'יוֹד',w:'ים'},{l:'כ',n:'כף',p:'כַּף',w:'כלב'},{l:'ל',n:'למד',p:'לָמֶד',w:'לב'},
+  {l:'מ',n:'מם',p:'מֵם',w:'מכונית'},{l:'נ',n:'נון',p:'נוּן',w:'נחש'},{l:'ס',n:'סמך',p:'סָמֶךְ',w:'סוס'}
 ];
 
 /* ═══════════════════════════════
@@ -636,22 +636,38 @@ function snd_coin(){[900,1100].forEach((f,i)=>setTimeout(()=>tone(f,.1,'sine',.2
 function snd_hit(){tone(120,.4,'sawtooth',.5)}
 
 let _currentAudio=null;
+let _heVoice=null;
+
+function _getHeVoice(){
+  if(_heVoice)return _heVoice;
+  const voices=window.speechSynthesis?window.speechSynthesis.getVoices():[];
+  _heVoice=voices.find(v=>v.lang==='he-IL')||voices.find(v=>v.lang==='he')||voices.find(v=>v.lang.startsWith('he'))||null;
+  return _heVoice;
+}
+
+function _speakFallback(txt){
+  if(!('speechSynthesis' in window))return;
+  window.speechSynthesis.cancel();
+  setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance(txt);
+    u.lang='he-IL';u.rate=0.75;u.pitch=1.1;
+    const v=_getHeVoice();if(v)u.voice=v;
+    window.speechSynthesis.speak(u);
+  },100);
+}
 
 function speak(txt){
-  // Stop previous audio
   if(_currentAudio){_currentAudio.pause();_currentAudio=null;}
   const url='https://translate.google.com/translate_tts?ie=UTF-8&tl=he&client=tw-ob&q='+encodeURIComponent(txt);
   _currentAudio=new Audio(url);
-  _currentAudio.play().catch(()=>{
-    // Fallback: Web Speech API
-    if(!('speechSynthesis' in window))return;
-    window.speechSynthesis.cancel();
-    setTimeout(()=>{
-      const u=new SpeechSynthesisUtterance(txt);
-      u.lang='he-IL';u.rate=.8;u.pitch=1.2;
-      window.speechSynthesis.speak(u);
-    },100);
-  });
+  _currentAudio.onerror=()=>_speakFallback(txt);
+  _currentAudio.play().catch(()=>_speakFallback(txt));
+}
+
+// Load voices early so _getHeVoice() works on first call
+if('speechSynthesis' in window){
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged=()=>{_heVoice=null;_getHeVoice()};
 }
 
 /* ═══════════════════════════════
@@ -1109,13 +1125,13 @@ function showTrick(){
   });
   document.getElementById('trick-overlay').classList.add('show');
   const ld=LETTERS.find(l=>l.l===FG.trickQ.ans);
-  speak(ld?ld.n:FG.trickQ.ans);
+  speak(ld?(ld.p||ld.n):FG.trickQ.ans);
 }
 
 function playTrickAudio(){
   if(!FG.trickQ)return;
   const ld=LETTERS.find(l=>l.l===FG.trickQ.ans);
-  speak(ld?ld.n:FG.trickQ.ans);
+  speak(ld?(ld.p||ld.n):FG.trickQ.ans);
   snd_click();
 }
 
@@ -1196,12 +1212,12 @@ function nextLetRound(){
     btn.onclick=()=>checkLet(ch,btn);
     el.appendChild(btn);
   });
-  setTimeout(()=>speak('מצא את האות '+LG.cur.n),350);
+  setTimeout(()=>speak('מצא את האות '+(LG.cur.p||LG.cur.n)),350);
 }
 
 function playLetAudio(){
   if(!LG.cur)return;
-  speak(`מצא את האות ${LG.cur.n}. ${LG.cur.n}, כמו ${LG.cur.w}`);
+  speak(`מצא את האות ${LG.cur.p||LG.cur.n}. ${LG.cur.p||LG.cur.n}, כמו ${LG.cur.w}`);
   snd_click();
   document.getElementById('speech-bub').textContent=LG.cur.l;
   setTimeout(()=>{if(!LG.answered)document.getElementById('speech-bub').textContent='?'},2200);
@@ -1213,7 +1229,7 @@ function checkLet(ch,btn){
     LG.answered=true;btn.classList.add('cc');snd_ok();
     LG.coins+=10;addCoins(10);
     document.getElementById('speech-bub').textContent='✅';
-    speak('כל הכבוד! '+ch.n);
+    speak('כל הכבוד! '+(ch.p||ch.n));
     document.getElementById('fb-icon').textContent='🌟';
     document.getElementById('fb-text').textContent='כל הכבוד! '+ch.n+'!';
     document.getElementById('let-feedback').classList.add('show');
@@ -1231,7 +1247,7 @@ function checkLet(ch,btn){
       document.getElementById('fb-icon').textContent='💪';
       document.getElementById('fb-text').textContent='האות הנכונה היא '+LG.cur.l+' - '+LG.cur.n;
       document.getElementById('let-feedback').classList.add('show');
-      speak('האות הנכונה היא '+LG.cur.n);
+      speak('האות הנכונה היא '+(LG.cur.p||LG.cur.n));
     }
   }
 }
