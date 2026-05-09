@@ -1263,7 +1263,7 @@ function showTrick(){
   document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
   const kb=document.getElementById('trick-kb');
   kb.innerHTML='';
-  ['א','ב','ג','ד','ה','ו','ז','ח','ט','י'].forEach(l=>{
+  ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'].forEach(l=>{
     const btn=document.createElement('button');
     btn.className='trick-key';btn.textContent=l;
     btn.onclick=()=>checkTrick(l,btn);
