@@ -1304,12 +1304,17 @@ function checkTrick(l,btn){
       setTimeout(()=>{
         FG.trickIdx=(FG.trickIdx+1)%TRICK_QS.length;
         FG.trickQ=TRICK_QS[FG.trickIdx];
+        FG.trickAttempts=0;
         document.getElementById('trick-q').textContent=FG.trickQ.q;
         document.getElementById('trick-fb').textContent='';
         document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
-        FG.trickAttempts=0;
-        document.querySelectorAll('.trick-key').forEach(b=>{b.classList.remove('kw','kc');b.disabled=false});
-        const newLd=LETTERS.find(l=>l.l===FG.trickQ.ans);speak(newLd?(newLd.p||newLd.n):FG.trickQ.ans);
+        const allLetters2=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+        const newAns=FG.trickQ.ans;
+        const newDistractors=allLetters2.filter(l=>l!==newAns).sort(()=>Math.random()-.5).slice(0,3);
+        const newChoices=[newAns,...newDistractors].sort(()=>Math.random()-.5);
+        const kb2=document.getElementById('trick-kb');kb2.innerHTML='';
+        newChoices.forEach(l=>{const b=document.createElement('button');b.className='trick-key';b.textContent=l;b.onclick=()=>checkTrick(l,b);kb2.appendChild(b);});
+        const newLd=LETTERS.find(l=>l.l===newAns);speak(newLd?(newLd.p||newLd.n):newAns);
       },2000);
     }else{
       document.getElementById('trick-tries').textContent='נסיון 2 מתוך 2';
