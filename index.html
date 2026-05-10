@@ -1054,13 +1054,14 @@ function initFall(){
   FG.lives=G.lives;FG.coins=0;
   FG.px=FG.canvas.width/2-FG.pw/2;FG.py=FG.canvas.height-FG.ph-20;FG.pvx=0;FG.pvy=0;
   FG.obs=[];FG.stars=[];
-  // spawn first wall immediately so screen isn't empty for 3s
-  const _W=FG.canvas.width;
+  // first wall: already partway down so action starts immediately,
+  // gap centered on player so they're safe at spawn
+  const _W=FG.canvas.width;const _H=FG.canvas.height;
   const _gapW=Math.max(160,_W*.70);
-  const _gapX=30+Math.random()*(_W-_gapW-60);
+  const _gapX=Math.min(_W-_gapW-30,Math.max(30,_W/2-_gapW/2));
   const _clr=wallClr();
-  FG.walls=[{x:0,y:0,w:_gapX,h:44,c:_clr},{x:_gapX+_gapW,y:0,w:_W-_gapX-_gapW,h:44,c:_clr}];
-  FG.frame=Math.max(35,180-12)*0.7|0; // start near next wall spawn
+  FG.walls=[{x:0,y:_H*.35,w:_gapX,h:44,c:_clr},{x:_gapX+_gapW,y:_H*.35,w:_W-_gapX-_gapW,h:44,c:_clr}];
+  FG.frame=Math.max(35,180-12)*0.7|0;
   document.getElementById('fall-coins').textContent=0;
   document.getElementById('fall-lives').textContent=livesStr(FG.lives);
   document.getElementById('fall-speed').textContent=FG.spd.toFixed(1);
