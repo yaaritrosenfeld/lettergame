@@ -1054,13 +1054,21 @@ function initFall(){
   FG.lives=G.lives;FG.coins=0;
   FG.px=FG.canvas.width/2-FG.pw/2;FG.py=FG.canvas.height-FG.ph-20;FG.pvx=0;FG.pvy=0;
   FG.obs=[];FG.stars=[];
-  // first wall: already partway down so action starts immediately,
-  // gap centered on player so they're safe at spawn
   const _W=FG.canvas.width;const _H=FG.canvas.height;
-  const _gapW=Math.max(160,_W*.70);
-  const _gapX=Math.min(_W-_gapW-30,Math.max(30,_W/2-_gapW/2));
-  const _clr=wallClr();
-  FG.walls=[{x:0,y:_H*.35,w:_gapX,h:44,c:_clr},{x:_gapX+_gapW,y:_H*.35,w:_W-_gapX-_gapW,h:44,c:_clr}];
+  const _gW=Math.max(160,_W*.70);
+  // wall 1: partway down, gap centered on player — always safe start
+  const _gX1=Math.min(_W-_gW-30,Math.max(30,_W/2-_gW/2));
+  const _c1=wallClr();
+  // wall 2 & 3: random gaps, already queued above screen
+  const _gX2=30+Math.random()*(_W-_gW-60);const _c2=wallClr();
+  const _gX3=30+Math.random()*(_W-_gW-60);const _c3=wallClr();
+  FG.walls=[
+    {x:0,y:_H*.35,w:_gX1,h:44,c:_c1},{x:_gX1+_gW,y:_H*.35,w:_W-_gX1-_gW,h:44,c:_c1},
+    {x:0,y:-_H*.15,w:_gX2,h:44,c:_c2},{x:_gX2+_gW,y:-_H*.15,w:_W-_gX2-_gW,h:44,c:_c2},
+    {x:0,y:-_H*.65,w:_gX3,h:44,c:_c3},{x:_gX3+_gW,y:-_H*.65,w:_W-_gX3-_gW,h:44,c:_c3},
+  ];
+  // stars scattered inside wall-1 gap so they're reachable without penalty
+  [.10,.20,.30,.42].forEach(t=>FG.stars.push({x:_gX1+20+Math.random()*(_gW-40),y:_H*t,col:false}));
   FG.frame=Math.max(35,180-12)*0.7|0;
   document.getElementById('fall-coins').textContent=0;
   document.getElementById('fall-lives').textContent=livesStr(FG.lives);
