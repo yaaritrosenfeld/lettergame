@@ -333,9 +333,94 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:rgba(255,255,255,.05)}
 ::-webkit-scrollbar-thumb{background:var(--yellow);border-radius:4px}
+
+/* ═══════════════════════════════
+   GLOBAL HEADER
+══════════════════════════════════ */
+#global-header{position:fixed;top:0;right:0;left:0;height:48px;z-index:200;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:0 12px;background:rgba(10,10,30,.72);backdrop-filter:blur(10px);border-bottom:2px solid rgba(255,255,255,.1)}
+.gh-btn{width:38px;height:38px;border-radius:10px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;box-shadow:var(--sh)}
+.gh-btn:active{transform:scale(.88)}
+.gh-btn.muted{background:rgba(231,76,60,.4);border-color:#e74c3c}
+.screen{padding-top:48px}
+
+/* ═══════════════════════════════
+   SETTINGS MODAL
+══════════════════════════════════ */
+.settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:300;display:none;align-items:center;justify-content:center}
+.settings-overlay.open{display:flex}
+.settings-panel{background:linear-gradient(160deg,#1a1a2e,#0f3460);border:3px solid rgba(255,255,255,.2);border-radius:20px;padding:20px;width:90%;max-width:400px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6);font-family:'Fredoka One',sans-serif;direction:rtl}
+.sp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;color:var(--yellow);font-size:1.3rem}
+.sp-close{width:32px;height:32px;border-radius:8px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:1rem;cursor:pointer}
+.sp-section{background:rgba(255,255,255,.06);border-radius:12px;border:2px solid rgba(255,255,255,.1);padding:14px;margin-bottom:12px}
+.sp-section-title{color:var(--yellow);font-size:.82rem;margin-bottom:12px;opacity:.8;letter-spacing:.5px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;color:#fff;font-size:.95rem;margin-bottom:10px}
+.toggle-row:last-child{margin-bottom:0}
+.toggle-switch{width:48px;height:26px;background:rgba(255,255,255,.2);border-radius:13px;position:relative;cursor:pointer;transition:background .25s;border:2px solid rgba(255,255,255,.15);flex-shrink:0}
+.toggle-switch.on{background:var(--green);border-color:#00856a}
+.toggle-switch::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:2px;right:2px;transition:transform .25s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.toggle-switch.on::after{transform:translateX(-22px)}
+.vol-row{display:flex;align-items:center;gap:10px;color:#fff;font-size:.95rem;margin-top:10px}
+.vol-slider{flex:1;-webkit-appearance:none;height:8px;border-radius:4px;background:rgba(255,255,255,.2);outline:none;cursor:pointer}
+.vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--yellow);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer}
+.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.theme-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;background:rgba(255,255,255,.08);border:3px solid rgba(255,255,255,.15);border-radius:12px;cursor:pointer;color:#fff;font-family:'Fredoka One',sans-serif;font-size:.78rem;transition:all .15s;text-align:center}
+.theme-btn span{font-size:1.7rem}
+.theme-btn.sel{border-color:var(--yellow);background:rgba(255,209,102,.15);box-shadow:0 0 0 2px var(--yellow)}
+.theme-btn:active{transform:scale(.93)}
 </style>
 </head>
 <body>
+
+<!-- GLOBAL HEADER -->
+<div id="global-header">
+  <button class="gh-btn" id="btn-mute" onclick="toggleMute()" title="השתק">🔊</button>
+  <button class="gh-btn" id="btn-settings" onclick="openSettings()" title="הגדרות">⚙️</button>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="settings-overlay" id="settings-modal" onclick="settingsOverlayClick(event)">
+  <div class="settings-panel">
+    <div class="sp-header">
+      <span>⚙️ הגדרות</span>
+      <button class="sp-close" onclick="closeSettings()">✕</button>
+    </div>
+
+    <div class="sp-section">
+      <div class="sp-section-title">🔊 סאונד</div>
+      <div class="toggle-row">
+        <span>השתק הכל</span>
+        <div class="toggle-switch" id="tog-mute-all" onclick="toggleSetting('muteAll')"></div>
+      </div>
+      <div class="toggle-row">
+        <span>השתק דיבורים בלבד</span>
+        <div class="toggle-switch" id="tog-mute-speech" onclick="toggleSetting('muteSpeech')"></div>
+      </div>
+      <div class="vol-row">
+        <span>🔉</span>
+        <input type="range" class="vol-slider" id="vol-slider" min="0" max="100" value="70" oninput="setVolume(this.value)">
+        <span>🔊</span>
+      </div>
+    </div>
+
+    <div class="sp-section">
+      <div class="sp-section-title">🎨 ערכת העולם שלי</div>
+      <div class="theme-grid">
+        <button class="theme-btn sel" onclick="selectTheme('classic',this)"><span>🎮</span>Classic</button>
+        <button class="theme-btn" onclick="selectTheme('unicorn',this)"><span>🦄</span>Unicorn Magic</button>
+        <button class="theme-btn" onclick="selectTheme('space',this)"><span>🚀</span>Space Explorer</button>
+        <button class="theme-btn" onclick="selectTheme('ocean',this)"><span>🌊</span>Ocean Adventure</button>
+      </div>
+    </div>
+
+    <div class="sp-section">
+      <div class="sp-section-title">💡 משחק</div>
+      <div class="toggle-row">
+        <span>רמזים</span>
+        <div class="toggle-switch on" id="tog-hints" onclick="toggleSetting('hints')"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ══ SCREEN 1: PROMO ══ -->
 <div id="s-promo" class="screen active">
@@ -755,7 +840,8 @@ const G = {
   hair:'short', bottom:'pants', photo:null, photoImg:null,
   coins:0, lives:3, world:1,
   worldStars:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0},
-  lastLife:Date.now(), audioCtx:null
+  lastLife:Date.now(), audioCtx:null,
+  muteAll:false, muteSpeech:false, volume:0.7, hints:true, theme:'classic'
 };
 
 const WORLDS = {
@@ -785,6 +871,8 @@ const LETTERS = [
 ══════════════════════════════════ */
 function ctx(){if(!G.audioCtx)G.audioCtx=new(window.AudioContext||window.webkitAudioContext)();return G.audioCtx}
 function tone(f,d=.2,t='sine',v=.3){
+  if(G.muteAll)return;
+  v*=G.volume;
   try{const c=ctx();const o=c.createOscillator();const g=c.createGain();
   o.connect(g);g.connect(c.destination);o.type=t;
   o.frequency.setValueAtTime(f,c.currentTime);
@@ -821,11 +909,58 @@ function _speakFallback(txt){
 }
 
 function speak(txt){
+  if(G.muteAll||G.muteSpeech){if(_currentAudio){_currentAudio.pause();_currentAudio=null;}return;}
   if(_currentAudio){_currentAudio.pause();_currentAudio=null;}
   const url='https://translate.google.com/translate_tts?ie=UTF-8&tl=he&client=tw-ob&q='+encodeURIComponent(txt);
   _currentAudio=new Audio(url);
   _currentAudio.onerror=()=>_speakFallback(txt);
   _currentAudio.play().catch(()=>_speakFallback(txt));
+}
+
+/* ═══════════════════════════════
+   SETTINGS & MUTE
+══════════════════════════════════ */
+const THEMES={
+  classic:{'--red':'#e63946','--blue':'#1d7bf0','--green':'#00b894','--yellow':'#ffd166','--purple':'#9b5de5','--dark':'#1a1a2e','--navy':'#0f3460'},
+  unicorn:{'--red':'#ff6eb4','--blue':'#c77dff','--green':'#72efdd','--yellow':'#ffd6ff','--purple':'#7b2d8b','--dark':'#240046','--navy':'#3c096c'},
+  space:{'--red':'#ef233c','--blue':'#4cc9f0','--green':'#7bf1a8','--yellow':'#f8f9fa','--purple':'#6d6875','--dark':'#0d0221','--navy':'#0a014f'},
+  ocean:{'--red':'#f77f00','--blue':'#0077b6','--green':'#52b788','--yellow':'#ffd60a','--purple':'#5e548e','--dark':'#03045e','--navy':'#023e8a'}
+};
+
+function toggleMute(){
+  G.muteAll=!G.muteAll;
+  const btn=document.getElementById('btn-mute');
+  btn.textContent=G.muteAll?'🔇':'🔊';
+  btn.classList.toggle('muted',G.muteAll);
+  document.getElementById('tog-mute-all').classList.toggle('on',G.muteAll);
+  if(!G.muteAll)snd_click();
+}
+
+function openSettings(){snd_click();document.getElementById('settings-modal').classList.add('open')}
+function closeSettings(){document.getElementById('settings-modal').classList.remove('open')}
+function settingsOverlayClick(e){if(e.target.id==='settings-modal')closeSettings()}
+
+function toggleSetting(key){
+  G[key]=!G[key];
+  const id='tog-'+key.replace(/([A-Z])/g,'-$1').toLowerCase();
+  document.getElementById(id).classList.toggle('on',G[key]);
+  if(key==='muteAll'){
+    const btn=document.getElementById('btn-mute');
+    btn.textContent=G.muteAll?'🔇':'🔊';
+    btn.classList.toggle('muted',G.muteAll);
+  }
+  if(!G.muteAll)snd_click();
+}
+
+function setVolume(val){G.volume=val/100}
+
+function selectTheme(name,btn){
+  G.theme=name;
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  const t=THEMES[name];const root=document.documentElement.style;
+  Object.entries(t).forEach(([k,v])=>root.setProperty(k,v));
+  snd_click();
 }
 
 // Load voices early so _getHeVoice() works on first call
