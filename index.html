@@ -227,6 +227,18 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 #s-fall{background:#0f0c29;flex-direction:column}
 #fall-canvas{flex:1;width:100%;display:block;touch-action:none}
 
+/* Return-to-question prompt (shown on frozen game after dismissing trick) */
+.trick-prompt{position:absolute;inset:56px 0 0 0;background:rgba(10,8,30,.72);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;overflow:hidden}
+.trick-prompt.show{display:flex}
+.tp-floaters{position:absolute;inset:0;pointer-events:none}
+.tp-float{position:absolute;bottom:-10%;left:var(--x);font-size:2.4rem;animation:tpFloat 2.8s var(--d) infinite ease-out}
+@keyframes tpFloat{0%{opacity:.9;transform:translateY(0) scale(1)}80%{opacity:.3}100%{opacity:0;transform:translateY(-220px) scale(1.6)}}
+.tp-card{display:flex;flex-direction:column;align-items:center;gap:22px;position:relative;z-index:1}
+.tp-eq{font-size:2.8rem;filter:drop-shadow(0 0 10px rgba(255,213,102,.9));animation:charBounce .9s infinite}
+.tp-cta{font-size:4.8rem;background:var(--yellow);border:6px solid #fff;border-radius:50%;width:120px;height:120px;cursor:pointer;display:flex;align-items:center;justify-content:center;animation:tpPulse 1.1s infinite;line-height:1;box-shadow:0 6px 0 rgba(0,0,0,.4)}
+.tp-cta:active{transform:scale(.92)}
+@keyframes tpPulse{0%,100%{transform:scale(1);box-shadow:0 6px 0 rgba(0,0,0,.4),0 0 0 0 rgba(255,213,102,.8)}55%{transform:scale(1.08);box-shadow:0 6px 0 rgba(0,0,0,.4),0 0 0 22px rgba(255,213,102,0)}}
+
 /* Trick Question Popup */
 .trick-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:300;display:none}
 .trick-overlay.show{display:flex}
@@ -648,6 +660,22 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     </div>
   </div>
   <canvas id="fall-canvas" style="flex:1;width:100%;display:block;touch-action:none"></canvas>
+
+  <!-- Return-to-question prompt -->
+  <div id="trick-prompt" class="trick-prompt">
+    <div class="tp-floaters">
+      <span class="tp-float" style="--d:0s;--x:8%">💎</span>
+      <span class="tp-float" style="--d:.6s;--x:22%">⭐</span>
+      <span class="tp-float" style="--d:1.2s;--x:40%">💎</span>
+      <span class="tp-float" style="--d:.3s;--x:58%">⭐</span>
+      <span class="tp-float" style="--d:.9s;--x:74%">💎</span>
+      <span class="tp-float" style="--d:1.5s;--x:88%">⭐</span>
+    </div>
+    <div class="tp-card">
+      <div class="tp-eq">🤔 ➡️ ❤️❤️❤️</div>
+      <button class="tp-cta" onclick="reopenTrick()">🤔</button>
+    </div>
+  </div>
 
   <!-- Trick Question -->
   <div class="trick-overlay" id="trick-overlay">
@@ -1293,6 +1321,7 @@ function checkTrick(l,btn){
     addCoins(20);
     setTimeout(()=>{
       document.getElementById('trick-overlay').classList.remove('show');
+      document.getElementById('trick-prompt').classList.remove('show');
       FG.lives=3;FG.active=true;
       FG.px=FG.canvas.width/2-FG.pw/2;FG.py=FG.canvas.height-FG.ph-20;FG.pvx=0;FG.pvy=0;
       FG.walls=[];FG.obs=[];
@@ -1430,7 +1459,14 @@ function exitGame(){
 
 function exitTrick(){
   document.getElementById('trick-overlay').classList.remove('show');
+  document.getElementById('trick-prompt').classList.add('show');
   snd_click();
+}
+
+function reopenTrick(){
+  document.getElementById('trick-prompt').classList.remove('show');
+  snd_click();
+  showTrick();
 }
 
 /* Resize canvas */
