@@ -1050,10 +1050,17 @@ function initFall(){
   FG.canvas.width=window.innerWidth;
   FG.canvas.height=window.innerHeight-56;
   FG.ctx=FG.canvas.getContext('2d');
-  FG.active=true;FG.spd=1.0;FG.level=1;FG.score=0;FG.frame=0;FG.bgY=0;
+  FG.active=true;FG.spd=1.0;FG.level=1;FG.score=0;FG.bgY=0;
   FG.lives=G.lives;FG.coins=0;
   FG.px=FG.canvas.width/2-FG.pw/2;FG.py=FG.canvas.height-FG.ph-20;FG.pvx=0;FG.pvy=0;
-  FG.walls=[];FG.obs=[];FG.stars=[];
+  FG.obs=[];FG.stars=[];
+  // spawn first wall immediately so screen isn't empty for 3s
+  const _W=FG.canvas.width;
+  const _gapW=Math.max(160,_W*.70);
+  const _gapX=30+Math.random()*(_W-_gapW-60);
+  const _clr=wallClr();
+  FG.walls=[{x:0,y:-_W*.4,w:_gapX,h:44,c:_clr},{x:_gapX+_gapW,y:-_W*.4,w:_W-_gapX-_gapW,h:44,c:_clr}];
+  FG.frame=Math.max(35,180-12)*0.7|0; // start near next wall spawn
   document.getElementById('fall-coins').textContent=0;
   document.getElementById('fall-lives').textContent=livesStr(FG.lives);
   document.getElementById('fall-speed').textContent=FG.spd.toFixed(1);
