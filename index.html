@@ -1234,9 +1234,11 @@ function setupFallControls(){
     if(e.key==='ArrowDown'){e.preventDefault();FG.pvy=7;}
   };
   document.onkeyup=()=>{FG.pvx*=.2;FG.pvy*=.2};
-  // Gyro
+  // Gyro — remove old listener before adding to prevent accumulation across restarts
+  if(FG._gyroHandler)window.removeEventListener('deviceorientation',FG._gyroHandler);
   if(window.DeviceOrientationEvent){
-    window.addEventListener('deviceorientation',e=>{if(e.gamma)FG.pvx+=e.gamma*.15});
+    FG._gyroHandler=e=>{if(e.gamma)FG.pvx+=e.gamma*.15};
+    window.addEventListener('deviceorientation',FG._gyroHandler);
   }
 }
 
@@ -1257,7 +1259,7 @@ function fallLoop(){
   const wInterval=Math.max(35,180-FG.level*12);
   if(FG.frame%wInterval===0){
     const gapW=Math.max(160,W*.70-FG.level*15);
-    const minX=30,maxX=W-gapW-60;
+    const minX=30,maxX=Math.max(minX,W-gapW-60);
     const maxDrift=6*wInterval;
     const prev=FG.lastGapX??W/2-gapW/2;
     const lo=Math.max(minX,prev-maxDrift);
@@ -1274,7 +1276,8 @@ function fallLoop(){
   if(FG.level>=3&&FG.frame%obInterval===0){
     const types=[{e:'🪨',r:26},{e:'🌵',r:24},{e:'💀',r:25},{e:'🔥',r:23},{e:'⚡',r:22},{e:'🦠',r:20}];
     const t=types[Math.floor(Math.random()*types.length)];
-    FG.obs.push({x:t.r+Math.random()*(W-t.r*2),baseX:t.r+Math.random()*(W-t.r*2),y:-60,r:t.r,e:t.e,osc:Math.random()>.5});
+    const obX=t.r+Math.random()*(W-t.r*2);
+    FG.obs.push({x:obX,baseX:obX,y:-60,r:t.r,e:t.e,osc:Math.random()>.5});
   }
 
   // Stars
@@ -1337,7 +1340,7 @@ function fallLoop(){
     // Pre-fill screen with 3 spread-out walls so it's not blank on respawn
     FG.walls=[];
     const pgW=Math.max(160,W*.70-FG.level*15);
-    const pgMinX=30,pgMaxX=W-pgW-60;
+    const pgMinX=30,pgMaxX=Math.max(30,W-pgW-60);
     const pgDrift=6*Math.max(35,180-FG.level*12);
     let pgPrev=W/2-pgW/2;
     [H*.62,H*.38,H*.12].forEach(preY=>{
@@ -1484,8 +1487,22 @@ function checkTrick(l,btn){
       document.getElementById('trick-overlay').classList.remove('show');
       document.getElementById('trick-prompt').classList.remove('show');
       FG.lives=3;FG.active=true;
-      FG.px=FG.canvas.width/2-FG.pw/2;FG.py=FG.canvas.height-FG.ph-20;FG.pvx=0;FG.pvy=0;
-      FG.walls=[];FG.obs=[];
+      const _tw=FG.canvas.width,_th=FG.canvas.height;
+      FG.px=_tw/2-FG.pw/2;FG.py=_th-FG.ph-20;FG.pvx=0;FG.pvy=0;
+      FG.obs=[];
+      const _tgW=Math.max(160,_tw*.70-FG.level*15);
+      const _tMinX=30,_tMaxX=Math.max(30,_tw-_tgW-60);
+      const _tDrift=6*Math.max(35,180-FG.level*12);
+      let _tPrev=_tw/2-_tgW/2;
+      FG.walls=[];
+      [_th*.62,_th*.38,_th*.12].forEach(py=>{
+        const lo=Math.max(_tMinX,_tPrev-_tDrift),hi=Math.min(_tMaxX,_tPrev+_tDrift);
+        const gx=lo+Math.random()*(hi-lo);_tPrev=gx;
+        const tc=wallClr();
+        FG.walls.push({x:0,y:py,w:gx,h:44,c:tc});
+        FG.walls.push({x:gx+_tgW,y:py,w:_tw-gx-_tgW,h:44,c:tc});
+      });
+      FG.lastGapX=_tPrev;
       document.getElementById('fall-lives').textContent=livesStr(3);
       fallLoop();
     },1600);
