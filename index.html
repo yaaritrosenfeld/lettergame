@@ -373,7 +373,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 
 <!-- GLOBAL HEADER -->
 <div id="global-header">
-  <button class="gh-btn" id="btn-mute" onclick="toggleMute()" title="השתק">🔊</button>
+  <button class="gh-btn" id="btn-mute" onclick="toggleMute()" title="השתק אפקטים ודיבורי הסבר">🔊</button>
   <button class="gh-btn" id="btn-settings" onclick="openSettings()" title="הגדרות">⚙️</button>
 </div>
 
@@ -388,11 +388,11 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     <div class="sp-section">
       <div class="sp-section-title">🔊 סאונד</div>
       <div class="toggle-row">
-        <span>השתק הכל</span>
+        <span>השתק אפקטים + הסברים<br><small style="opacity:.6;font-size:.72rem">שאלות המשחק ישמעו תמיד</small></span>
         <div class="toggle-switch" id="tog-mute-all" onclick="toggleSetting('muteAll')"></div>
       </div>
       <div class="toggle-row">
-        <span>השתק דיבורים בלבד</span>
+        <span>השתק כל הדיבורים</span>
         <div class="toggle-switch" id="tog-mute-speech" onclick="toggleSetting('muteSpeech')"></div>
       </div>
       <div class="vol-row">
@@ -908,8 +908,9 @@ function _speakFallback(txt){
   },100);
 }
 
-function speak(txt){
-  if(G.muteAll||G.muteSpeech){if(_currentAudio){_currentAudio.pause();_currentAudio=null;}return;}
+function speak(txt, isQuestion=false){
+  // muteAll silences effects + commentary but keeps game questions audible
+  if((G.muteAll&&!isQuestion)||G.muteSpeech){if(_currentAudio){_currentAudio.pause();_currentAudio=null;}return;}
   if(_currentAudio){_currentAudio.pause();_currentAudio=null;}
   const url='https://translate.google.com/translate_tts?ie=UTF-8&tl=he&client=tw-ob&q='+encodeURIComponent(txt);
   _currentAudio=new Audio(url);
@@ -1454,13 +1455,13 @@ function showTrick(){
   });
   document.getElementById('trick-overlay').classList.add('show');
   const ld=LETTERS.find(l=>l.l===FG.trickQ.ans);
-  speak(ld?(ld.p||ld.n):FG.trickQ.ans);
+  speak(ld?(ld.p||ld.n):FG.trickQ.ans, true);
 }
 
 function playTrickAudio(){
   if(!FG.trickQ)return;
   const ld=LETTERS.find(l=>l.l===FG.trickQ.ans);
-  speak(ld?(ld.p||ld.n):FG.trickQ.ans);
+  speak(ld?(ld.p||ld.n):FG.trickQ.ans, true);
   snd_click();
 }
 
@@ -1497,7 +1498,7 @@ function checkTrick(l,btn){
         const newChoices=[newAns,...newDistractors].sort(()=>Math.random()-.5);
         const kb2=document.getElementById('trick-kb');kb2.innerHTML='';
         newChoices.forEach(l=>{const b=document.createElement('button');b.className='trick-key';b.textContent=l;b.onclick=()=>checkTrick(l,b);kb2.appendChild(b);});
-        const newLd=LETTERS.find(l=>l.l===newAns);speak(newLd?(newLd.p||newLd.n):newAns);
+        const newLd=LETTERS.find(l=>l.l===newAns);speak(newLd?(newLd.p||newLd.n):newAns, true);
       },2000);
     }else{
       document.getElementById('trick-tries').textContent='נסיון 2 מתוך 2';
@@ -1547,12 +1548,12 @@ function nextLetRound(){
     btn.onclick=()=>checkLet(ch,btn);
     el.appendChild(btn);
   });
-  setTimeout(()=>speak('מְצָא אֶת הָאוֹת '+(LG.cur.p||LG.cur.n)),350);
+  setTimeout(()=>speak('מְצָא אֶת הָאוֹת '+(LG.cur.p||LG.cur.n), true),350);
 }
 
 function playLetAudio(){
   if(!LG.cur)return;
-  speak(`מְצָא אֶת הָאוֹת ${LG.cur.p||LG.cur.n}. ${LG.cur.p||LG.cur.n}, כְּמוֹ ${LG.cur.w}`);
+  speak(`מְצָא אֶת הָאוֹת ${LG.cur.p||LG.cur.n}. ${LG.cur.p||LG.cur.n}, כְּמוֹ ${LG.cur.w}`, true);
   snd_click();
   document.getElementById('speech-bub').textContent=LG.cur.l;
   setTimeout(()=>{if(!LG.answered)document.getElementById('speech-bub').textContent='?'},2200);
@@ -1582,7 +1583,7 @@ function checkLet(ch,btn){
       document.getElementById('fb-icon').textContent='💪';
       document.getElementById('fb-text').textContent='האות הנכונה היא '+LG.cur.l+' - '+LG.cur.n;
       document.getElementById('let-feedback').classList.add('show');
-      speak('הָאוֹת הַנְּכוֹנָה הִיא '+(LG.cur.p||LG.cur.n));
+      speak('הָאוֹת הַנְּכוֹנָה הִיא '+(LG.cur.p||LG.cur.n), true);
     }
   }
 }
