@@ -244,6 +244,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .trick-fb{font-size:1.1rem;color:#fff;min-height:1.4rem;text-align:center}
 .trick-tries{color:#888;font-size:.82rem}
+.trick-exit-btn{background:transparent;color:#aaa;font-family:'Fredoka One',sans-serif;font-size:.85rem;padding:6px 16px;border-radius:8px;cursor:pointer;border:2px solid #555;margin-top:4px;transition:color .2s,border-color .2s}
+.trick-exit-btn:hover{color:#fff;border-color:#fff}
 
 /* ═══════════════════════════════
    SCREEN 5 — LETTER GAME
@@ -656,6 +658,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
       <div class="trick-kb" id="trick-kb"></div>
       <div class="trick-fb" id="trick-fb"></div>
       <div class="trick-tries" id="trick-tries">נסיון 1 מתוך 2</div>
+      <button class="trick-exit-btn" onclick="exitTrick()">🏠 חזור הביתה</button>
     </div>
   </div>
 </div>
@@ -1423,6 +1426,12 @@ function exitGame(){
   if(G.activeGame==='fall')addCoins(FG.coins);
   document.onkeydown=null;document.onkeyup=null;
   snd_click();goScreen('s-map');
+}
+
+function exitTrick(){
+  document.getElementById('trick-overlay').classList.remove('show');
+  snd_click();
+  exitGame();
 }
 
 /* Resize canvas */
