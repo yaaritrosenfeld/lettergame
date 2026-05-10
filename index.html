@@ -1478,6 +1478,22 @@ function playTrickAudio(){
   snd_click();
 }
 
+function cycleToNextTrick(){
+  FG.trickCycleTimer=null;
+  FG.trickIdx=(FG.trickIdx+1)%TRICK_QS.length;
+  FG.trickQ=TRICK_QS[FG.trickIdx];
+  FG.trickAttempts=0;
+  document.getElementById('trick-fb').textContent='';
+  document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
+  const al=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+  const newAns=FG.trickQ.ans;
+  const dist=al.filter(l=>l!==newAns).sort(()=>Math.random()-.5).slice(0,3);
+  const ch=[newAns,...dist].sort(()=>Math.random()-.5);
+  const kb=document.getElementById('trick-kb');kb.innerHTML='';
+  ch.forEach(l=>{const b=document.createElement('button');b.className='trick-key';b.textContent=l;b.onclick=()=>checkTrick(l,b);kb.appendChild(b);});
+  const newLd=LETTERS.find(l=>l.l===newAns);speak(newLd?(newLd.p||newLd.n):newAns,true);
+}
+
 function checkTrick(l,btn){
   if(l===FG.trickQ.ans){
     btn.classList.add('kc');snd_ok();
@@ -1509,28 +1525,20 @@ function checkTrick(l,btn){
     },1600);
   }else{
     btn.classList.add('kw');btn.disabled=true;snd_no();
-    FG.trickAttempts++;speak('נַסֶּה שׁוּב!');
-    if(FG.trickAttempts>=2){
+    FG.trickAttempts++;
+    const allWrongs=[...document.querySelectorAll('#trick-kb button')].filter(b=>b.textContent!==FG.trickQ.ans);
+    const allWrongsUsed=allWrongs.every(b=>b.disabled);
+    if(allWrongsUsed){
+      document.querySelectorAll('#trick-kb button').forEach(b=>b.disabled=true);
+      speak('כִּמְעַט!');
+      document.getElementById('trick-fb').textContent='כמעט! בפעם הבאה תצליח 💪';
+      if(!FG.trickCycleTimer)FG.trickCycleTimer=setTimeout(cycleToNextTrick,2000);
+    }else if(FG.trickAttempts>=2){
+      speak('נַסֶּה שׁוּב!');
       document.getElementById('trick-fb').textContent='😊 בפעם הבאה! ננסה שאלה אחרת...';
-      if(!FG.trickCycleTimer){
-        FG.trickCycleTimer=setTimeout(()=>{
-          FG.trickCycleTimer=null;
-          FG.trickIdx=(FG.trickIdx+1)%TRICK_QS.length;
-          FG.trickQ=TRICK_QS[FG.trickIdx];
-          FG.trickAttempts=0;
-          document.getElementById('trick-q').textContent=FG.trickQ.q;
-          document.getElementById('trick-fb').textContent='';
-          document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
-          const allLetters2=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
-          const newAns=FG.trickQ.ans;
-          const newDistractors=allLetters2.filter(l=>l!==newAns).sort(()=>Math.random()-.5).slice(0,3);
-          const newChoices=[newAns,...newDistractors].sort(()=>Math.random()-.5);
-          const kb2=document.getElementById('trick-kb');kb2.innerHTML='';
-          newChoices.forEach(l=>{const b=document.createElement('button');b.className='trick-key';b.textContent=l;b.onclick=()=>checkTrick(l,b);kb2.appendChild(b);});
-          const newLd=LETTERS.find(l=>l.l===newAns);speak(newLd?(newLd.p||newLd.n):newAns, true);
-        },2000);
-      }
+      if(!FG.trickCycleTimer)FG.trickCycleTimer=setTimeout(cycleToNextTrick,2000);
     }else{
+      speak('נַסֶּה שׁוּב!');
       document.getElementById('trick-tries').textContent='נסיון 2 מתוך 2';
       document.getElementById('trick-fb').textContent='לא נכון, נסה שוב!';
     }
