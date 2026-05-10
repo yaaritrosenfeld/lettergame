@@ -1511,6 +1511,7 @@ function checkTrick(l,btn){
     FG.trickAttempts++;speak('נַסֶּה שׁוּב!');
     if(FG.trickAttempts>=2){
       document.getElementById('trick-fb').textContent='😊 בפעם הבאה! ננסה שאלה אחרת...';
+      document.querySelectorAll('#trick-kb button').forEach(b=>b.disabled=true);
       setTimeout(()=>{
         FG.trickIdx=(FG.trickIdx+1)%TRICK_QS.length;
         FG.trickQ=TRICK_QS[FG.trickIdx];
