@@ -1182,7 +1182,7 @@ function initFall(){
   FG.canvas.height=window.innerHeight-56;
   FG.ctx=FG.canvas.getContext('2d');
   FG.active=true;FG.spd=1.0;FG.level=1;FG.score=0;FG.bgY=0;
-  FG.lives=G.lives;FG.coins=0;
+  FG.lives=G.lives;FG.coins=0;FG.lastGapX=undefined;
   FG.px=FG.canvas.width/2-FG.pw/2;FG.py=FG.canvas.height-FG.ph-20;FG.pvx=0;FG.pvy=0;
   FG.obs=[];FG.stars=[];
   const _W=FG.canvas.width;const _H=FG.canvas.height;
@@ -1257,7 +1257,13 @@ function fallLoop(){
   const wInterval=Math.max(35,180-FG.level*12);
   if(FG.frame%wInterval===0){
     const gapW=Math.max(160,W*.70-FG.level*15);
-    const gapX=30+Math.random()*(W-gapW-60);
+    const minX=30,maxX=W-gapW-60;
+    const maxDrift=6*wInterval;
+    const prev=FG.lastGapX??W/2-gapW/2;
+    const lo=Math.max(minX,prev-maxDrift);
+    const hi=Math.min(maxX,prev+maxDrift);
+    const gapX=lo+Math.random()*(hi-lo);
+    FG.lastGapX=gapX;
     const clr=wallClr();
     FG.walls.push({x:0,y:-50,w:gapX,h:44,c:clr});
     FG.walls.push({x:gapX+gapW,y:-50,w:W-gapX-gapW,h:44,c:clr});
@@ -1331,11 +1337,19 @@ function fallLoop(){
     // Pre-fill screen with 3 spread-out walls so it's not blank on respawn
     FG.walls=[];
     const pgW=Math.max(160,W*.70-FG.level*15);
-    [H*.12,H*.38,H*.62].forEach(preY=>{
-      const pgX=30+Math.random()*(W-pgW-60);const pc=wallClr();
+    const pgMinX=30,pgMaxX=W-pgW-60;
+    const pgDrift=6*Math.max(35,180-FG.level*12);
+    let pgPrev=W/2-pgW/2;
+    [H*.62,H*.38,H*.12].forEach(preY=>{
+      const pgLo=Math.max(pgMinX,pgPrev-pgDrift);
+      const pgHi=Math.min(pgMaxX,pgPrev+pgDrift);
+      const pgX=pgLo+Math.random()*(pgHi-pgLo);
+      pgPrev=pgX;
+      const pc=wallClr();
       FG.walls.push({x:0,y:preY,w:pgX,h:44,c:pc});
       FG.walls.push({x:pgX+pgW,y:preY,w:W-pgX-pgW,h:44,c:pc});
     });
+    FG.lastGapX=pgPrev;
     if(FG.lives<=0){FG.active=false;setTimeout(showTrick,500);return}
   }
 
