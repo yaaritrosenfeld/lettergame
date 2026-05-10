@@ -230,7 +230,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 /* Trick Question Popup */
 .trick-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:300;display:none}
 .trick-overlay.show{display:flex}
-.trick-box{background:#16213e;border:5px solid var(--yellow);border-radius:22px;padding:24px 18px;max-width:330px;width:92%;display:flex;flex-direction:column;align-items:center;gap:10px;box-shadow:0 0 0 4px rgba(255,213,102,.2),10px 10px 0 rgba(0,0,0,.5)}
+.trick-box{position:relative;background:#16213e;border:5px solid var(--yellow);border-radius:22px;padding:24px 18px;max-width:330px;width:92%;display:flex;flex-direction:column;align-items:center;gap:10px;box-shadow:0 0 0 4px rgba(255,213,102,.2),10px 10px 0 rgba(0,0,0,.5)}
 .trick-icon{font-size:3rem;animation:charBounce 1s infinite}
 .trick-title{font-size:1.6rem;color:var(--yellow);text-shadow:2px 2px 0 rgba(0,0,0,.5)}
 .trick-q{font-size:1.15rem;color:#fff;background:rgba(255,255,255,.1);padding:10px 20px;border-radius:10px;border:3px solid rgba(255,255,255,.2);text-align:center;width:100%}
@@ -244,8 +244,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .trick-fb{font-size:1.1rem;color:#fff;min-height:1.4rem;text-align:center}
 .trick-tries{color:#888;font-size:.82rem}
-.trick-exit-btn{background:transparent;color:#aaa;font-family:'Fredoka One',sans-serif;font-size:.85rem;padding:6px 16px;border-radius:8px;cursor:pointer;border:2px solid #555;margin-top:4px;transition:color .2s,border-color .2s}
-.trick-exit-btn:hover{color:#fff;border-color:#fff}
+.trick-exit-btn{position:absolute;top:-18px;left:-18px;width:44px;height:44px;border-radius:50%;background:#e74c3c;border:4px solid #fff;color:#fff;font-size:1.5rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 rgba(0,0,0,.4);transition:transform .1s,box-shadow .1s}
+.trick-exit-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
 
 /* ═══════════════════════════════
    SCREEN 5 — LETTER GAME
@@ -658,7 +658,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
       <div class="trick-kb" id="trick-kb"></div>
       <div class="trick-fb" id="trick-fb"></div>
       <div class="trick-tries" id="trick-tries">נסיון 1 מתוך 2</div>
-      <button class="trick-exit-btn" onclick="exitTrick()">🏠 חזור הביתה</button>
+      <button class="trick-exit-btn" onclick="exitTrick()">✕</button>
     </div>
   </div>
 </div>
@@ -1431,7 +1431,6 @@ function exitGame(){
 function exitTrick(){
   document.getElementById('trick-overlay').classList.remove('show');
   snd_click();
-  exitGame();
 }
 
 /* Resize canvas */
