@@ -1448,6 +1448,7 @@ function flashRed(){
 
 /* ── TRICK QUESTION ── */
 function showTrick(){
+  if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
   FG.trickIdx=Math.floor(Math.random()*TRICK_QS.length);
   FG.trickQ=TRICK_QS[FG.trickIdx];
   FG.trickAttempts=0;
@@ -1511,22 +1512,24 @@ function checkTrick(l,btn){
     FG.trickAttempts++;speak('נַסֶּה שׁוּב!');
     if(FG.trickAttempts>=2){
       document.getElementById('trick-fb').textContent='😊 בפעם הבאה! ננסה שאלה אחרת...';
-      document.querySelectorAll('#trick-kb button').forEach(b=>b.disabled=true);
-      setTimeout(()=>{
-        FG.trickIdx=(FG.trickIdx+1)%TRICK_QS.length;
-        FG.trickQ=TRICK_QS[FG.trickIdx];
-        FG.trickAttempts=0;
-        document.getElementById('trick-q').textContent=FG.trickQ.q;
-        document.getElementById('trick-fb').textContent='';
-        document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
-        const allLetters2=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
-        const newAns=FG.trickQ.ans;
-        const newDistractors=allLetters2.filter(l=>l!==newAns).sort(()=>Math.random()-.5).slice(0,3);
-        const newChoices=[newAns,...newDistractors].sort(()=>Math.random()-.5);
-        const kb2=document.getElementById('trick-kb');kb2.innerHTML='';
-        newChoices.forEach(l=>{const b=document.createElement('button');b.className='trick-key';b.textContent=l;b.onclick=()=>checkTrick(l,b);kb2.appendChild(b);});
-        const newLd=LETTERS.find(l=>l.l===newAns);speak(newLd?(newLd.p||newLd.n):newAns, true);
-      },2000);
+      if(!FG.trickCycleTimer){
+        FG.trickCycleTimer=setTimeout(()=>{
+          FG.trickCycleTimer=null;
+          FG.trickIdx=(FG.trickIdx+1)%TRICK_QS.length;
+          FG.trickQ=TRICK_QS[FG.trickIdx];
+          FG.trickAttempts=0;
+          document.getElementById('trick-q').textContent=FG.trickQ.q;
+          document.getElementById('trick-fb').textContent='';
+          document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
+          const allLetters2=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+          const newAns=FG.trickQ.ans;
+          const newDistractors=allLetters2.filter(l=>l!==newAns).sort(()=>Math.random()-.5).slice(0,3);
+          const newChoices=[newAns,...newDistractors].sort(()=>Math.random()-.5);
+          const kb2=document.getElementById('trick-kb');kb2.innerHTML='';
+          newChoices.forEach(l=>{const b=document.createElement('button');b.className='trick-key';b.textContent=l;b.onclick=()=>checkTrick(l,b);kb2.appendChild(b);});
+          const newLd=LETTERS.find(l=>l.l===newAns);speak(newLd?(newLd.p||newLd.n):newAns, true);
+        },2000);
+      }
     }else{
       document.getElementById('trick-tries').textContent='נסיון 2 מתוך 2';
       document.getElementById('trick-fb').textContent='לא נכון, נסה שוב!';
