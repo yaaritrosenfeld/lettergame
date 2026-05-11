@@ -258,6 +258,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .trick-tries{color:#888;font-size:.82rem}
 .trick-exit-btn{position:absolute;top:-18px;right:-18px;width:44px;height:44px;border-radius:50%;background:#e74c3c;border:4px solid #fff;color:#fff;font-size:1.5rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 rgba(0,0,0,.4);transition:transform .1s,box-shadow .1s}
 .trick-exit-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
+.trick-next-btn{display:none;background:#2d6a4f;color:#fff;font-family:'Fredoka One',sans-serif;font-size:1.1rem;padding:12px 32px;border-radius:12px;cursor:pointer;border:3px solid rgba(255,255,255,.3);box-shadow:0 5px 0 rgba(0,0,0,.4);transition:transform .1s,box-shadow .1s;width:100%}
+.trick-next-btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.4)}
 
 /* ═══════════════════════════════
    SCREEN 5 — LETTER GAME
@@ -767,6 +769,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
       <div class="trick-kb" id="trick-kb"></div>
       <div class="trick-fb" id="trick-fb"></div>
       <div class="trick-tries" id="trick-tries">נסיון 1 מתוך 2</div>
+      <button class="trick-next-btn" id="trick-next-btn" onclick="cycleToNextTrick()">✨ שאלה חדשה!</button>
       <button class="trick-exit-btn" onclick="exitTrick()">✕</button>
     </div>
   </div>
@@ -1454,6 +1457,7 @@ function showTrick(){
   FG.trickAttempts=0;
   document.getElementById('trick-fb').textContent='';
   document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
+  document.getElementById('trick-next-btn').style.display='none';
   const kb=document.getElementById('trick-kb');
   kb.innerHTML='';
   const allLetters=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
@@ -1479,7 +1483,8 @@ function playTrickAudio(){
 }
 
 function cycleToNextTrick(){
-  FG.trickCycleTimer=null;
+  if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
+  document.getElementById('trick-next-btn').style.display='none';
   FG.trickIdx=(FG.trickIdx+1)%TRICK_QS.length;
   FG.trickQ=TRICK_QS[FG.trickIdx];
   FG.trickAttempts=0;
@@ -1529,10 +1534,12 @@ function checkTrick(l,btn){
     const allWrongs=[...document.querySelectorAll('#trick-kb button')].filter(b=>b.textContent!==FG.trickQ.ans);
     const allWrongsUsed=allWrongs.every(b=>b.disabled);
     if(allWrongsUsed){
+      if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
       document.querySelectorAll('#trick-kb button').forEach(b=>b.disabled=true);
-      speak('כִּמְעַט!');
-      document.getElementById('trick-fb').textContent='כמעט! בפעם הבאה תצליח 💪';
-      if(!FG.trickCycleTimer)FG.trickCycleTimer=setTimeout(cycleToNextTrick,2000);
+      speak('אוֹפְּס, לֹא נוֹרָא! בּוֹא נְנַסֶּה שׁוּב!');
+      document.getElementById('trick-fb').textContent='אופס, לא נורא! 💛';
+      document.getElementById('trick-tries').textContent='';
+      document.getElementById('trick-next-btn').style.display='block';
     }else if(FG.trickAttempts>=2){
       speak('נַסֶּה שׁוּב!');
       document.getElementById('trick-fb').textContent='😊 בפעם הבאה! ננסה שאלה אחרת...';
