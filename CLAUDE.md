@@ -34,9 +34,14 @@
 | `fix/speak-after-cancel` | delay לפני speak למניעת race condition |
 | `fix/google-tts` | החלפת Web Speech API ב-Google TTS לעברית אמינה |
 | `fix/trick-question-audio-only` | הקראת שם האות בלבד, הסרת טקסט השאלה מהUI |
+| `claude/eloquent-almeida-5494f7` | תיקון מיקום דמות במשחק הנפילה — נראית מעל רבע תחתון בכל מכשיר |
 
 ## הערות טכניות חשובות
 
 - **TTS**: המשחק משתמש ב-Google Translate TTS API (לא רשמי) — דורש אינטרנט. fallback ל-Web Speech API אם גוגל לא זמין.
 - **אווטר במשחק**: `G.photoImg` מחזיק את תמונת המשתמש כ-Image object מוטען מראש. `drawFallPlayer()` מצייר אותה בראש הדמות.
-- **איפוס מיקום**: אחרי כל פגיעה — `FG.px`, `FG.py` מאופסים לתחתית, `FG.walls` ו-`FG.obs` מתרוקנים.
+- **מיקום התחלתי במשחק נפילה**: `FG.py = Math.round(FG.H * 0.75 - FG.ph/2)` — הדמות מתחילה ב-75% מגובה הקנבס.
+- **חישוב FG.H**: חייב להחסיר כותרת + game-bar + `env(safe-area-inset-bottom)`. משתנה CSS `--sai-b` חושף את הערך ל-JS. **לא להשתמש ב-`window.innerHeight` בלבד** — זה גורם לקנבס לחרוג מגבול המסך במובייל.
+- **סדר אתחול**: `goScreen('s-fall')` חייב להיקרא **לפני** `initFall()` — אחרת game-bar עדיין לא מוצג ומידותיו מוחזרות כ-0.
+- **קנבס בפלקסבוקס**: `#fall-canvas` צריך `min-height:0` כדי שה-flexbox יוכל לצמצם אותו מתחת לגודל ה-buffer הפנימי.
+- **איפוס מיקום**: אחרי כל פגיעה — `FG.px`, `FG.py` מאופסים ל-75% גובה, `FG.walls` ו-`FG.obs` מתרוקנים.
