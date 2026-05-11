@@ -917,6 +917,7 @@ function _getHeVoice(){
 }
 
 function _speakFallback(txt){
+  if(_currentAudio){_currentAudio.pause();_currentAudio.src='';_currentAudio=null;}
   if(!('speechSynthesis' in window))return;
   window.speechSynthesis.cancel();
   setTimeout(()=>{
@@ -933,8 +934,12 @@ function speak(txt, isQuestion=false){
   if(_currentAudio){_currentAudio.pause();_currentAudio=null;}
   const url='https://translate.google.com/translate_tts?ie=UTF-8&tl=he&client=tw-ob&q='+encodeURIComponent(txt);
   _currentAudio=new Audio(url);
-  _currentAudio.onerror=()=>_speakFallback(txt);
-  _currentAudio.play().catch(()=>_speakFallback(txt));
+  let played=false;
+  let fallbackUsed=false;
+  _currentAudio.onplaying=()=>{played=true;};
+  const fallback=()=>{if(!played&&!fallbackUsed){fallbackUsed=true;_speakFallback(txt);}};
+  _currentAudio.onerror=fallback;
+  _currentAudio.play().catch(fallback);
 }
 
 /* ═══════════════════════════════
