@@ -293,6 +293,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .trick-tries{color:#888;font-size:.82rem}
 .trick-exit-btn{position:absolute;top:-18px;right:-18px;width:44px;height:44px;border-radius:50%;background:#e74c3c;border:4px solid #fff;color:#fff;font-size:1.5rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 rgba(0,0,0,.4);transition:transform .1s,box-shadow .1s}
 .trick-exit-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
+.trick-next-btn{display:none;background:#2d6a4f;color:#fff;font-family:'Fredoka One',sans-serif;font-size:1.1rem;padding:12px 32px;border-radius:12px;cursor:pointer;border:3px solid rgba(255,255,255,.3);box-shadow:0 5px 0 rgba(0,0,0,.4);transition:transform .1s,box-shadow .1s;width:100%}
+.trick-next-btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.4)}
 
 /* ═══════════════════════════════
    SCREEN 5 — LETTER GAME
@@ -482,7 +484,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 
     <div class="promo-tagline">למד אותיות • אסוף כוכבים • תהיה גיבור!</div>
 
-    <button class="btn-start" onclick="goScreen('s-avatar')">
+    <button class="btn-start" onclick="speak('בְּרוּכִים הַבָּאִים לְעוֹלַם הָאוֹתִיּוֹת!');goScreen('s-avatar')">
       🚀 בואו נתחיל!
     </button>
 
@@ -791,6 +793,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
       <div class="trick-kb" id="trick-kb"></div>
       <div class="trick-fb" id="trick-fb"></div>
       <div class="trick-tries" id="trick-tries">נסיון 1 מתוך 2</div>
+      <button class="trick-next-btn" id="trick-next-btn" onclick="cycleToNextTrick()">✨ שאלה חדשה!</button>
       <button class="trick-exit-btn" onclick="exitTrick()">✕</button>
     </div>
   </div>
@@ -908,6 +911,9 @@ function snd_life(){[523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f
 
 let _currentAudio=null;
 let _heVoice=null;
+const _isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const _isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+let _lastSpeak={txt:'',ts:0};
 
 function _getHeVoice(){
   if(_heVoice)return _heVoice;
@@ -917,24 +923,34 @@ function _getHeVoice(){
 }
 
 function _speakFallback(txt){
+  if(_currentAudio){_currentAudio.pause();_currentAudio.src='';_currentAudio=null;}
   if(!('speechSynthesis' in window))return;
   window.speechSynthesis.cancel();
-  setTimeout(()=>{
-    const u=new SpeechSynthesisUtterance(txt);
-    u.lang='he-IL';u.rate=0.75;u.pitch=1.1;
-    const v=_getHeVoice();if(v)u.voice=v;
-    window.speechSynthesis.speak(u);
-  },100);
+  const _doSpeak=()=>{
+    window._ttsU=new SpeechSynthesisUtterance(txt);
+    window._ttsU.lang='he-IL';window._ttsU.rate=0.75;window._ttsU.pitch=1.1;
+    const v=_getHeVoice();if(v)window._ttsU.voice=v;
+    window.speechSynthesis.speak(window._ttsU);
+  };
+  // iOS: speak immediately (setTimeout breaks gesture context)
+  // Android/other: small delay so cancel() completes before speak()
+  _isIOS?_doSpeak():setTimeout(_doSpeak,50);
 }
 
 function speak(txt, isQuestion=false){
-  // muteAll silences effects + commentary but keeps game questions audible
   if((G.muteAll&&!isQuestion)||G.muteSpeech){if(_currentAudio){_currentAudio.pause();_currentAudio=null;}return;}
+  const now=Date.now();
+  if(txt===_lastSpeak.txt&&now-_lastSpeak.ts<800)return;
+  _lastSpeak={txt,ts:now};
   if(_currentAudio){_currentAudio.pause();_currentAudio=null;}
+  if(_isIOS){_speakFallback(txt);return;}
+  // Desktop + Android Chrome: Google TTS (better Hebrew, no Web Speech double-speak bug)
   const url='https://translate.google.com/translate_tts?ie=UTF-8&tl=he&client=tw-ob&q='+encodeURIComponent(txt);
   _currentAudio=new Audio(url);
-  _currentAudio.onerror=()=>_speakFallback(txt);
-  _currentAudio.play().catch(()=>_speakFallback(txt));
+  let fallbackUsed=false;
+  const fb=()=>{if(!fallbackUsed){fallbackUsed=true;_speakFallback(txt);}};
+  _currentAudio.onerror=fb;
+  _currentAudio.play().catch(fb);
 }
 
 /* ═══════════════════════════════
@@ -1121,7 +1137,7 @@ function enterMap(){
   }
   updateMapUI();
   snd_ok();
-  speak('יַאלָּה! בֹּואוּ נַתְחִיל אֶת הַהַרְפַּתְקָה!');
+  speak('בֹּואוּ נַתְחִיל אֶת הַהַרְפַּתְקָה!');
   goScreen('s-map');
   startLifeTimer();
 }
@@ -1211,8 +1227,8 @@ function initFall(){
   FG.ctx=FG.canvas.getContext('2d');
   FG.ctx.setTransform(dpr,0,0,dpr,0,0);
   FG.active=true;FG.spd=1.0;FG.level=1;FG.score=0;FG.bgY=0;
-  FG.lives=G.lives;FG.coins=0;
-  FG.px=FG.W/2-FG.pw/2;FG.py=FG.H-FG.ph-20;FG.pvx=0;FG.pvy=0;
+  FG.lives=G.lives;FG.coins=0;FG.lastGapX=undefined;
+  FG.px=FG.canvas.width/2-FG.pw/2;FG.py=FG.canvas.height-FG.ph-20;FG.pvx=0;FG.pvy=0;
   FG.obs=[];FG.stars=[];
   const _W=FG.W;const _H=FG.H;
   const _gW=Math.max(160,_W*.70);
@@ -1264,9 +1280,11 @@ function setupFallControls(){
     if(e.key==='ArrowDown'){e.preventDefault();FG.pvy=7;}
   };
   document.onkeyup=()=>{FG.pvx*=.2;FG.pvy*=.2};
-  // Gyro
+  // Gyro — remove old listener before adding to prevent accumulation across restarts
+  if(FG._gyroHandler)window.removeEventListener('deviceorientation',FG._gyroHandler);
   if(window.DeviceOrientationEvent){
-    window.addEventListener('deviceorientation',e=>{if(e.gamma)FG.pvx+=e.gamma*.15});
+    FG._gyroHandler=e=>{if(e.gamma)FG.pvx+=e.gamma*.15};
+    window.addEventListener('deviceorientation',FG._gyroHandler);
   }
 }
 
@@ -1287,7 +1305,13 @@ function fallLoop(){
   const wInterval=Math.max(35,180-FG.level*12);
   if(FG.frame%wInterval===0){
     const gapW=Math.max(160,W*.70-FG.level*15);
-    const gapX=30+Math.random()*(W-gapW-60);
+    const minX=30,maxX=Math.max(minX,W-gapW-60);
+    const maxDrift=6*wInterval;
+    const prev=FG.lastGapX??W/2-gapW/2;
+    const lo=Math.max(minX,prev-maxDrift);
+    const hi=Math.min(maxX,prev+maxDrift);
+    const gapX=lo+Math.random()*(hi-lo);
+    FG.lastGapX=gapX;
     const clr=wallClr();
     FG.walls.push({x:0,y:-50,w:gapX,h:44,c:clr});
     FG.walls.push({x:gapX+gapW,y:-50,w:W-gapX-gapW,h:44,c:clr});
@@ -1298,7 +1322,8 @@ function fallLoop(){
   if(FG.level>=3&&FG.frame%obInterval===0){
     const types=[{e:'🪨',r:26},{e:'🌵',r:24},{e:'💀',r:25},{e:'🔥',r:23},{e:'⚡',r:22},{e:'🦠',r:20}];
     const t=types[Math.floor(Math.random()*types.length)];
-    FG.obs.push({x:t.r+Math.random()*(W-t.r*2),baseX:t.r+Math.random()*(W-t.r*2),y:-60,r:t.r,e:t.e,osc:Math.random()>.5});
+    const obX=t.r+Math.random()*(W-t.r*2);
+    FG.obs.push({x:obX,baseX:obX,y:-60,r:t.r,e:t.e,osc:Math.random()>.5});
   }
 
   // Stars
@@ -1361,11 +1386,19 @@ function fallLoop(){
     // Pre-fill screen with 3 spread-out walls so it's not blank on respawn
     FG.walls=[];
     const pgW=Math.max(160,W*.70-FG.level*15);
-    [H*.12,H*.38,H*.62].forEach(preY=>{
-      const pgX=30+Math.random()*(W-pgW-60);const pc=wallClr();
+    const pgMinX=30,pgMaxX=Math.max(30,W-pgW-60);
+    const pgDrift=6*Math.max(35,180-FG.level*12);
+    let pgPrev=W/2-pgW/2;
+    [H*.62,H*.38,H*.12].forEach(preY=>{
+      const pgLo=Math.max(pgMinX,pgPrev-pgDrift);
+      const pgHi=Math.min(pgMaxX,pgPrev+pgDrift);
+      const pgX=pgLo+Math.random()*(pgHi-pgLo);
+      pgPrev=pgX;
+      const pc=wallClr();
       FG.walls.push({x:0,y:preY,w:pgX,h:44,c:pc});
       FG.walls.push({x:pgX+pgW,y:preY,w:W-pgX-pgW,h:44,c:pc});
     });
+    FG.lastGapX=pgPrev;
     if(FG.lives<=0){FG.active=false;setTimeout(showTrick,500);return}
   }
 
@@ -1461,11 +1494,13 @@ function flashRed(){
 
 /* ── TRICK QUESTION ── */
 function showTrick(){
+  if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
   FG.trickIdx=Math.floor(Math.random()*TRICK_QS.length);
   FG.trickQ=TRICK_QS[FG.trickIdx];
   FG.trickAttempts=0;
   document.getElementById('trick-fb').textContent='';
   document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
+  document.getElementById('trick-next-btn').style.display='none';
   const kb=document.getElementById('trick-kb');
   kb.innerHTML='';
   const allLetters=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
@@ -1490,6 +1525,23 @@ function playTrickAudio(){
   snd_click();
 }
 
+function cycleToNextTrick(){
+  if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
+  document.getElementById('trick-next-btn').style.display='none';
+  FG.trickIdx=(FG.trickIdx+1)%TRICK_QS.length;
+  FG.trickQ=TRICK_QS[FG.trickIdx];
+  FG.trickAttempts=0;
+  document.getElementById('trick-fb').textContent='';
+  document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
+  const al=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+  const newAns=FG.trickQ.ans;
+  const dist=al.filter(l=>l!==newAns).sort(()=>Math.random()-.5).slice(0,3);
+  const ch=[newAns,...dist].sort(()=>Math.random()-.5);
+  const kb=document.getElementById('trick-kb');kb.innerHTML='';
+  ch.forEach(l=>{const b=document.createElement('button');b.className='trick-key';b.textContent=l;b.onclick=()=>checkTrick(l,b);kb.appendChild(b);});
+  const newLd=LETTERS.find(l=>l.l===newAns);speak(newLd?(newLd.p||newLd.n):newAns,true);
+}
+
 function checkTrick(l,btn){
   if(l===FG.trickQ.ans){
     btn.classList.add('kc');snd_ok();
@@ -1500,32 +1552,43 @@ function checkTrick(l,btn){
       document.getElementById('trick-overlay').classList.remove('show');
       document.getElementById('trick-prompt').classList.remove('show');
       FG.lives=3;FG.active=true;
-      FG.px=FG.W/2-FG.pw/2;FG.py=FG.H-FG.ph-20;FG.pvx=0;FG.pvy=0;
-      FG.walls=[];FG.obs=[];
+      const _tw=FG.canvas.width,_th=FG.canvas.height;
+      FG.px=_tw/2-FG.pw/2;FG.py=_th-FG.ph-20;FG.pvx=0;FG.pvy=0;
+      FG.obs=[];
+      const _tgW=Math.max(160,_tw*.70-FG.level*15);
+      const _tMinX=30,_tMaxX=Math.max(30,_tw-_tgW-60);
+      const _tDrift=6*Math.max(35,180-FG.level*12);
+      let _tPrev=_tw/2-_tgW/2;
+      FG.walls=[];
+      [_th*.62,_th*.38,_th*.12].forEach(py=>{
+        const lo=Math.max(_tMinX,_tPrev-_tDrift),hi=Math.min(_tMaxX,_tPrev+_tDrift);
+        const gx=lo+Math.random()*(hi-lo);_tPrev=gx;
+        const tc=wallClr();
+        FG.walls.push({x:0,y:py,w:gx,h:44,c:tc});
+        FG.walls.push({x:gx+_tgW,y:py,w:_tw-gx-_tgW,h:44,c:tc});
+      });
+      FG.lastGapX=_tPrev;
       document.getElementById('fall-lives').textContent=livesStr(3);
       fallLoop();
     },1600);
   }else{
     btn.classList.add('kw');btn.disabled=true;snd_no();
-    FG.trickAttempts++;speak('נַסֶּה שׁוּב!');
-    if(FG.trickAttempts>=2){
+    FG.trickAttempts++;
+    const allWrongs=[...document.querySelectorAll('#trick-kb button')].filter(b=>b.textContent!==FG.trickQ.ans);
+    const allWrongsUsed=allWrongs.every(b=>b.disabled);
+    if(allWrongsUsed){
+      if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
+      document.querySelectorAll('#trick-kb button').forEach(b=>b.disabled=true);
+      speak('אוֹפְּס, לֹא נוֹרָא! בּוֹא נְנַסֶּה שׁוּב!');
+      document.getElementById('trick-fb').textContent='אופס, לא נורא! 💛';
+      document.getElementById('trick-tries').textContent='';
+      document.getElementById('trick-next-btn').style.display='block';
+    }else if(FG.trickAttempts>=2){
+      speak('נַסֶּה שׁוּב!');
       document.getElementById('trick-fb').textContent='😊 בפעם הבאה! ננסה שאלה אחרת...';
-      setTimeout(()=>{
-        FG.trickIdx=(FG.trickIdx+1)%TRICK_QS.length;
-        FG.trickQ=TRICK_QS[FG.trickIdx];
-        FG.trickAttempts=0;
-        document.getElementById('trick-q').textContent=FG.trickQ.q;
-        document.getElementById('trick-fb').textContent='';
-        document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
-        const allLetters2=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
-        const newAns=FG.trickQ.ans;
-        const newDistractors=allLetters2.filter(l=>l!==newAns).sort(()=>Math.random()-.5).slice(0,3);
-        const newChoices=[newAns,...newDistractors].sort(()=>Math.random()-.5);
-        const kb2=document.getElementById('trick-kb');kb2.innerHTML='';
-        newChoices.forEach(l=>{const b=document.createElement('button');b.className='trick-key';b.textContent=l;b.onclick=()=>checkTrick(l,b);kb2.appendChild(b);});
-        const newLd=LETTERS.find(l=>l.l===newAns);speak(newLd?(newLd.p||newLd.n):newAns, true);
-      },2000);
+      if(!FG.trickCycleTimer)FG.trickCycleTimer=setTimeout(cycleToNextTrick,2000);
     }else{
+      speak('נַסֶּה שׁוּב!');
       document.getElementById('trick-tries').textContent='נסיון 2 מתוך 2';
       document.getElementById('trick-fb').textContent='לא נכון, נסה שוב!';
     }
@@ -1662,10 +1725,10 @@ window.addEventListener('resize',()=>{
 /* Prevent scroll on canvas */
 document.addEventListener('touchmove',e=>{if(e.target.tagName==='CANVAS')e.preventDefault()},{passive:false});
 
-/* Init speak on load */
-window.addEventListener('load',()=>{
-  setTimeout(()=>speak('בְּרוּכִים הַבָּאִים לְעוֹלַם הָאוֹתִיּוֹת!'),800);
-});
+/* Welcome message on desktop auto-plays on load */
+if(!_isMobile){
+  window.addEventListener('load',()=>setTimeout(()=>speak('בְּרוּכִים הַבָּאִים לְעוֹלַם הָאוֹתִיּוֹת!'),800));
+}
 </script>
 </body>
 </html>
