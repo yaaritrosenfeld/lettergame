@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>עולם האותיות 🎮</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
@@ -78,6 +78,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .av-legs-el{display:flex;gap:4px}
 .av-leg-el{width:30px;height:44px;background:#2c3e50;border-radius:5px;border:3px solid rgba(0,0,0,.3);box-shadow:var(--sh);transition:background .3s}
 .av-nametag{position:absolute;bottom:-32px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:var(--yellow);padding:3px 12px;border-radius:12px;font-size:.8rem;white-space:nowrap;border:2px solid var(--yellow);z-index:5}
+.av-photo-btn{position:absolute;bottom:-12px;right:-12px;width:34px;height:34px;background:var(--blue);border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;z-index:10;box-shadow:var(--sh);transition:transform .15s}
+.av-photo-btn:active{transform:scale(.88)}
+.av-photo-btn input{display:none}
 .av-platform{width:130px;height:18px;background:var(--grass);border-radius:6px;border:3px solid #3d8b40;box-shadow:var(--sh);margin-top:38px}
 
 /* Skirt mode */
@@ -105,6 +108,38 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .btn-ready{background:var(--green);color:#fff;font-family:'Fredoka One',sans-serif;font-size:clamp(1.1rem,4.5vw,1.4rem);padding:16px 38px;border:5px solid rgba(255,255,255,.3);border-radius:14px;box-shadow:0 8px 0 #00856a,6px 6px 0 rgba(0,0,0,.3);cursor:pointer;display:flex;align-items:center;gap:10px;animation:btnPulse 2s ease-in-out infinite;text-shadow:1px 1px 0 rgba(0,0,0,.3)}
 .btn-ready:active{transform:translateY(6px);box-shadow:0 2px 0 #00856a;animation:none}
 .ready-row{display:flex;justify-content:center;padding:20px 16px 30px;flex-shrink:0}
+
+/* ═══════════════════════════════
+   RESPONSIVE
+══════════════════════════════════ */
+/* Avatar: 2-column layout on wide/landscape screens */
+@media (min-width:640px){
+  .av-layout{flex-direction:row;align-items:flex-start;justify-content:center;gap:24px;overflow:hidden}
+  .av-preview-wrap{position:sticky;top:14px;flex-shrink:0;min-width:170px}
+  .av-controls{flex:1;max-width:360px;overflow-y:auto;max-height:calc(100dvh - 130px)}
+}
+/* Avatar: shrink character on short screens (landscape phones) */
+@media (max-height:540px){
+  .av-head-box{width:58px;height:58px}
+  .av-body-el{width:50px;height:34px}
+  .av-leg-el{width:20px;height:24px}
+  .av-platform{width:88px;margin-top:22px}
+  .av-nametag{bottom:-22px;font-size:.68rem;padding:2px 8px}
+  .av-layout{gap:8px;padding:8px 10px}
+  .ctrl-box{padding:7px 12px}
+  .ctrl-label{margin-bottom:5px;font-size:.82rem}
+}
+/* Letter choices: single column on very small screens */
+@media (max-width:320px){
+  .letter-choices{grid-template-columns:1fr}
+  .choice-btn{font-size:2rem;padding:14px 10px}
+}
+/* Safe area (notch / Dynamic Island) */
+@supports (padding:env(safe-area-inset-top)){
+  #global-header{padding-top:max(0px,env(safe-area-inset-top));height:calc(48px + env(safe-area-inset-top))}
+  .screen{padding-top:calc(48px + env(safe-area-inset-top))}
+  .ready-row{padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+}
 
 /* ═══════════════════════════════
    SCREEN 3 — WORLD MAP (ADVENTURE)
@@ -471,6 +506,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
           <canvas id="face-canvas" width="80" height="80" style="position:absolute;inset:0;width:100%;height:100%;border-radius:8px;display:none"></canvas>
           <div class="av-default-face" id="av-face">😊</div>
           <div class="av-hair-el" id="av-hair"></div>
+          <label class="av-photo-btn" title="הוסף תמונה">📷<input type="file" accept="image/*" onchange="handlePhoto(event)"></label>
         </div>
         <div class="av-body-el" id="av-body"></div>
         <div class="av-legs-el" id="av-legs">
@@ -486,14 +522,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     <div class="av-controls">
 
       <div class="ctrl-box">
-        <div class="ctrl-label">📷 תמונה שלך (אופציונלי)</div>
-        <label class="upload-label">
-          📸 העלה תמונה
-          <input type="file" accept="image/*" onchange="handlePhoto(event)">
-        </label>
-      </div>
-
-      <div class="ctrl-box">
         <div class="ctrl-label">✏️ מה שמך?</div>
         <input class="name-inp" id="name-inp" type="text" placeholder="הכנס שם..." maxlength="10" oninput="setName(this.value)">
       </div>
@@ -504,11 +532,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
           <button class="col-btn sel" style="background:#e74c3c" onclick="setShirt('#e74c3c',this)"></button>
           <button class="col-btn" style="background:#3498db" onclick="setShirt('#3498db',this)"></button>
           <button class="col-btn" style="background:#2ecc71" onclick="setShirt('#2ecc71',this)"></button>
-          <button class="col-btn" style="background:#f39c12" onclick="setShirt('#f39c12',this)"></button>
+          <button class="col-btn" style="background:#f4a261" onclick="setShirt('#f4a261',this)"></button>
           <button class="col-btn" style="background:#9b59b6" onclick="setShirt('#9b59b6',this)"></button>
-          <button class="col-btn" style="background:#1abc9c" onclick="setShirt('#1abc9c',this)"></button>
           <button class="col-btn" style="background:#e91e63" onclick="setShirt('#e91e63',this)"></button>
-          <button class="col-btn" style="background:#ff5722" onclick="setShirt('#ff5722',this)"></button>
         </div>
       </div>
 
@@ -519,10 +545,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
           <button class="col-btn" style="background:#e74c3c" onclick="setPants('#e74c3c',this)"></button>
           <button class="col-btn" style="background:#3498db" onclick="setPants('#3498db',this)"></button>
           <button class="col-btn" style="background:#27ae60" onclick="setPants('#27ae60',this)"></button>
+          <button class="col-btn" style="background:#f4a261" onclick="setPants('#f4a261',this)"></button>
           <button class="col-btn" style="background:#8e44ad" onclick="setPants('#8e44ad',this)"></button>
-          <button class="col-btn" style="background:#f39c12" onclick="setPants('#f39c12',this)"></button>
-          <button class="col-btn" style="background:#e91e63" onclick="setPants('#e91e63',this)"></button>
-          <button class="col-btn" style="background:#795548" onclick="setPants('#795548',this)"></button>
         </div>
       </div>
 
@@ -896,6 +920,7 @@ function _getHeVoice(){
 }
 
 function _speakFallback(txt){
+  if(_currentAudio){_currentAudio.pause();_currentAudio.src='';_currentAudio=null;}
   if(!('speechSynthesis' in window))return;
   window.speechSynthesis.cancel();
   setTimeout(()=>{
@@ -912,8 +937,12 @@ function speak(txt, isQuestion=false){
   if(_currentAudio){_currentAudio.pause();_currentAudio=null;}
   const url='https://translate.google.com/translate_tts?ie=UTF-8&tl=he&client=tw-ob&q='+encodeURIComponent(txt);
   _currentAudio=new Audio(url);
-  _currentAudio.onerror=()=>_speakFallback(txt);
-  _currentAudio.play().catch(()=>_speakFallback(txt));
+  let played=false;
+  let fallbackUsed=false;
+  _currentAudio.onplaying=()=>{played=true;};
+  const fallback=()=>{if(!played&&!fallbackUsed){fallbackUsed=true;_speakFallback(txt);}};
+  _currentAudio.onerror=fallback;
+  _currentAudio.play().catch(fallback);
 }
 
 /* ═══════════════════════════════
@@ -1160,6 +1189,7 @@ const FG={
   canvas:null,ctx:null,active:false,animId:null,
   spd:1.8,level:1,lives:3,coins:0,score:0,frame:0,bgY:0,
   px:0,py:0,pw:48,ph:70,pvx:0,pvy:0,
+  W:0,H:0,
   walls:[],obs:[],stars:[],
   touchX:0,touchY:0,trickAttempts:0,trickQ:null,
   trickIdx:0
@@ -1181,14 +1211,18 @@ const TRICK_QS=[
 
 function initFall(){
   FG.canvas=document.getElementById('fall-canvas');
-  FG.canvas.width=window.innerWidth;
-  FG.canvas.height=window.innerHeight-56;
+  const dpr=window.devicePixelRatio||1;
+  FG.W=window.innerWidth;
+  FG.H=window.innerHeight-document.getElementById('global-header').getBoundingClientRect().height;
+  FG.canvas.width=FG.W*dpr;
+  FG.canvas.height=FG.H*dpr;
   FG.ctx=FG.canvas.getContext('2d');
+  FG.ctx.setTransform(dpr,0,0,dpr,0,0);
   FG.active=true;FG.spd=1.0;FG.level=1;FG.score=0;FG.bgY=0;
   FG.lives=G.lives;FG.coins=0;FG.lastGapX=undefined;
   FG.px=FG.canvas.width/2-FG.pw/2;FG.py=FG.canvas.height-FG.ph-20;FG.pvx=0;FG.pvy=0;
   FG.obs=[];FG.stars=[];
-  const _W=FG.canvas.width;const _H=FG.canvas.height;
+  const _W=FG.W;const _H=FG.H;
   const _gW=Math.max(160,_W*.70);
   // wall 1: partway down, gap centered on player — always safe start
   const _gX1=Math.min(_W-_gW-30,Math.max(30,_W/2-_gW/2));
@@ -1214,21 +1248,22 @@ function initFall(){
 
 function setupFallControls(){
   const cv=FG.canvas;
-  cv.ontouchstart=e=>{e.preventDefault();FG.touchX=e.touches[0].clientX;FG.touchY=e.touches[0].clientY};
-  cv.ontouchmove=e=>{
-    e.preventDefault();if(!FG.active)return;
-    const dx=e.touches[0].clientX-FG.touchX;
-    const dy=e.touches[0].clientY-FG.touchY;
-    FG.pvx=dx*.18;FG.pvy=dy*.18;
-    FG.touchX=e.touches[0].clientX;FG.touchY=e.touches[0].clientY;
-  };
-  cv.ontouchend=()=>{FG.pvx*=.4;FG.pvy*=.4};
-  cv.onmousemove=e=>{
+  cv.style.touchAction='none';
+  cv.addEventListener('pointerdown',e=>{
+    cv.setPointerCapture(e.pointerId);
     if(!FG.active)return;
     const r=cv.getBoundingClientRect();
-    FG.px=e.clientX-r.left-FG.pw/2;
-    FG.py=e.clientY-r.top-FG.ph/2;
-  };
+    FG.px=Math.max(0,Math.min(FG.W-FG.pw,(e.clientX-r.left)-FG.pw/2));
+    FG.py=Math.max(0,Math.min(FG.H-FG.ph,(e.clientY-r.top)-FG.ph/2));
+    FG.pvx=0;FG.pvy=0;
+  });
+  cv.addEventListener('pointermove',e=>{
+    if(!e.buttons||!FG.active)return;
+    const r=cv.getBoundingClientRect();
+    FG.px=Math.max(0,Math.min(FG.W-FG.pw,(e.clientX-r.left)-FG.pw/2));
+    FG.py=Math.max(0,Math.min(FG.H-FG.ph,(e.clientY-r.top)-FG.ph/2));
+    FG.pvx=0;FG.pvy=0;
+  });
   document.onkeydown=e=>{
     if(!FG.active)return;
     if(e.key==='ArrowLeft')FG.pvx=-7;
@@ -1248,7 +1283,7 @@ function setupFallControls(){
 function fallLoop(){
   if(!FG.active)return;
   FG.frame++;FG.score++;
-  const ctx=FG.ctx,W=FG.canvas.width,H=FG.canvas.height;
+  const ctx=FG.ctx,W=FG.W,H=FG.H;
   const spd=FG.spd;
 
   // Level up
@@ -1669,9 +1704,13 @@ function reopenTrick(){
 /* Resize canvas */
 window.addEventListener('resize',()=>{
   if(FG.canvas&&document.getElementById('s-fall').classList.contains('active')){
-    FG.canvas.width=window.innerWidth;
-    FG.canvas.height=window.innerHeight-56;
-    FG.px=Math.min(FG.px,FG.canvas.width-FG.pw);
+    const dpr=window.devicePixelRatio||1;
+    FG.W=window.innerWidth;
+    FG.H=window.innerHeight-document.getElementById('global-header').getBoundingClientRect().height;
+    FG.canvas.width=FG.W*dpr;
+    FG.canvas.height=FG.H*dpr;
+    FG.ctx.setTransform(dpr,0,0,dpr,0,0);
+    FG.px=Math.min(FG.px,FG.W-FG.pw);
   }
 });
 
