@@ -1211,21 +1211,24 @@ function initFall(){
 
 function setupFallControls(){
   const cv=FG.canvas;
-  cv.ontouchstart=e=>{e.preventDefault();FG.touchX=e.touches[0].clientX;FG.touchY=e.touches[0].clientY};
-  cv.ontouchmove=e=>{
-    e.preventDefault();if(!FG.active)return;
-    const dx=e.touches[0].clientX-FG.touchX;
-    const dy=e.touches[0].clientY-FG.touchY;
-    FG.pvx=dx*.18;FG.pvy=dy*.18;
-    FG.touchX=e.touches[0].clientX;FG.touchY=e.touches[0].clientY;
-  };
-  cv.ontouchend=()=>{FG.pvx*=.4;FG.pvy*=.4};
-  cv.onmousemove=e=>{
+  cv.style.touchAction='none';
+  cv.addEventListener('pointerdown',e=>{
+    cv.setPointerCapture(e.pointerId);
     if(!FG.active)return;
     const r=cv.getBoundingClientRect();
-    FG.px=e.clientX-r.left-FG.pw/2;
-    FG.py=e.clientY-r.top-FG.ph/2;
-  };
+    const scaleX=cv.width/r.width, scaleY=cv.height/r.height;
+    FG.px=Math.max(0,Math.min(cv.width-FG.pw,(e.clientX-r.left)*scaleX-FG.pw/2));
+    FG.py=Math.max(0,Math.min(cv.height-FG.ph,(e.clientY-r.top)*scaleY-FG.ph/2));
+    FG.pvx=0;FG.pvy=0;
+  });
+  cv.addEventListener('pointermove',e=>{
+    if(!e.buttons||!FG.active)return;
+    const r=cv.getBoundingClientRect();
+    const scaleX=cv.width/r.width, scaleY=cv.height/r.height;
+    FG.px=Math.max(0,Math.min(cv.width-FG.pw,(e.clientX-r.left)*scaleX-FG.pw/2));
+    FG.py=Math.max(0,Math.min(cv.height-FG.ph,(e.clientY-r.top)*scaleY-FG.ph/2));
+    FG.pvx=0;FG.pvy=0;
+  });
   document.onkeydown=e=>{
     if(!FG.active)return;
     if(e.key==='ArrowLeft')FG.pvx=-7;
