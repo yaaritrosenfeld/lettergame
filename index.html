@@ -136,6 +136,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 }
 /* Safe area (notch / Dynamic Island) */
 @supports (padding:env(safe-area-inset-top)){
+  :root{--sai-b:env(safe-area-inset-bottom,0px)}
   #global-header{padding-top:max(0px,env(safe-area-inset-top));height:calc(48px + env(safe-area-inset-top))}
   .screen{padding-top:calc(48px + env(safe-area-inset-top))}
   .ready-row{padding-bottom:calc(20px + env(safe-area-inset-bottom))}
@@ -260,7 +261,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
    SCREEN 4 — FALLING GAME
 ══════════════════════════════════ */
 #s-fall{background:#0f0c29;flex-direction:column}
-#fall-canvas{flex:1;width:100%;display:block;touch-action:none}
+#fall-canvas{flex:1;width:100%;display:block;touch-action:none;min-height:0}
 
 /* Return-to-question prompt (shown on frozen game after dismissing trick) */
 .trick-prompt{position:absolute;inset:56px 0 0 0;background:rgba(10,8,30,.72);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;overflow:hidden}
@@ -1161,7 +1162,7 @@ function closePopup(){document.getElementById('world-popup').classList.remove('s
 function launchGame(type){
   document.getElementById('world-popup').classList.remove('show');
   G.activeGame=type;
-  if(type==='fall'){initFall();goScreen('s-fall')}
+  if(type==='fall'){goScreen('s-fall');initFall()}
   else{initLetters();goScreen('s-letters')}
 }
 
@@ -1220,15 +1221,19 @@ const TRICK_QS=[
 function initFall(){
   FG.canvas=document.getElementById('fall-canvas');
   const dpr=window.devicePixelRatio||1;
+  const _hdrH=document.getElementById('global-header').getBoundingClientRect().height;
+  const _barEl=FG.canvas.previousElementSibling;
+  const _barH=_barEl?Math.max(_barEl.getBoundingClientRect().height,_barEl.offsetHeight):0;
+  const _saib=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sai-b'))||0;
   FG.W=window.innerWidth;
-  FG.H=window.innerHeight-document.getElementById('global-header').getBoundingClientRect().height;
+  FG.H=window.innerHeight-_hdrH-_barH-_saib;
   FG.canvas.width=FG.W*dpr;
   FG.canvas.height=FG.H*dpr;
   FG.ctx=FG.canvas.getContext('2d');
   FG.ctx.setTransform(dpr,0,0,dpr,0,0);
   FG.active=true;FG.spd=1.0;FG.level=1;FG.score=0;FG.bgY=0;
   FG.lives=G.lives;FG.coins=0;FG.lastGapX=undefined;
-  FG.px=FG.canvas.width/2-FG.pw/2;FG.py=FG.canvas.height-FG.ph-20;FG.pvx=0;FG.pvy=0;
+  FG.px=FG.W/2-FG.pw/2;FG.py=Math.round(FG.H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
   FG.obs=[];FG.stars=[];
   const _W=FG.W;const _H=FG.H;
   const _gW=Math.max(160,_W*.70);
@@ -1381,7 +1386,7 @@ function fallLoop(){
     FG.spd=Math.max(1.0,FG.spd*.75);
     document.getElementById('fall-speed').textContent=FG.spd.toFixed(1);
     document.getElementById('fall-lives').textContent=livesStr(FG.lives);
-    FG.px=W/2-FG.pw/2;FG.py=H-FG.ph-20;FG.pvx=0;FG.pvy=0;
+    FG.px=W/2-FG.pw/2;FG.py=Math.round(H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
     FG.obs=[];
     // Pre-fill screen with 3 spread-out walls so it's not blank on respawn
     FG.walls=[];
@@ -1552,20 +1557,19 @@ function checkTrick(l,btn){
       document.getElementById('trick-overlay').classList.remove('show');
       document.getElementById('trick-prompt').classList.remove('show');
       FG.lives=3;FG.active=true;
-      const _tw=FG.canvas.width,_th=FG.canvas.height;
-      FG.px=_tw/2-FG.pw/2;FG.py=_th-FG.ph-20;FG.pvx=0;FG.pvy=0;
+      FG.px=FG.W/2-FG.pw/2;FG.py=Math.round(FG.H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
       FG.obs=[];
-      const _tgW=Math.max(160,_tw*.70-FG.level*15);
-      const _tMinX=30,_tMaxX=Math.max(30,_tw-_tgW-60);
+      const _tgW=Math.max(160,FG.W*.70-FG.level*15);
+      const _tMinX=30,_tMaxX=Math.max(30,FG.W-_tgW-60);
       const _tDrift=6*Math.max(35,180-FG.level*12);
-      let _tPrev=_tw/2-_tgW/2;
+      let _tPrev=FG.W/2-_tgW/2;
       FG.walls=[];
-      [_th*.62,_th*.38,_th*.12].forEach(py=>{
+      [FG.H*.62,FG.H*.38,FG.H*.12].forEach(py=>{
         const lo=Math.max(_tMinX,_tPrev-_tDrift),hi=Math.min(_tMaxX,_tPrev+_tDrift);
         const gx=lo+Math.random()*(hi-lo);_tPrev=gx;
         const tc=wallClr();
         FG.walls.push({x:0,y:py,w:gx,h:44,c:tc});
-        FG.walls.push({x:gx+_tgW,y:py,w:_tw-gx-_tgW,h:44,c:tc});
+        FG.walls.push({x:gx+_tgW,y:py,w:FG.W-gx-_tgW,h:44,c:tc});
       });
       FG.lastGapX=_tPrev;
       document.getElementById('fall-lives').textContent=livesStr(3);
@@ -1713,8 +1717,12 @@ function reopenTrick(){
 window.addEventListener('resize',()=>{
   if(FG.canvas&&document.getElementById('s-fall').classList.contains('active')){
     const dpr=window.devicePixelRatio||1;
+    const _hh=document.getElementById('global-header').getBoundingClientRect().height;
+    const _bel=FG.canvas.previousElementSibling;
+    const _bh=_bel?Math.max(_bel.getBoundingClientRect().height,_bel.offsetHeight):0;
+    const _sb=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sai-b'))||0;
     FG.W=window.innerWidth;
-    FG.H=window.innerHeight-document.getElementById('global-header').getBoundingClientRect().height;
+    FG.H=window.innerHeight-_hh-_bh-_sb;
     FG.canvas.width=FG.W*dpr;
     FG.canvas.height=FG.H*dpr;
     FG.ctx.setTransform(dpr,0,0,dpr,0,0);
