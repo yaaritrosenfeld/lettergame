@@ -484,7 +484,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 
     <div class="promo-tagline">למד אותיות • אסוף כוכבים • תהיה גיבור!</div>
 
-    <button class="btn-start" onclick="goScreen('s-avatar')">
+    <button class="btn-start" onclick="speak('בְּרוּכִים הַבָּאִים לְעוֹלַם הָאוֹתִיּוֹת!');goScreen('s-avatar')">
       🚀 בואו נתחיל!
     </button>
 
@@ -911,6 +911,9 @@ function snd_life(){[523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f
 
 let _currentAudio=null;
 let _heVoice=null;
+const _isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const _isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+let _lastSpeak={txt:'',ts:0};
 
 function _getHeVoice(){
   if(_heVoice)return _heVoice;
@@ -923,26 +926,31 @@ function _speakFallback(txt){
   if(_currentAudio){_currentAudio.pause();_currentAudio.src='';_currentAudio=null;}
   if(!('speechSynthesis' in window))return;
   window.speechSynthesis.cancel();
-  setTimeout(()=>{
-    const u=new SpeechSynthesisUtterance(txt);
-    u.lang='he-IL';u.rate=0.75;u.pitch=1.1;
-    const v=_getHeVoice();if(v)u.voice=v;
-    window.speechSynthesis.speak(u);
-  },100);
+  const _doSpeak=()=>{
+    window._ttsU=new SpeechSynthesisUtterance(txt);
+    window._ttsU.lang='he-IL';window._ttsU.rate=0.75;window._ttsU.pitch=1.1;
+    const v=_getHeVoice();if(v)window._ttsU.voice=v;
+    window.speechSynthesis.speak(window._ttsU);
+  };
+  // iOS: speak immediately (setTimeout breaks gesture context)
+  // Android/other: small delay so cancel() completes before speak()
+  _isIOS?_doSpeak():setTimeout(_doSpeak,50);
 }
 
 function speak(txt, isQuestion=false){
-  // muteAll silences effects + commentary but keeps game questions audible
   if((G.muteAll&&!isQuestion)||G.muteSpeech){if(_currentAudio){_currentAudio.pause();_currentAudio=null;}return;}
+  const now=Date.now();
+  if(txt===_lastSpeak.txt&&now-_lastSpeak.ts<800)return;
+  _lastSpeak={txt,ts:now};
   if(_currentAudio){_currentAudio.pause();_currentAudio=null;}
+  if(_isIOS){_speakFallback(txt);return;}
+  // Desktop + Android Chrome: Google TTS (better Hebrew, no Web Speech double-speak bug)
   const url='https://translate.google.com/translate_tts?ie=UTF-8&tl=he&client=tw-ob&q='+encodeURIComponent(txt);
   _currentAudio=new Audio(url);
-  let played=false;
   let fallbackUsed=false;
-  _currentAudio.onplaying=()=>{played=true;};
-  const fallback=()=>{if(!played&&!fallbackUsed){fallbackUsed=true;_speakFallback(txt);}};
-  _currentAudio.onerror=fallback;
-  _currentAudio.play().catch(fallback);
+  const fb=()=>{if(!fallbackUsed){fallbackUsed=true;_speakFallback(txt);}};
+  _currentAudio.onerror=fb;
+  _currentAudio.play().catch(fb);
 }
 
 /* ═══════════════════════════════
@@ -1129,7 +1137,7 @@ function enterMap(){
   }
   updateMapUI();
   snd_ok();
-  speak('יַאלָּה! בֹּואוּ נַתְחִיל אֶת הַהַרְפַּתְקָה!');
+  speak('בֹּואוּ נַתְחִיל אֶת הַהַרְפַּתְקָה!');
   goScreen('s-map');
   startLifeTimer();
 }
@@ -1717,10 +1725,10 @@ window.addEventListener('resize',()=>{
 /* Prevent scroll on canvas */
 document.addEventListener('touchmove',e=>{if(e.target.tagName==='CANVAS')e.preventDefault()},{passive:false});
 
-/* Init speak on load */
-window.addEventListener('load',()=>{
-  setTimeout(()=>speak('בְּרוּכִים הַבָּאִים לְעוֹלַם הָאוֹתִיּוֹת!'),800);
-});
+/* Welcome message on desktop auto-plays on load */
+if(!_isMobile){
+  window.addEventListener('load',()=>setTimeout(()=>speak('בְּרוּכִים הַבָּאִים לְעוֹלַם הָאוֹתִיּוֹת!'),800));
+}
 </script>
 </body>
 </html>
