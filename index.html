@@ -929,7 +929,7 @@ function _speakFallback(txt){
   window.speechSynthesis.cancel();
   const _doSpeak=()=>{
     window._ttsU=new SpeechSynthesisUtterance(txt);
-    window._ttsU.lang='he-IL';window._ttsU.rate=0.75;window._ttsU.pitch=1.1;
+    window._ttsU.lang='he-IL';window._ttsU.rate=0.75;window._ttsU.pitch=1.1;window._ttsU.volume=G.volume;
     const v=_getHeVoice();if(v)window._ttsU.voice=v;
     window.speechSynthesis.speak(window._ttsU);
   };
@@ -948,6 +948,7 @@ function speak(txt, isQuestion=false){
   // Desktop + Android Chrome: Google TTS (better Hebrew, no Web Speech double-speak bug)
   const url='https://translate.google.com/translate_tts?ie=UTF-8&tl=he&client=tw-ob&q='+encodeURIComponent(txt);
   _currentAudio=new Audio(url);
+  _currentAudio.volume=G.volume;
   let fallbackUsed=false;
   const fb=()=>{if(!fallbackUsed){fallbackUsed=true;_speakFallback(txt);}};
   _currentAudio.onerror=fb;
@@ -964,8 +965,14 @@ const THEMES={
   ocean:{'--red':'#f77f00','--blue':'#0077b6','--green':'#52b788','--yellow':'#ffd60a','--purple':'#5e548e','--dark':'#03045e','--navy':'#023e8a'}
 };
 
+function _stopAudio(){
+  if(_currentAudio){_currentAudio.pause();_currentAudio.src='';_currentAudio=null;}
+  if('speechSynthesis' in window)window.speechSynthesis.cancel();
+}
+
 function toggleMute(){
   G.muteAll=!G.muteAll;
+  if(G.muteAll)_stopAudio();
   const btn=document.getElementById('btn-mute');
   btn.textContent=G.muteAll?'🔇':'🔊';
   btn.classList.toggle('muted',G.muteAll);
@@ -982,6 +989,7 @@ function toggleSetting(key){
   const id='tog-'+key.replace(/([A-Z])/g,'-$1').toLowerCase();
   document.getElementById(id).classList.toggle('on',G[key]);
   if(key==='muteAll'){
+    if(G.muteAll)_stopAudio();
     const btn=document.getElementById('btn-mute');
     btn.textContent=G.muteAll?'🔇':'🔊';
     btn.classList.toggle('muted',G.muteAll);
@@ -989,7 +997,7 @@ function toggleSetting(key){
   if(!G.muteAll)snd_click();
 }
 
-function setVolume(val){G.volume=val/100}
+function setVolume(val){G.volume=val/100;if(_currentAudio)_currentAudio.volume=G.volume;}
 
 function selectTheme(name,btn){
   G.theme=name;
@@ -1300,7 +1308,7 @@ function fallLoop(){
   const spd=FG.spd;
 
   // Level up
-  if(FG.score>0&&FG.score%700===0){FG.level++;FG.spd=Math.min(7,FG.spd+.2);speak('רָמָה '+FG.level+'!')}
+  if(FG.score>0&&FG.score%700===0){FG.level++;FG.spd=Math.min(7,FG.spd+.2);speak('שָׁלָב '+FG.level+'!')}
 
   // Scrolling BG
   FG.bgY=(FG.bgY+spd)%80;
