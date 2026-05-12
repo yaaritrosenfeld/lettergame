@@ -1303,7 +1303,7 @@ function fallLoop(){
   const spd=FG.spd;
 
   // Level up
-  if(FG.score>0&&FG.score%700===0){FG.level++;FG.spd=Math.min(7,FG.spd+.2);speak('רָמָה '+FG.level+'!')}
+  if(FG.score>0&&FG.score%700===0){FG.level++;FG.spd=Math.min(7,FG.spd+.2);speak('שָׁלָב '+FG.level+'!')}
 
   // Scrolling BG
   FG.bgY=(FG.bgY+spd)%80;
