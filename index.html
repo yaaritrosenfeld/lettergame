@@ -553,37 +553,37 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 
     <!-- Connecting path + castles layer -->
     <div class="ws-castles">
-      <!-- Winding path between castles -->
+      <!-- Winding path connecting all 4 castles -->
       <svg class="ws-path" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <path d="M 22,42 C 16,58 60,55 76,72 C 80,82 38,80 42,88 C 44,93 72,90 78,84" stroke="rgba(0,0,0,.18)" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-        <path d="M 22,42 C 16,58 60,55 76,72 C 80,82 38,80 42,88 C 44,93 72,90 78,84" stroke="#e8c96e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <path d="M 22,42 C 16,58 60,55 76,72 C 80,82 38,80 42,88 C 44,93 72,90 78,84" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round"
+        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82" stroke="rgba(0,0,0,.18)" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82" stroke="#e8c96e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round"
               stroke-dasharray="5 3"/>
       </svg>
 
       <!-- Castle 1: Fall game — upper-left -->
-      <div class="ws-castle" style="left:3%;top:22%" onclick="snd_click();launchGame('fall')">
+      <div class="ws-castle" style="left:3%;top:10%" onclick="snd_click();launchGame('fall')">
         <div class="ws-castle-stars" id="castle-stars-fall">☆☆☆</div>
         <div class="ws-castle-label">טירת ההרפתקה</div>
         <div class="ws-castle-icon">🏰</div>
       </div>
 
-      <!-- Castle 2: Letters game — lower-right -->
-      <div class="ws-castle ws-castle-2" style="right:3%;top:46%" onclick="snd_click();launchGame('letters')">
+      <!-- Castle 2: Letters game — upper-right -->
+      <div class="ws-castle ws-castle-2" style="right:3%;top:30%" onclick="snd_click();launchGame('letters')">
         <div class="ws-castle-stars" id="castle-stars-letters">☆☆☆</div>
         <div class="ws-castle-label">ארמון האותיות</div>
         <div class="ws-castle-icon">🏯</div>
       </div>
 
-      <!-- Castle 3: Superheroes — lower-center -->
-      <div class="ws-castle ws-castle-3" style="left:28%;top:66%" onclick="snd_click();G.world=9;launchGame('letters')">
+      <!-- Castle 3: Superheroes — lower-left -->
+      <div class="ws-castle ws-castle-3" style="left:18%;top:52%" onclick="snd_click();G.world=9;launchGame('letters')">
         <div class="ws-castle-stars" id="castle-stars-dragon">☆☆☆</div>
         <div class="ws-castle-label">טירת גיבורי העל</div>
         <div class="ws-castle-icon">🏰</div>
       </div>
 
-      <!-- Castle 4: Space Champions — far-right bottom -->
-      <div class="ws-castle ws-castle-4" style="right:4%;top:72%" onclick="snd_click();G.world=10;launchGame('fall')">
+      <!-- Castle 4: Space Champions — lower-right -->
+      <div class="ws-castle ws-castle-4" style="right:5%;top:72%" onclick="snd_click();G.world=10;launchGame('fall')">
         <div class="ws-castle-stars" id="castle-stars-space">☆☆☆</div>
         <div class="ws-castle-label">טירת אלופי העל חלל</div>
         <div class="ws-castle-icon">🛸</div>
