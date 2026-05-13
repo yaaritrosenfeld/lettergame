@@ -176,6 +176,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .ws-castle-icon{font-size:clamp(5rem,22vw,9rem);filter:drop-shadow(0 10px 22px rgba(0,0,0,.45));line-height:1;animation:castleFloat 3.4s ease-in-out infinite;display:block}
 .ws-castle-2 .ws-castle-icon{animation-delay:1s}
 .ws-castle-3 .ws-castle-icon{animation-delay:2s}
+.ws-castle-4 .ws-castle-icon{animation-delay:3s}
 @keyframes castleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
 .ws-castle-label{background:rgba(0,0,0,.75);color:#fff;font-family:'Fredoka One',sans-serif;font-size:clamp(.85rem,3.5vw,1.2rem);padding:5px 16px;border-radius:20px;border:2px solid rgba(255,255,255,.3);box-shadow:0 3px 0 rgba(0,0,0,.5);white-space:nowrap}
 .ws-castle-stars{font-size:clamp(.9rem,3vw,1.1rem);filter:drop-shadow(0 1px 4px rgba(0,0,0,.7));letter-spacing:2px}
@@ -552,11 +553,11 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 
     <!-- Connecting path + castles layer -->
     <div class="ws-castles">
-      <!-- Winding path between the two castles -->
+      <!-- Winding path between castles -->
       <svg class="ws-path" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <path d="M 22,42 C 16,58 60,55 76,72 C 80,82 38,80 42,88" stroke="rgba(0,0,0,.18)" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-        <path d="M 22,42 C 16,58 60,55 76,72 C 80,82 38,80 42,88" stroke="#e8c96e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <path d="M 22,42 C 16,58 60,55 76,72 C 80,82 38,80 42,88" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round"
+        <path d="M 22,42 C 16,58 60,55 76,72 C 80,82 38,80 42,88 C 44,93 72,90 78,84" stroke="rgba(0,0,0,.18)" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+        <path d="M 22,42 C 16,58 60,55 76,72 C 80,82 38,80 42,88 C 44,93 72,90 78,84" stroke="#e8c96e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M 22,42 C 16,58 60,55 76,72 C 80,82 38,80 42,88 C 44,93 72,90 78,84" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round"
               stroke-dasharray="5 3"/>
       </svg>
 
@@ -579,6 +580,13 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
         <div class="ws-castle-stars" id="castle-stars-dragon">☆☆☆</div>
         <div class="ws-castle-label">טירת גיבורי העל</div>
         <div class="ws-castle-icon">🏰</div>
+      </div>
+
+      <!-- Castle 4: Space Champions — far-right bottom -->
+      <div class="ws-castle ws-castle-4" style="right:4%;top:72%" onclick="snd_click();G.world=10;launchGame('fall')">
+        <div class="ws-castle-stars" id="castle-stars-space">☆☆☆</div>
+        <div class="ws-castle-label">טירת אלופי העל חלל</div>
+        <div class="ws-castle-icon">🛸</div>
       </div>
     </div>
 
@@ -719,7 +727,7 @@ const G = {
   name:'שחקן', shirt:'#e74c3c', pants:'#2c3e50',
   hair:'short', bottom:'pants', photo:null, photoImg:null,
   coins:0, lives:3, world:1,
-  worldStars:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0},
+  worldStars:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0},
   lastLife:Date.now(), audioCtx:null,
   muteAll:false, muteSpeech:false, volume:0.7, hints:true, theme:'classic'
 };
@@ -733,7 +741,8 @@ const WORLDS = {
   6:{icon:'🌈',name:'עולם הקשת',letters:['ע','פ','צ'],game:'fall'},
   7:{icon:'🚀',name:'עולם החלל',letters:['ק','ר','ש'],game:'letters'},
   8:{icon:'⭐',name:'עולם הכוכבים',letters:['ת'],game:'fall'},
-  9:{icon:'🦸',name:'טירת גיבורי העל',letters:['ז','ח','ט','כ','נ','ס','פ','צ','ק','ת'],game:'letters'}
+  9:{icon:'🦸',name:'טירת גיבורי העל',letters:['ז','ח','ט','כ','נ','ס','פ','צ','ק','ת'],game:'letters'},
+  10:{icon:'🚀',name:'טירת אלופי העל חלל',letters:['ז','ח','ט','כ','נ','ס','פ','צ','ק','ת'],game:'fall'}
 };
 
 const LETTERS = [
@@ -1363,19 +1372,26 @@ function flashRed(){
 }
 
 /* ── TRICK QUESTION ── */
+function _trickPool(){
+  const wl=WORLDS[G.world]&&WORLDS[G.world].letters;
+  if(wl&&wl.length>=4)return wl;
+  return ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+}
 function showTrick(){
   if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
-  FG.trickIdx=Math.floor(Math.random()*TRICK_QS.length);
-  FG.trickQ=TRICK_QS[FG.trickIdx];
+  const pool=_trickPool();
+  const poolQs=TRICK_QS.filter(q=>pool.includes(q.ans));
+  FG.trickIdx=Math.floor(Math.random()*poolQs.length);
+  FG.trickQ=poolQs[FG.trickIdx];
+  FG._trickPoolQs=poolQs;
   FG.trickAttempts=0;
   document.getElementById('trick-fb').textContent='';
   document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
   document.getElementById('trick-next-btn').style.display='none';
   const kb=document.getElementById('trick-kb');
   kb.innerHTML='';
-  const allLetters=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
   const ans=FG.trickQ.ans;
-  const distractors=allLetters.filter(l=>l!==ans).sort(()=>Math.random()-.5).slice(0,3);
+  const distractors=pool.filter(l=>l!==ans).sort(()=>Math.random()-.5).slice(0,3);
   const choices=[ans,...distractors].sort(()=>Math.random()-.5);
   choices.forEach(l=>{
     const btn=document.createElement('button');
@@ -1398,14 +1414,15 @@ function playTrickAudio(){
 function cycleToNextTrick(){
   if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
   document.getElementById('trick-next-btn').style.display='none';
-  FG.trickIdx=(FG.trickIdx+1)%TRICK_QS.length;
-  FG.trickQ=TRICK_QS[FG.trickIdx];
+  const pool=_trickPool();
+  const poolQs=FG._trickPoolQs||(TRICK_QS.filter(q=>pool.includes(q.ans)));
+  FG.trickIdx=(FG.trickIdx+1)%poolQs.length;
+  FG.trickQ=poolQs[FG.trickIdx];
   FG.trickAttempts=0;
   document.getElementById('trick-fb').textContent='';
   document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
-  const al=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
   const newAns=FG.trickQ.ans;
-  const dist=al.filter(l=>l!==newAns).sort(()=>Math.random()-.5).slice(0,3);
+  const dist=pool.filter(l=>l!==newAns).sort(()=>Math.random()-.5).slice(0,3);
   const ch=[newAns,...dist].sort(()=>Math.random()-.5);
   const kb=document.getElementById('trick-kb');kb.innerHTML='';
   ch.forEach(l=>{const b=document.createElement('button');b.className='trick-key';b.textContent=l;b.onclick=()=>checkTrick(l,b);kb.appendChild(b);});
