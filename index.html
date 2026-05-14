@@ -1136,21 +1136,26 @@ function initFall(){
 function setupFallControls(){
   const cv=FG.canvas;
   cv.style.touchAction='none';
-  cv.addEventListener('pointerdown',e=>{
+  // Remove stale handlers from previous game session before adding fresh ones
+  if(FG._pdHandler)cv.removeEventListener('pointerdown',FG._pdHandler);
+  if(FG._pmHandler)cv.removeEventListener('pointermove',FG._pmHandler);
+  FG._pdHandler=e=>{
     cv.setPointerCapture(e.pointerId);
     if(!FG.active)return;
     const r=cv.getBoundingClientRect();
     FG.px=Math.max(0,Math.min(FG.W-FG.pw,(e.clientX-r.left)-FG.pw/2));
     FG.py=Math.max(0,Math.min(FG.H-FG.ph,(e.clientY-r.top)-FG.ph/2));
     FG.pvx=0;FG.pvy=0;
-  });
-  cv.addEventListener('pointermove',e=>{
+  };
+  FG._pmHandler=e=>{
     if(!e.buttons||!FG.active)return;
     const r=cv.getBoundingClientRect();
     FG.px=Math.max(0,Math.min(FG.W-FG.pw,(e.clientX-r.left)-FG.pw/2));
     FG.py=Math.max(0,Math.min(FG.H-FG.ph,(e.clientY-r.top)-FG.ph/2));
     FG.pvx=0;FG.pvy=0;
-  });
+  };
+  cv.addEventListener('pointerdown',FG._pdHandler);
+  cv.addEventListener('pointermove',FG._pmHandler);
   document.onkeydown=e=>{
     if(!FG.active)return;
     if(e.key==='ArrowLeft')FG.pvx=-7;
@@ -1243,8 +1248,9 @@ function fallLoop(){
       ctx.shadowColor='gold';ctx.shadowBlur=10;
       ctx.fillText('⭐',s.x,s.y);ctx.shadowBlur=0;
       if(Math.hypot(FG.px+FG.pw/2-s.x,FG.py+FG.ph/2-s.y)<34){
-        s.col=true;FG.coins+=5;addCoins(5);snd_coin();
+        s.col=true;FG.coins+=5;G.coins+=5;snd_coin();
         document.getElementById('fall-coins').textContent=FG.coins;
+        document.getElementById('map-coins').textContent=G.coins;
         coinPop(s.x,s.y,'+5');
       }
     }
@@ -1578,7 +1584,7 @@ function endLetters(){
 function exitGame(){
   FG.active=false;
   if(FG.animId){cancelAnimationFrame(FG.animId);FG.animId=null}
-  if(G.activeGame==='fall')addCoins(FG.coins);
+  if(FG._gyroHandler){window.removeEventListener('deviceorientation',FG._gyroHandler);FG._gyroHandler=null;}
   document.onkeydown=null;document.onkeyup=null;
   snd_click();goScreen('s-map');
 }
