@@ -296,8 +296,24 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 
 .letter-feedback{background:rgba(255,255,255,.1);border-radius:16px;border:3px solid rgba(255,255,255,.2);padding:16px;text-align:center;display:none;flex-direction:column;align-items:center;gap:10px}
 .letter-feedback.show{display:flex}
-.fb-icon{font-size:3.2rem;animation:keyPop .5s}
+.fb-stars{display:flex;gap:10px;justify-content:center;align-items:center}
+.fb-stars span{font-size:2rem;opacity:0;display:inline-block}
+.letter-feedback.show .fb-stars span:nth-child(1){animation:starBurst .7s 0s cubic-bezier(.15,1.4,.4,1) forwards,starFloat 1.8s .7s ease-in-out infinite}
+.letter-feedback.show .fb-stars span:nth-child(2){font-size:2.6rem;animation:starBurst .7s .13s cubic-bezier(.15,1.4,.4,1) forwards,starFloat 1.8s .83s ease-in-out infinite}
+.letter-feedback.show .fb-stars span:nth-child(3){animation:starBurst .7s .06s cubic-bezier(.15,1.4,.4,1) forwards,starFloat 1.8s .76s ease-in-out infinite}
+@keyframes starBurst{
+  0%{opacity:0;transform:scale(0) translateY(24px) rotate(0deg)}
+  55%{opacity:1;transform:scale(1.5) translateY(-14px) rotate(200deg)}
+  72%{transform:scale(.88) translateY(4px) rotate(310deg)}
+  86%{transform:scale(1.12) translateY(-7px) rotate(350deg)}
+  100%{opacity:1;transform:scale(1) translateY(0) rotate(360deg)}
+}
+@keyframes starFloat{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-8px) scale(1.18)}
+}
 .fb-text{color:var(--yellow);font-size:1.35rem;text-shadow:2px 2px 0 rgba(0,0,0,.4)}
+.fb-letter{font-size:4.5rem;font-weight:700;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,.4);animation:keyPop .4s;line-height:1}
 .next-btn{background:var(--green);color:#fff;font-family:'Fredoka One',sans-serif;font-size:1.1rem;padding:12px 32px;border:4px solid rgba(255,255,255,.3);border-radius:12px;cursor:pointer;box-shadow:0 5px 0 #00856a,var(--sh)}
 
 .progress-wrap{margin-top:auto}
@@ -664,6 +680,18 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
   </div>
 </div>
 
+<!-- Letter Game — "לא נורא" popup -->
+<div class="trick-overlay" id="let-fail-overlay">
+  <div class="trick-box">
+    <div class="trick-icon">💪</div>
+    <div class="trick-title">לא נורא!</div>
+    <div style="font-size:3.5rem;color:var(--yellow);font-weight:700;line-height:1" id="let-fail-letter">א</div>
+    <div style="color:#aaa;font-size:1rem;margin-top:-4px" id="let-fail-name"></div>
+    <div style="color:#fff;font-size:1rem;text-align:center">זו הייתה האות הנכונה<br>בפעם הבאה תצליח! 🌟</div>
+    <button class="trick-next-btn" style="display:block" onclick="closeLetFail()">✨ שאלה הבאה!</button>
+  </div>
+</div>
+
 <!-- ══ SCREEN 5: LETTER GAME ══ -->
 <div id="s-letters" class="screen">
   <div class="game-bar">
@@ -692,8 +720,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     <div class="letter-choices" id="let-choices"></div>
 
     <div class="letter-feedback" id="let-feedback">
-      <div class="fb-icon" id="fb-icon">🌟</div>
+      <div class="fb-stars"><span>⭐</span><span>⭐</span><span>⭐</span></div>
       <div class="fb-text" id="fb-text">כל הכבוד!</div>
+      <div class="fb-letter" id="fb-letter"></div>
       <button class="next-btn" onclick="nextLetRound()">הבא ➜</button>
     </div>
 
@@ -1490,7 +1519,7 @@ function checkTrick(l,btn){
 /* ═══════════════════════════════
    LETTER GAME
 ══════════════════════════════════ */
-const LG={round:0,total:5,cur:null,lives:3,coins:0,answered:false};
+const LG={round:0,total:5,cur:null,lives:3,coins:0,answered:false,qAttempts:0,maxQ:2};
 
 function initLetters(){
   LG.round=0;LG.lives=G.lives;LG.coins=0;LG.answered=false;
@@ -1503,8 +1532,9 @@ function initLetters(){
 }
 
 function nextLetRound(){
-  LG.round++;LG.answered=false;
+  LG.round++;LG.answered=false;LG.qAttempts=0;
   document.getElementById('let-feedback').classList.remove('show');
+  document.getElementById('let-choices').style.display='';
   if(LG.round>LG.total){endLetters();return}
   const wl=WORLDS[G.world].letters;
   const allL=LETTERS.map(l=>l.l);
@@ -1517,7 +1547,7 @@ function nextLetRound(){
   document.getElementById('speech-bub').textContent='?';
   document.getElementById('let-round').textContent=LG.round;
   document.getElementById('prog-fill').style.width=(LG.round/LG.total*100)+'%';
-  document.getElementById('let-lives').textContent=livesStr(LG.lives);
+  document.getElementById('let-lives').textContent=livesStr(LG.maxQ);
   document.getElementById('let-coins').textContent=LG.coins;
   const el=document.getElementById('let-choices');
   el.innerHTML='';
@@ -1546,26 +1576,36 @@ function checkLet(ch,btn){
     LG.coins+=10;addCoins(10);
     document.getElementById('speech-bub').textContent='✅';
     speak('כל הכבוד! '+(ch.p||ch.n));
-    document.getElementById('fb-icon').textContent='🌟';
-    document.getElementById('fb-text').textContent='כל הכבוד! '+ch.n+'!';
+    document.getElementById('fb-text').textContent='כל הכבוד!';
+    document.getElementById('fb-letter').textContent=ch.l;
+    document.getElementById('let-choices').style.display='none';
     document.getElementById('let-feedback').classList.add('show');
     document.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
   }else{
     btn.classList.add('cw');btn.disabled=true;snd_no();
-    LG.lives--;speak('נַסֶּה שׁוּב!');
-    document.getElementById('let-lives').textContent=livesStr(LG.lives);
-    if(LG.lives<=0){
+    LG.qAttempts++;
+    const rem=LG.maxQ-LG.qAttempts;
+    document.getElementById('let-lives').textContent=livesStr(rem);
+    if(LG.qAttempts>=LG.maxQ){
       LG.answered=true;
-      document.querySelectorAll('.choice-btn').forEach(b=>{
-        if(b.textContent[0]===LG.cur.l)b.classList.add('cc');
-        b.onclick=null;
-      });
-      document.getElementById('fb-icon').textContent='💪';
-      document.getElementById('fb-text').textContent='האות הנכונה היא '+LG.cur.l+' - '+LG.cur.n;
-      document.getElementById('let-feedback').classList.add('show');
-      speak('הָאוֹת הַנְּכוֹנָה הִיא '+(LG.cur.p||LG.cur.n), true);
+      document.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
+      setTimeout(()=>showLetFail(),400);
+    }else{
+      speak('נַסֶּה שׁוּב!');
     }
   }
+}
+
+function showLetFail(){
+  speak('לֹא נוֹרָא! הָאוֹת הַנְּכוֹנָה הִיא '+(LG.cur.p||LG.cur.n),true);
+  document.getElementById('let-fail-letter').textContent=LG.cur.l;
+  document.getElementById('let-fail-name').textContent=LG.cur.n;
+  document.getElementById('let-fail-overlay').classList.add('show');
+}
+
+function closeLetFail(){
+  document.getElementById('let-fail-overlay').classList.remove('show');
+  nextLetRound();
 }
 
 function endLetters(){
