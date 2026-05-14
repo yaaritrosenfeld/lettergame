@@ -258,6 +258,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .trick-exit-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
 .trick-next-btn{display:none;background:#2d6a4f;color:#fff;font-family:'Fredoka One',sans-serif;font-size:1.1rem;padding:12px 32px;border-radius:12px;cursor:pointer;border:3px solid rgba(255,255,255,.3);box-shadow:0 5px 0 rgba(0,0,0,.4);transition:transform .1s,box-shadow .1s;width:100%}
 .trick-next-btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.4)}
+.trick-retry-anim{display:none;flex-direction:column;align-items:center;gap:12px;animation:retryFadeIn .4s ease}
+.trick-retry-anim.show{display:flex}
+@keyframes retryFadeIn{0%{opacity:0;transform:scale(.7)}60%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+.trick-retry-emoji{font-size:4rem;animation:charBounce .8s infinite}
+.trick-retry-text{font-size:1.4rem;color:#fff;font-family:'Fredoka One',sans-serif;text-align:center;text-shadow:2px 2px 0 rgba(0,0,0,.5)}
+.trick-retry-sub{font-size:.95rem;color:#aaa;text-align:center}
 
 /* ═══════════════════════════════
    SCREEN 5 — LETTER GAME
@@ -652,13 +658,18 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
   <!-- Trick Question -->
   <div class="trick-overlay" id="trick-overlay">
     <div class="trick-box">
-      <div class="trick-icon">🤔</div>
-      <div class="trick-title">שאלת הצלה!</div>
-      <div class="trick-audio-btn" onclick="playTrickAudio()">🔊 שמע שוב</div>
+      <div class="trick-icon" id="trick-icon">🤔</div>
+      <div class="trick-title" id="trick-title">שאלת הצלה!</div>
+      <div class="trick-audio-btn" id="trick-audio-btn" onclick="playTrickAudio()">🔊 שמע שוב</div>
       <div class="trick-kb" id="trick-kb"></div>
       <div class="trick-fb" id="trick-fb"></div>
       <div class="trick-tries" id="trick-tries">נסיון 1 מתוך 2</div>
       <button class="trick-next-btn" id="trick-next-btn" onclick="cycleToNextTrick()">✨ שאלה חדשה!</button>
+      <div class="trick-retry-anim" id="trick-retry-anim">
+        <div class="trick-retry-emoji">💛</div>
+        <div class="trick-retry-text">לא נורא, בוא ננסה שוב!</div>
+        <div class="trick-retry-sub">שאלה חדשה מיד...</div>
+      </div>
       <button class="trick-exit-btn" onclick="exitTrick()">✕</button>
     </div>
   </div>
@@ -1395,6 +1406,18 @@ function _trickPool(){
   if(wl&&wl.length>=4)return wl;
   return ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
 }
+function _setTrickQuestionVisible(v){
+  ['trick-icon','trick-title','trick-audio-btn','trick-kb','trick-fb','trick-tries','trick-next-btn'].forEach(id=>{
+    document.getElementById(id).style.display=v?'':'none';
+  });
+}
+function _resetTrickUI(){
+  document.getElementById('trick-retry-anim').classList.remove('show');
+  _setTrickQuestionVisible(true);
+  document.getElementById('trick-fb').textContent='';
+  document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
+  document.getElementById('trick-next-btn').style.display='none';
+}
 function showTrick(){
   if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
   const pool=_trickPool();
@@ -1403,9 +1426,7 @@ function showTrick(){
   FG.trickQ=poolQs[FG.trickIdx];
   FG._trickPoolQs=poolQs;
   FG.trickAttempts=0;
-  document.getElementById('trick-fb').textContent='';
-  document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
-  document.getElementById('trick-next-btn').style.display='none';
+  _resetTrickUI();
   const kb=document.getElementById('trick-kb');
   kb.innerHTML='';
   const ans=FG.trickQ.ans;
@@ -1437,8 +1458,7 @@ function cycleToNextTrick(){
   FG.trickIdx=(FG.trickIdx+1)%poolQs.length;
   FG.trickQ=poolQs[FG.trickIdx];
   FG.trickAttempts=0;
-  document.getElementById('trick-fb').textContent='';
-  document.getElementById('trick-tries').textContent='נסיון 1 מתוך 2';
+  _resetTrickUI();
   const newAns=FG.trickQ.ans;
   const dist=pool.filter(l=>l!==newAns).sort(()=>Math.random()-.5).slice(0,3);
   const ch=[newAns,...dist].sort(()=>Math.random()-.5);
@@ -1488,9 +1508,11 @@ function checkTrick(l,btn){
       document.getElementById('trick-tries').textContent='';
       document.getElementById('trick-next-btn').style.display='block';
     }else if(FG.trickAttempts>=2){
-      speak('נַסֶּה שׁוּב!');
-      document.getElementById('trick-fb').textContent='😊 בפעם הבאה! ננסה שאלה אחרת...';
-      if(!FG.trickCycleTimer)FG.trickCycleTimer=setTimeout(cycleToNextTrick,2000);
+      document.querySelectorAll('#trick-kb button').forEach(b=>b.disabled=true);
+      _setTrickQuestionVisible(false);
+      document.getElementById('trick-retry-anim').classList.add('show');
+      speak('לֹא נוֹרָא, בּוֹא נְנַסֶּה שׁוּב!');
+      if(!FG.trickCycleTimer)FG.trickCycleTimer=setTimeout(cycleToNextTrick,3000);
     }else{
       speak('נַסֶּה שׁוּב!');
       document.getElementById('trick-tries').textContent='נסיון 2 מתוך 2';
