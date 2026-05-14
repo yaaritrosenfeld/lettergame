@@ -472,6 +472,21 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .wcl div{width:30px;height:44px;background:#2c3e50;border-radius:5px;border:3px solid rgba(0,0,0,.3);box-shadow:var(--sh)}
 
 /* ═══════════════════════════════
+   SCREEN 6 — TRACE GAME
+══════════════════════════════════ */
+#s-trace{background:#0d1b2a;flex-direction:column;align-items:center;justify-content:center;gap:0}
+.trace-hud{width:100%;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(0,0,0,.3)}
+.trace-letter-name{color:var(--neon-yellow);font-size:1.3rem;font-weight:700;text-shadow:0 0 10px rgba(255,230,0,.5)}
+.trace-wrap{position:relative;flex:1;display:flex;align-items:center;justify-content:center;padding:16px;width:100%}
+#trace-guide,#trace-draw{position:absolute;border-radius:20px;touch-action:none}
+#trace-guide{background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.08)}
+.trace-btns{display:flex;gap:12px;padding:16px}
+.trace-btn{padding:12px 28px;border:none;border-radius:24px;font-size:1rem;font-weight:700;cursor:pointer}
+.trace-btn-clear{background:rgba(255,255,255,.12);color:#fff;border:2px solid rgba(255,255,255,.2)}
+.trace-btn-next{background:var(--neon-blue);color:#000}
+.trace-btn:active{filter:brightness(.85);transform:scale(.95)}
+
+/* ═══════════════════════════════
    SHARED ANIMATIONS & UTILS
 ══════════════════════════════════ */
 @keyframes charBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
@@ -734,6 +749,13 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
         <div class="ws-castle-icon">🏰</div>
       </div>
 
+      <!-- Castle 5: Trace game — bottom-center -->
+      <div class="ws-castle" style="left:38%;top:88%" onclick="snd_click();launchGame('trace')">
+        <div class="ws-castle-stars" id="castle-stars-trace">☆☆☆</div>
+        <div class="ws-castle-label">מגדל הכתיבה</div>
+        <div class="ws-castle-icon">✏️</div>
+      </div>
+
       <!-- Castle 4: Space Champions — lower-right -->
       <div class="ws-castle ws-castle-4" style="right:5%;top:72%" onclick="snd_click();G.world=10;launchGame('fall')">
         <div class="ws-castle-stars" id="castle-stars-space">☆☆☆</div>
@@ -866,6 +888,23 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
       <div class="prog-label">⚡ שלב <span id="let-round">1</span> מתוך 5</div>
       <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:20%"></div></div>
     </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 6: TRACE GAME ══ -->
+<div id="s-trace" class="screen">
+  <div class="trace-hud">
+    <button class="gh-btn" onclick="snd_click();goScreen('s-map')" style="background:rgba(255,255,255,.1)">🗺️</button>
+    <div class="trace-letter-name" id="trace-letter-name">אלף</div>
+    <div class="coins-pill">💎 <span id="trace-coins">0</span></div>
+  </div>
+  <div class="trace-wrap" id="trace-wrap">
+    <canvas id="trace-guide"></canvas>
+    <canvas id="trace-draw"></canvas>
+  </div>
+  <div class="trace-btns">
+    <button class="trace-btn trace-btn-clear" onclick="traceClear()">נקה</button>
+    <button class="trace-btn trace-btn-next" onclick="traceNext()">אות אחרת ➜</button>
   </div>
 </div>
 
@@ -1202,6 +1241,7 @@ function launchGame(type){
   document.getElementById('world-popup').classList.remove('show');
   G.activeGame=type;
   if(type==='fall'){goScreen('s-fall');initFall()}
+  else if(type==='trace'){goScreen('s-trace');setTimeout(initTrace,50)}
   else{initLetters();goScreen('s-letters')}
 }
 
@@ -1775,6 +1815,112 @@ function reopenTrick(){
   document.getElementById('trick-prompt').classList.remove('show');
   snd_click();
   showTrick();
+}
+
+/* ═══════════════════════════════
+   TRACE GAME
+══════════════════════════════════ */
+const TR = {
+  letters:[
+    {char:'א',name:'אלף'},{char:'ב',name:'בית'},{char:'ג',name:'גימל'},
+    {char:'ד',name:'דלת'},{char:'ה',name:'הא'},{char:'ו',name:'וו'},
+    {char:'ז',name:'זיין'},{char:'ח',name:'חית'},{char:'ט',name:'טית'},
+    {char:'י',name:'יוד'},{char:'כ',name:'כף'},{char:'ל',name:'למד'},
+    {char:'מ',name:'מם'},{char:'נ',name:'נון'},{char:'ס',name:'סמך'},
+    {char:'ע',name:'עין'},{char:'פ',name:'פא'},{char:'צ',name:'צדי'},
+    {char:'ק',name:'קוף'},{char:'ר',name:'ריש'},{char:'ש',name:'שין'},
+    {char:'ת',name:'תו'},{char:'ך',name:'כף סופית'},{char:'ם',name:'מם סופית'},
+    {char:'ן',name:'נון סופית'},{char:'ף',name:'פא סופית'},{char:'ץ',name:'צדי סופית'},
+  ],
+  gCanvas:null, dCanvas:null, gCtx:null, dCtx:null,
+  drawing:false, lastX:0, lastY:0, size:0,
+};
+
+function initTrace(){
+  TR.gCanvas = document.getElementById('trace-guide');
+  TR.dCanvas = document.getElementById('trace-draw');
+  TR.gCtx    = TR.gCanvas.getContext('2d');
+  TR.dCtx    = TR.dCanvas.getContext('2d');
+
+  // size canvas to fit available space (square, max 340)
+  const wrap = document.getElementById('trace-wrap');
+  const avail = Math.min(wrap.clientWidth, wrap.clientHeight) - 32;
+  TR.size = Math.min(avail, 340);
+  [TR.gCanvas, TR.dCanvas].forEach(c => {
+    c.width  = TR.size;
+    c.height = TR.size;
+    c.style.width  = TR.size + 'px';
+    c.style.height = TR.size + 'px';
+  });
+
+  // drawing style
+  TR.dCtx.lineCap   = 'round';
+  TR.dCtx.lineJoin  = 'round';
+  TR.dCtx.lineWidth = Math.max(TR.size * 0.055, 12);
+  TR.dCtx.strokeStyle = '#00d4ff';
+
+  // touch / mouse events
+  TR.dCanvas.removeEventListener('mousedown',  TR._onStart);
+  TR.dCanvas.removeEventListener('mousemove',  TR._onMove);
+  TR.dCanvas.removeEventListener('mouseup',    TR._onEnd);
+  TR.dCanvas.removeEventListener('touchstart', TR._onStart);
+  TR.dCanvas.removeEventListener('touchmove',  TR._onMove);
+  TR.dCanvas.removeEventListener('touchend',   TR._onEnd);
+
+  TR._onStart = e => { e.preventDefault(); TR.drawing=true; const [x,y]=trPos(e); TR.lastX=x; TR.lastY=y; };
+  TR._onMove  = e => {
+    e.preventDefault();
+    if(!TR.drawing) return;
+    const [x,y] = trPos(e);
+    TR.dCtx.beginPath();
+    TR.dCtx.moveTo(TR.lastX, TR.lastY);
+    TR.dCtx.lineTo(x, y);
+    TR.dCtx.stroke();
+    TR.lastX=x; TR.lastY=y;
+  };
+  TR._onEnd = e => { e.preventDefault(); TR.drawing=false; };
+
+  TR.dCanvas.addEventListener('mousedown',  TR._onStart);
+  TR.dCanvas.addEventListener('mousemove',  TR._onMove);
+  TR.dCanvas.addEventListener('mouseup',    TR._onEnd);
+  TR.dCanvas.addEventListener('touchstart', TR._onStart, {passive:false});
+  TR.dCanvas.addEventListener('touchmove',  TR._onMove,  {passive:false});
+  TR.dCanvas.addEventListener('touchend',   TR._onEnd,   {passive:false});
+
+  traceNext();
+}
+
+function trPos(e){
+  const r = TR.dCanvas.getBoundingClientRect();
+  const s = e.touches ? e.touches[0] : e;
+  return [
+    (s.clientX - r.left) * (TR.size / r.width),
+    (s.clientY - r.top)  * (TR.size / r.height),
+  ];
+}
+
+function traceDrawGuide(char){
+  const ctx = TR.gCtx, S = TR.size;
+  ctx.clearRect(0,0,S,S);
+  ctx.font = `${S * 0.72}px Arial`;
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineWidth    = 0.5;
+  ctx.strokeStyle  = '#666';
+  ctx.strokeText(char, S/2, S/2);
+}
+
+function traceClear(){
+  TR.dCtx.clearRect(0, 0, TR.size, TR.size);
+}
+
+function traceNext(){
+  const pick = TR.letters[Math.floor(Math.random() * TR.letters.length)];
+  document.getElementById('trace-letter-name').textContent = pick.name + ' — ' + pick.char;
+  document.getElementById('trace-coins').textContent = G.coins;
+  traceDrawGuide(pick.char);
+  traceClear();
+  speak(pick.name);
 }
 
 /* Resize canvas */
