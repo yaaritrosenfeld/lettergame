@@ -1070,7 +1070,7 @@ function coinPop(x,y,txt){
 ══════════════════════════════════ */
 const FG={
   canvas:null,ctx:null,active:false,animId:null,
-  spd:1.8,level:1,lives:3,coins:0,score:0,frame:0,bgY:0,
+  spd:1.8,level:1,lives:3,coins:0,score:0,frame:0,bgY:0,lastGapW:0,
   px:0,py:0,pw:48,ph:70,pvx:0,pvy:0,
   W:0,H:0,
   walls:[],obs:[],stars:[],
@@ -1106,22 +1106,25 @@ function initFall(){
   FG.ctx=FG.canvas.getContext('2d');
   FG.ctx.setTransform(dpr,0,0,dpr,0,0);
   FG.active=true;FG.spd=1.0;FG.level=1;FG.score=0;FG.bgY=0;
-  FG.lives=G.lives;FG.coins=0;FG.lastGapX=undefined;
+  FG.lives=G.lives;FG.coins=0;FG.lastGapX=undefined;FG.lastGapW=0;
   FG.px=FG.W/2-FG.pw/2;FG.py=Math.round(FG.H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
   FG.obs=[];FG.stars=[];
   const _W=FG.W;const _H=FG.H;
-  const _gW=Math.max(160,_W*.70);
-  // wall 1: partway down, gap centered on player — always safe start
-  const _gX1=Math.min(_W-_gW-30,Math.max(30,_W/2-_gW/2));
+  // Level 1 gap: 78% of screen width — very generous for children to learn
+  const _gW=Math.max(Math.round(_W*0.60),Math.round(_W*0.78));
+  const _safeM=Math.max(20,Math.round(_W*0.04));
+  const _gX1=Math.min(_W-_gW-_safeM,Math.max(_safeM,_W/2-_gW/2));
   const _c1=wallClr();
-  // wall 2 & 3: random gaps, already queued above screen
-  const _gX2=30+Math.random()*(_W-_gW-60);const _c2=wallClr();
-  const _gX3=30+Math.random()*(_W-_gW-60);const _c3=wallClr();
+  // walls 2 & 3: small drift from center so gaps stay close together
+  const _initDrift=Math.round(_W*0.10);
+  const _gX2=Math.max(_safeM,Math.min(_W-_gW-_safeM,_gX1+Math.round((Math.random()*2-1)*_initDrift)));const _c2=wallClr();
+  const _gX3=Math.max(_safeM,Math.min(_W-_gW-_safeM,_gX2+Math.round((Math.random()*2-1)*_initDrift)));const _c3=wallClr();
   FG.walls=[
     {x:0,y:_H*.35,w:_gX1,h:44,c:_c1},{x:_gX1+_gW,y:_H*.35,w:_W-_gX1-_gW,h:44,c:_c1},
     {x:0,y:-_H*.15,w:_gX2,h:44,c:_c2},{x:_gX2+_gW,y:-_H*.15,w:_W-_gX2-_gW,h:44,c:_c2},
     {x:0,y:-_H*.65,w:_gX3,h:44,c:_c3},{x:_gX3+_gW,y:-_H*.65,w:_W-_gX3-_gW,h:44,c:_c3},
   ];
+  FG.lastGapX=_gX1;FG.lastGapW=_gW;
   // stars scattered inside wall-1 gap so they're reachable without penalty
   [.10,.20,.30,.42].forEach(t=>FG.stars.push({x:_gX1+20+Math.random()*(_gW-40),y:_H*t,col:false}));
   FG.frame=Math.max(35,180-12)*0.7|0;
@@ -1188,26 +1191,35 @@ function fallLoop(){
   // Spawn walls
   const wInterval=Math.max(35,180-FG.level*12);
   if(FG.frame%wInterval===0){
-    const gapW=Math.max(160,W*.70-FG.level*15);
-    const minX=30,maxX=Math.max(minX,W-gapW-60);
-    const maxDrift=6*wInterval;
+    // Gap shrinks with level: 78%→60% of screen width (60% minimum)
+    const gapW=Math.max(Math.round(W*0.60),Math.round(W*0.78)-FG.level*8);
+    const minX=Math.round(W*0.04),maxX=Math.max(minX,W-gapW-minX);
+    // Drift grows slowly with level so gaps never jump too far between walls
+    const maxDrift=Math.round(W*Math.min(0.22,0.10+FG.level*0.02));
     const prev=FG.lastGapX??W/2-gapW/2;
     const lo=Math.max(minX,prev-maxDrift);
     const hi=Math.min(maxX,prev+maxDrift);
-    const gapX=lo+Math.random()*(hi-lo);
-    FG.lastGapX=gapX;
+    const gapX=hi>lo?lo+Math.random()*(hi-lo):minX;
+    FG.lastGapX=gapX;FG.lastGapW=gapW;
     const clr=wallClr();
     FG.walls.push({x:0,y:-50,w:gapX,h:44,c:clr});
     FG.walls.push({x:gapX+gapW,y:-50,w:W-gapX-gapW,h:44,c:clr});
   }
 
-  // Spawn obstacles
-  const obInterval=Math.max(70,240-FG.level*14);
-  if(FG.level>=3&&FG.frame%obInterval===0){
-    const types=[{e:'🪨',r:26},{e:'🌵',r:24},{e:'💀',r:25},{e:'🔥',r:23},{e:'⚡',r:22},{e:'🦠',r:20}];
+  // Spawn obstacles — only inside wall (solid) areas, never blocking the gap
+  const obInterval=Math.max(80,280-FG.level*14);
+  if(FG.level>=5&&FG.frame%obInterval===0){
+    const types=[{e:'🪨',r:20},{e:'🌵',r:18},{e:'💀',r:19},{e:'🔥',r:17},{e:'⚡',r:16},{e:'🦠',r:15}];
     const t=types[Math.floor(Math.random()*types.length)];
-    const obX=t.r+Math.random()*(W-t.r*2);
-    FG.obs.push({x:obX,baseX:obX,y:-60,r:t.r,e:t.e,osc:Math.random()>.5});
+    const lgX=FG.lastGapX??W/2-(FG.lastGapW||Math.round(W*0.65))/2;
+    const lgW=FG.lastGapW||Math.round(W*0.65);
+    const leftW=lgX-t.r*2,rightW=W-lgX-lgW-t.r*2;
+    let obX;
+    if(leftW>0&&rightW>0){obX=Math.random()<0.5?t.r+Math.random()*leftW:lgX+lgW+t.r+Math.random()*rightW;}
+    else if(leftW>0){obX=t.r+Math.random()*leftW;}
+    else if(rightW>0){obX=lgX+lgW+t.r+Math.random()*rightW;}
+    else return;
+    FG.obs.push({x:obX,baseX:obX,y:-60,r:t.r,e:t.e,osc:false});
   }
 
   // Stars
@@ -1270,20 +1282,20 @@ function fallLoop(){
     FG.obs=[];
     // Pre-fill screen with 3 spread-out walls so it's not blank on respawn
     FG.walls=[];
-    const pgW=Math.max(160,W*.70-FG.level*15);
-    const pgMinX=30,pgMaxX=Math.max(30,W-pgW-60);
-    const pgDrift=6*Math.max(35,180-FG.level*12);
+    const pgW=Math.max(Math.round(W*0.60),Math.round(W*0.78)-FG.level*8);
+    const pgMinX=Math.round(W*0.04),pgMaxX=Math.max(pgMinX,W-pgW-pgMinX);
+    const pgDrift=Math.round(W*Math.min(0.22,0.10+FG.level*0.02));
     let pgPrev=W/2-pgW/2;
     [H*.62,H*.38,H*.12].forEach(preY=>{
       const pgLo=Math.max(pgMinX,pgPrev-pgDrift);
       const pgHi=Math.min(pgMaxX,pgPrev+pgDrift);
-      const pgX=pgLo+Math.random()*(pgHi-pgLo);
+      const pgX=pgHi>pgLo?pgLo+Math.random()*(pgHi-pgLo):pgMinX;
       pgPrev=pgX;
       const pc=wallClr();
       FG.walls.push({x:0,y:preY,w:pgX,h:44,c:pc});
       FG.walls.push({x:pgX+pgW,y:preY,w:W-pgX-pgW,h:44,c:pc});
     });
-    FG.lastGapX=pgPrev;
+    FG.lastGapX=pgPrev;FG.lastGapW=pgW;
     if(FG.lives<=0){FG.active=false;setTimeout(showTrick,500);return}
   }
 
@@ -1447,19 +1459,19 @@ function checkTrick(l,btn){
       FG.lives=3;FG.active=true;
       FG.px=FG.W/2-FG.pw/2;FG.py=Math.round(FG.H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
       FG.obs=[];
-      const _tgW=Math.max(160,FG.W*.70-FG.level*15);
-      const _tMinX=30,_tMaxX=Math.max(30,FG.W-_tgW-60);
-      const _tDrift=6*Math.max(35,180-FG.level*12);
+      const _tgW=Math.max(Math.round(FG.W*0.60),Math.round(FG.W*0.78)-FG.level*8);
+      const _tMinX=Math.round(FG.W*0.04),_tMaxX=Math.max(_tMinX,FG.W-_tgW-_tMinX);
+      const _tDrift=Math.round(FG.W*Math.min(0.22,0.10+FG.level*0.02));
       let _tPrev=FG.W/2-_tgW/2;
       FG.walls=[];
       [FG.H*.62,FG.H*.38,FG.H*.12].forEach(py=>{
         const lo=Math.max(_tMinX,_tPrev-_tDrift),hi=Math.min(_tMaxX,_tPrev+_tDrift);
-        const gx=lo+Math.random()*(hi-lo);_tPrev=gx;
+        const gx=hi>lo?lo+Math.random()*(hi-lo):_tMinX;_tPrev=gx;
         const tc=wallClr();
         FG.walls.push({x:0,y:py,w:gx,h:44,c:tc});
         FG.walls.push({x:gx+_tgW,y:py,w:FG.W-gx-_tgW,h:44,c:tc});
       });
-      FG.lastGapX=_tPrev;
+      FG.lastGapX=_tPrev;FG.lastGapW=_tgW;
       document.getElementById('fall-lives').textContent=livesStr(3);
       fallLoop();
     },1600);
