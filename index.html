@@ -489,8 +489,13 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .trace-btns{display:flex;gap:12px;padding:16px}
 .trace-btn{padding:12px 28px;border:none;border-radius:24px;font-size:1rem;font-weight:700;cursor:pointer}
 .trace-btn-clear{background:rgba(255,255,255,.12);color:#fff;border:2px solid rgba(255,255,255,.2)}
+.trace-btn-check{background:#00c96e;color:#000}
 .trace-btn-next{background:var(--neon-blue);color:#000}
 .trace-btn:active{filter:brightness(.85);transform:scale(.95)}
+#trace-feedback{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;font-weight:900;pointer-events:none;opacity:0;transition:opacity .2s;text-align:center;white-space:nowrap}
+#trace-feedback.show{opacity:1}
+#trace-feedback.success{color:#00ff88;text-shadow:0 0 20px #00ff88,0 0 40px #00ff88}
+#trace-feedback.retry{color:#ff6060;text-shadow:0 0 16px #ff4444}
 
 /* ═══════════════════════════════
    SHARED ANIMATIONS & UTILS
@@ -912,9 +917,11 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
   <div class="trace-wrap" id="trace-wrap">
     <canvas id="trace-guide"></canvas>
     <canvas id="trace-draw"></canvas>
+    <div id="trace-feedback"></div>
   </div>
   <div class="trace-btns">
     <button class="trace-btn trace-btn-clear" onclick="traceClear()">נקה</button>
+    <button class="trace-btn trace-btn-check" onclick="traceCheck()">סיימתי ✓</button>
     <button class="trace-btn trace-btn-next" onclick="traceNext()">אות אחרת ➜</button>
   </div>
 </div>
@@ -1867,7 +1874,9 @@ const TR = {
     {char:'ן',name:'נון סופית'},{char:'ף',name:'פא סופית'},{char:'ץ',name:'צדי סופית'},
   ],
   gCanvas:null, dCanvas:null, gCtx:null, dCtx:null,
+  zCanvas:null, zCtx:null,
   drawing:false, lastX:0, lastY:0, size:0,
+  currentChar:'',
 };
 
 function initTrace(){
@@ -1875,6 +1884,8 @@ function initTrace(){
   TR.dCanvas = document.getElementById('trace-draw');
   TR.gCtx    = TR.gCanvas.getContext('2d');
   TR.dCtx    = TR.dCanvas.getContext('2d');
+  TR.zCanvas = document.createElement('canvas');
+  TR.zCtx    = TR.zCanvas.getContext('2d');
 
   // size canvas to fit available space (square, max 340)
   const dpr  = window.devicePixelRatio || 1;
@@ -1882,7 +1893,7 @@ function initTrace(){
   const avail = Math.min(wrap.clientWidth, wrap.clientHeight) - 32;
   TR.size = Math.min(avail, 340);
   TR.dpr  = dpr;
-  [TR.gCanvas, TR.dCanvas].forEach(c => {
+  [TR.gCanvas, TR.dCanvas, TR.zCanvas].forEach(c => {
     c.width  = Math.round(TR.size * dpr);
     c.height = Math.round(TR.size * dpr);
     c.style.width  = TR.size + 'px';
@@ -1951,16 +1962,88 @@ function traceDrawGuide(char){
   ctx.strokeText(char, S/2, S/2);
 }
 
+function traceDrawZone(char){
+  const ctx = TR.zCtx, S = TR.size;
+  ctx.clearRect(0,0,S,S);
+  ctx.font = `bold ${S * 0.72}px Arial`;
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  // thick stroke = forgiving tolerance zone around letter skeleton
+  ctx.lineWidth   = S * 0.18;
+  ctx.strokeStyle = '#fff';
+  ctx.lineJoin    = 'round';
+  ctx.lineCap     = 'round';
+  ctx.strokeText(char, S/2, S/2);
+  // also fill the letter itself
+  ctx.fillStyle = '#fff';
+  ctx.fillText(char, S/2, S/2);
+}
+
+function traceCheck(){
+  const S   = TR.size;
+  const dpr = TR.dpr;
+  const W   = Math.round(S * dpr), H = Math.round(S * dpr);
+
+  const drawData = TR.dCtx.getImageData(0, 0, W, H).data;
+  const zoneData = TR.zCtx.getImageData(0, 0, W, H).data;
+
+  let drawnPx = 0, inZonePx = 0, zoneTotalPx = 0;
+  for(let i = 0; i < drawData.length; i += 4){
+    const drawn  = drawData[i+3] > 30;
+    const inZone = zoneData[i+3] > 30;
+    if(drawn)  drawnPx++;
+    if(inZone) zoneTotalPx++;
+    if(drawn && inZone) inZonePx++;
+  }
+
+  const minPx = W * H * 0.015;
+  if(drawnPx < minPx){ traceFeedback('small'); return; }
+
+  const precision = inZonePx / drawnPx;          // כמה מהציור על האות
+  const coverage  = inZonePx / zoneTotalPx;       // כמה מהאות כוסתה
+
+  if(precision >= 0.45 && coverage >= 0.18){
+    traceFeedback('success');
+  } else {
+    traceFeedback('retry');
+  }
+}
+
+function traceFeedback(type){
+  const el = document.getElementById('trace-feedback');
+  el.className = '';
+  void el.offsetWidth;
+  if(type === 'success'){
+    el.textContent = '✓ יופי!';
+    el.className = 'show success';
+    G.coins++;
+    document.getElementById('trace-coins').textContent = G.coins;
+    snd_coin && snd_coin();
+    setTimeout(()=>{ el.className=''; traceNext(); }, 1200);
+  } else if(type === 'retry'){
+    el.textContent = 'נסה שוב';
+    el.className = 'show retry';
+    setTimeout(()=>{ el.className=''; traceClear(); }, 1000);
+  } else if(type === 'small'){
+    el.textContent = 'צייר יותר!';
+    el.className = 'show retry';
+    setTimeout(()=>{ el.className=''; }, 1000);
+  }
+}
+
 function traceClear(){
   TR.dCtx.clearRect(0, 0, TR.size, TR.size);
 }
 
 function traceNext(){
   const pick = TR.letters[Math.floor(Math.random() * TR.letters.length)];
+  TR.currentChar = pick.char;
   document.getElementById('trace-letter-name').textContent = pick.name + ' — ' + pick.char;
   document.getElementById('trace-coins').textContent = G.coins;
   traceDrawGuide(pick.char);
+  traceDrawZone(pick.char);
   traceClear();
+  document.getElementById('trace-feedback').className = '';
   speak(pick.name);
 }
 
