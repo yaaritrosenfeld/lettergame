@@ -911,7 +911,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 <div id="s-trace" class="screen">
   <div class="trace-hud">
     <button class="gh-btn" onclick="snd_click();goScreen('s-map')" style="background:rgba(255,255,255,.1)">🗺️</button>
-    <div class="trace-letter-name" id="trace-letter-name">אלף</div>
     <div class="coins-pill">💎 <span id="trace-coins">0</span></div>
   </div>
   <div class="trace-wrap" id="trace-wrap">
@@ -2038,7 +2037,6 @@ function traceClear(){
 function traceNext(){
   const pick = TR.letters[Math.floor(Math.random() * TR.letters.length)];
   TR.currentChar = pick.char;
-  document.getElementById('trace-letter-name').textContent = pick.name + ' — ' + pick.char;
   document.getElementById('trace-coins').textContent = G.coins;
   traceDrawGuide(pick.char);
   traceDrawZone(pick.char);
