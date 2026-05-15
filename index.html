@@ -1877,20 +1877,23 @@ function initTrace(){
   TR.dCtx    = TR.dCanvas.getContext('2d');
 
   // size canvas to fit available space (square, max 340)
+  const dpr  = window.devicePixelRatio || 1;
   const wrap = document.getElementById('trace-wrap');
   const avail = Math.min(wrap.clientWidth, wrap.clientHeight) - 32;
   TR.size = Math.min(avail, 340);
+  TR.dpr  = dpr;
   [TR.gCanvas, TR.dCanvas].forEach(c => {
-    c.width  = TR.size;
-    c.height = TR.size;
+    c.width  = Math.round(TR.size * dpr);
+    c.height = Math.round(TR.size * dpr);
     c.style.width  = TR.size + 'px';
     c.style.height = TR.size + 'px';
+    c.getContext('2d').scale(dpr, dpr);
   });
 
   // drawing style
   TR.dCtx.lineCap   = 'round';
   TR.dCtx.lineJoin  = 'round';
-  TR.dCtx.lineWidth = Math.max(TR.size * 0.055, 12);
+  TR.dCtx.lineWidth = Math.max(TR.size * 0.055, 14);
   TR.dCtx.strokeStyle = '#00d4ff';
 
   // touch / mouse events
@@ -1936,11 +1939,15 @@ function trPos(e){
 function traceDrawGuide(char){
   const ctx = TR.gCtx, S = TR.size;
   ctx.clearRect(0,0,S,S);
-  ctx.font = `${S * 0.72}px Arial`;
+  ctx.font = `bold ${S * 0.72}px Arial`;
   ctx.textAlign    = 'center';
   ctx.textBaseline = 'middle';
-  ctx.lineWidth    = 0.5;
-  ctx.strokeStyle  = '#666';
+  // filled ghost letter — clearly visible as a trace target
+  ctx.fillStyle = 'rgba(255,255,255,0.13)';
+  ctx.fillText(char, S/2, S/2);
+  // glowing outline
+  ctx.lineWidth   = 3;
+  ctx.strokeStyle = 'rgba(0,212,255,0.55)';
   ctx.strokeText(char, S/2, S/2);
 }
 
