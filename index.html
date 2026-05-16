@@ -1776,7 +1776,9 @@ function nextLetRound(){
   const wl=WORLDS[G.world].letters;
   const allL=LETTERS.map(l=>l.l);
   const pool=wl.length?wl:allL;
-  const tl=pool[Math.floor(Math.random()*pool.length)];
+  const prev=LG.cur?.l;
+  const avail=pool.length>1?pool.filter(l=>l!==prev):pool;
+  const tl=avail[Math.floor(Math.random()*avail.length)];
   LG.cur=LETTERS.find(l=>l.l===tl)||LETTERS[0];
   const wrong=LETTERS.filter(l=>l.l!==LG.cur.l).sort(()=>Math.random()-.5).slice(0,3);
   const choices=[...wrong,LG.cur].sort(()=>Math.random()-.5);
