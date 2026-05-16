@@ -400,17 +400,26 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
   box-shadow:0 0 22px rgba(255,45,106,.4),0 6px 0 rgba(0,0,0,.6);
   animation:shake .4s}
 
+/* ─── Letter Feedback Bottom Sheet ─── */
 .letter-feedback{
-  background:linear-gradient(160deg,#050f28,#08142e);
-  border-radius:10px;border:2px solid rgba(57,255,20,.35);
-  box-shadow:0 0 20px rgba(57,255,20,.15);
-  padding:16px;text-align:center;display:none;flex-direction:column;align-items:center;gap:10px}
-.letter-feedback.show{display:flex}
+  position:fixed;bottom:0;left:0;right:0;
+  background:linear-gradient(180deg,rgba(3,10,30,.97) 0%,#020810 100%);
+  border-radius:22px 22px 0 0;
+  padding:20px 20px max(28px,env(safe-area-inset-bottom));
+  text-align:center;display:none;flex-direction:column;align-items:center;gap:10px;
+  z-index:150}
+.letter-feedback.show{display:flex;animation:fbSlideUp .45s cubic-bezier(.34,1.4,.64,1)}
+.letter-feedback.success{border-top:2px solid rgba(57,255,20,.55);box-shadow:0 -10px 50px rgba(57,255,20,.2)}
+.letter-feedback.fail{border-top:2px solid rgba(180,80,255,.55);box-shadow:0 -10px 50px rgba(180,80,255,.2)}
+@keyframes fbSlideUp{from{transform:translateY(110%)}to{transform:translateY(0)}}
+.fb-icon{font-size:2.4rem;animation:fbIconBounce .6s cubic-bezier(.34,1.6,.64,1)}
+@keyframes fbIconBounce{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0deg)}}
 .fb-stars{display:flex;gap:10px;justify-content:center;align-items:center}
 .fb-stars span{font-size:2rem;opacity:0;display:inline-block}
-.letter-feedback.show .fb-stars span:nth-child(1){animation:starBurst .7s 0s cubic-bezier(.15,1.4,.4,1) forwards,starFloat 1.8s .7s ease-in-out infinite}
-.letter-feedback.show .fb-stars span:nth-child(2){font-size:2.6rem;animation:starBurst .7s .13s cubic-bezier(.15,1.4,.4,1) forwards,starFloat 1.8s .83s ease-in-out infinite}
-.letter-feedback.show .fb-stars span:nth-child(3){animation:starBurst .7s .06s cubic-bezier(.15,1.4,.4,1) forwards,starFloat 1.8s .76s ease-in-out infinite}
+.letter-feedback.fail .fb-stars{display:none}
+.letter-feedback.success.show .fb-stars span:nth-child(1){animation:starBurst .7s 0s cubic-bezier(.15,1.4,.4,1) forwards,starFloat 1.8s .7s ease-in-out infinite}
+.letter-feedback.success.show .fb-stars span:nth-child(2){font-size:2.6rem;animation:starBurst .7s .13s cubic-bezier(.15,1.4,.4,1) forwards,starFloat 1.8s .83s ease-in-out infinite}
+.letter-feedback.success.show .fb-stars span:nth-child(3){animation:starBurst .7s .06s cubic-bezier(.15,1.4,.4,1) forwards,starFloat 1.8s .76s ease-in-out infinite}
 @keyframes starBurst{
   0%{opacity:0;transform:scale(0) translateY(24px) rotate(0deg)}
   55%{opacity:1;transform:scale(1.5) translateY(-14px) rotate(200deg)}
@@ -422,18 +431,33 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
   0%,100%{transform:translateY(0) scale(1)}
   50%{transform:translateY(-8px) scale(1.18)}
 }
-.fb-text{color:var(--neon-green);font-size:1.45rem;
-  text-shadow:0 0 16px rgba(57,255,20,.7),2px 2px 0 rgba(0,0,0,.4);
-  letter-spacing:.5px}
-.fb-letter{font-size:4.5rem;font-weight:700;color:#fff;
-  text-shadow:0 0 30px rgba(0,212,255,.8),3px 3px 0 rgba(0,0,0,.4);
-  animation:keyPop .4s;line-height:1}
+.fb-text{font-size:1.55rem;font-weight:700;letter-spacing:.5px}
+.letter-feedback.success .fb-text{color:var(--neon-green);text-shadow:0 0 18px rgba(57,255,20,.7),2px 2px 0 rgba(0,0,0,.4)}
+.letter-feedback.fail .fb-text{color:#ff9966;text-shadow:0 0 16px rgba(255,120,60,.6),2px 2px 0 rgba(0,0,0,.4)}
+.fb-letter{font-size:4.8rem;font-weight:700;line-height:1;animation:keyPop .4s}
+.letter-feedback.success .fb-letter{color:#fff;text-shadow:0 0 32px rgba(57,255,20,.8),3px 3px 0 rgba(0,0,0,.4)}
+.letter-feedback.fail .fb-letter{color:var(--neon-yellow);text-shadow:0 0 32px rgba(255,230,0,.8),3px 3px 0 rgba(0,0,0,.4)}
+.fb-subtext{font-size:.95rem;color:rgba(0,212,255,.85);margin-top:-4px;line-height:1.4}
 .next-btn{background:linear-gradient(160deg,#052210,#0a3520);color:var(--neon-green);
-  font-family:'Fredoka One',sans-serif;font-size:1.1rem;padding:12px 32px;
-  border:2px solid rgba(57,255,20,.5);border-radius:8px;cursor:pointer;
+  font-family:'Fredoka One',sans-serif;font-size:1.1rem;padding:12px 36px;
+  border:2px solid rgba(57,255,20,.5);border-radius:10px;cursor:pointer;
   box-shadow:0 0 14px rgba(57,255,20,.25),0 5px 0 rgba(0,0,0,.5);
-  text-shadow:0 0 10px rgba(57,255,20,.7);transition:all .1s}
+  text-shadow:0 0 10px rgba(57,255,20,.7);transition:all .1s;margin-top:4px}
 .next-btn:active{transform:translateY(3px);box-shadow:0 0 8px rgba(57,255,20,.2),0 2px 0 rgba(0,0,0,.5)}
+.letter-feedback.fail .next-btn{
+  background:linear-gradient(160deg,#1a0830,#280d45);color:#bf5fff;
+  border-color:rgba(180,80,255,.55);
+  box-shadow:0 0 14px rgba(180,80,255,.3),0 5px 0 rgba(0,0,0,.5);
+  text-shadow:0 0 10px rgba(180,80,255,.7)}
+/* Correct-reveal highlight (shown on fail) */
+.choice-btn.cc-reveal{
+  border-color:var(--neon-yellow);
+  box-shadow:0 0 30px rgba(255,230,0,.7),0 6px 0 rgba(0,0,0,.6);
+  animation:revealPulse 1.1s ease-in-out infinite}
+@keyframes revealPulse{
+  0%,100%{box-shadow:0 0 22px rgba(255,230,0,.55),0 6px 0 rgba(0,0,0,.6)}
+  50%{box-shadow:0 0 46px rgba(255,230,0,1),0 6px 0 rgba(0,0,0,.6)}
+}
 
 .progress-wrap{margin-top:auto}
 .prog-label{color:rgba(0,212,255,.6);font-size:.82rem;margin-bottom:6px;
@@ -855,16 +879,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <!-- Letter Game — "לא נורא" popup -->
-<div class="trick-overlay" id="let-fail-overlay">
-  <div class="trick-box">
-    <div class="trick-icon">💪</div>
-    <div class="trick-title">כמעט!</div>
-    <div style="font-size:3.5rem;color:var(--neon-yellow);font-weight:700;line-height:1;text-shadow:0 0 20px rgba(255,230,0,.7)" id="let-fail-letter">א</div>
-    <div style="color:rgba(0,212,255,.8);font-size:1rem;margin-top:-4px" id="let-fail-name"></div>
-    <div style="color:#fff;font-size:1rem;text-align:center">זו הייתה האות הנכונה<br>בפעם הבאה תנצח! ⚡</div>
-    <button class="trick-next-btn" style="display:block" onclick="closeLetFail()">🚀 המשך!</button>
-  </div>
-</div>
 
 <!-- ══ SCREEN 5: LETTER GAME ══ -->
 <div id="s-letters" class="screen">
@@ -894,9 +908,11 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     <div class="letter-choices" id="let-choices"></div>
 
     <div class="letter-feedback" id="let-feedback">
+      <div class="fb-icon" id="fb-icon">🏆</div>
       <div class="fb-stars"><span>⭐</span><span>⭐</span><span>⭐</span></div>
-      <div class="fb-text" id="fb-text">🔥 מדהים!</div>
+      <div class="fb-text" id="fb-text">כל הכבוד!</div>
       <div class="fb-letter" id="fb-letter"></div>
+      <div class="fb-subtext" id="fb-subtext"></div>
       <button class="next-btn" onclick="nextLetRound()">🚀 הבא!</button>
     </div>
 
@@ -1743,14 +1759,15 @@ function initLetters(){
   document.getElementById('sc-body').style.background=G.shirt;
   document.getElementById('sc-ll').style.background=G.pants;
   document.getElementById('sc-lr').style.background=G.pants;
-  document.getElementById('let-feedback').classList.remove('show');
+  const fb=document.getElementById('let-feedback');
+  fb.classList.remove('show','success','fail');
   nextLetRound();
 }
 
 function nextLetRound(){
   LG.round++;LG.answered=false;LG.qAttempts=0;
-  document.getElementById('let-feedback').classList.remove('show');
-  document.getElementById('let-choices').style.display='';
+  const fb=document.getElementById('let-feedback');
+  fb.classList.remove('show','success','fail');
   if(LG.round>LG.total){endLetters();return}
   const wl=WORLDS[G.world].letters;
   const allL=LETTERS.map(l=>l.l);
@@ -1770,6 +1787,7 @@ function nextLetRound(){
   choices.forEach(ch=>{
     const btn=document.createElement('button');
     btn.className='choice-btn';
+    btn.dataset.letter=ch.l;
     btn.innerHTML=`${ch.l}<span class="cbl">${ch.n}</span>`;
     btn.onclick=()=>checkLet(ch,btn);
     el.appendChild(btn);
@@ -1791,11 +1809,14 @@ function checkLet(ch,btn){
     LG.answered=true;btn.classList.add('cc');snd_ok();
     LG.coins+=10;addCoins(10);
     document.getElementById('speech-bub').textContent='✅';
+    const msgs=['מדהים!','כל הכבוד!','יופי!','נהדר!','מושלם!'];
     speak('כל הכבוד! '+(ch.p||ch.n));
-    document.getElementById('fb-text').textContent='🔥 מדהים!';
+    document.getElementById('fb-icon').textContent='🏆';
+    document.getElementById('fb-text').textContent='⭐ '+msgs[Math.floor(Math.random()*msgs.length)];
     document.getElementById('fb-letter').textContent=ch.l;
-    document.getElementById('let-choices').style.display='none';
-    document.getElementById('let-feedback').classList.add('show');
+    document.getElementById('fb-subtext').textContent=ch.n;
+    const fb=document.getElementById('let-feedback');
+    fb.classList.remove('fail');fb.classList.add('success','show');
     document.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
   }else{
     btn.classList.add('cw');btn.disabled=true;snd_no();
@@ -1814,14 +1835,15 @@ function checkLet(ch,btn){
 
 function showLetFail(){
   speak('לֹא נוֹרָא! הָאוֹת הַנְּכוֹנָה הִיא '+(LG.cur.p||LG.cur.n),true);
-  document.getElementById('let-fail-letter').textContent=LG.cur.l;
-  document.getElementById('let-fail-name').textContent=LG.cur.n;
-  document.getElementById('let-fail-overlay').classList.add('show');
-}
-
-function closeLetFail(){
-  document.getElementById('let-fail-overlay').classList.remove('show');
-  nextLetRound();
+  document.querySelectorAll('.choice-btn').forEach(b=>{
+    if(b.dataset.letter===LG.cur.l) b.classList.add('cc-reveal');
+  });
+  document.getElementById('fb-icon').textContent='💪';
+  document.getElementById('fb-text').textContent='לא נורא!';
+  document.getElementById('fb-letter').textContent=LG.cur.l;
+  document.getElementById('fb-subtext').textContent='האות הנכונה היא '+LG.cur.n+' — בוא ננסה שוב!';
+  const fb=document.getElementById('let-feedback');
+  fb.classList.remove('success');fb.classList.add('fail','show');
 }
 
 function endLetters(){
