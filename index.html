@@ -349,7 +349,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .audio-btn:active{transform:scale(.93);box-shadow:0 0 5px rgba(0,212,255,.2),0 1px 0 rgba(0,0,0,.5)}
 
 /* Scene */
-.letter-scene{display:flex;align-items:flex-end;justify-content:center;min-height:130px;
+.letter-scene{display:flex;align-items:flex-end;justify-content:center;min-height:180px;
   background:linear-gradient(180deg,#030c20 0%,#050f2a 60%,#08152e 100%);
   border-radius:10px;border:2px solid rgba(0,212,255,.2);padding:14px;
   position:relative;overflow:hidden;
@@ -400,10 +400,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
   box-shadow:0 0 22px rgba(255,45,106,.4),0 6px 0 rgba(0,0,0,.6);
   animation:shake .4s}
 
-/* ─── Letter Feedback Card (replaces scene area) ─── */
+/* ─── Scene wrapper + Feedback overlay ─── */
+.scene-wrapper{position:relative;min-height:180px}
 .letter-feedback{
+  position:absolute;inset:0;border-radius:10px;z-index:10;
   display:none;flex-direction:column;align-items:center;justify-content:center;
-  gap:8px;text-align:center;padding:18px;border-radius:10px;min-height:130px}
+  gap:5px;text-align:center;padding:9px}
 .letter-feedback.show{display:flex;animation:fbPop .4s cubic-bezier(.34,1.4,.64,1)}
 .letter-feedback.success{
   background:linear-gradient(160deg,#051a08,#093015);
@@ -411,8 +413,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .letter-feedback.fail{
   background:linear-gradient(160deg,#120620,#1c0a30);
   border:2px solid rgba(180,80,255,.4);box-shadow:0 0 22px rgba(180,80,255,.15)}
+.letter-feedback.fail .fb-subtext{display:none}
 @keyframes fbPop{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
-.fb-icon{font-size:2.4rem;animation:fbIconBounce .6s cubic-bezier(.34,1.6,.64,1)}
+.fb-icon{font-size:1.6rem;animation:fbIconBounce .5s cubic-bezier(.34,1.6,.64,1)}
 @keyframes fbIconBounce{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0deg)}}
 .fb-stars{display:flex;gap:10px;justify-content:center;align-items:center}
 .fb-stars span{font-size:2rem;opacity:0;display:inline-block}
@@ -431,23 +434,23 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
   0%,100%{transform:translateY(0) scale(1)}
   50%{transform:translateY(-8px) scale(1.18)}
 }
-.fb-text{font-size:1.55rem;font-weight:700;letter-spacing:.5px}
-.letter-feedback.success .fb-text{color:var(--neon-green);text-shadow:0 0 18px rgba(57,255,20,.7),2px 2px 0 rgba(0,0,0,.4)}
-.letter-feedback.fail .fb-text{color:#ff9966;text-shadow:0 0 16px rgba(255,120,60,.6),2px 2px 0 rgba(0,0,0,.4)}
-.fb-letter{font-size:4.8rem;font-weight:700;line-height:1;animation:keyPop .4s}
-.letter-feedback.success .fb-letter{color:#fff;text-shadow:0 0 32px rgba(57,255,20,.8),3px 3px 0 rgba(0,0,0,.4)}
-.letter-feedback.fail .fb-letter{color:var(--neon-yellow);text-shadow:0 0 32px rgba(255,230,0,.8),3px 3px 0 rgba(0,0,0,.4)}
-.fb-subtext{font-size:.95rem;color:rgba(0,212,255,.85);margin-top:-4px;line-height:1.4}
+.fb-text{font-size:1.2rem;font-weight:700;letter-spacing:.5px}
+.letter-feedback.success .fb-text{color:var(--neon-green);text-shadow:0 0 16px rgba(57,255,20,.7),2px 2px 0 rgba(0,0,0,.4)}
+.letter-feedback.fail .fb-text{color:#ff9966;text-shadow:0 0 14px rgba(255,120,60,.6),2px 2px 0 rgba(0,0,0,.4)}
+.fb-letter{font-size:3rem;font-weight:700;line-height:1;animation:keyPop .4s}
+.letter-feedback.success .fb-letter{color:#fff;text-shadow:0 0 26px rgba(57,255,20,.8),3px 3px 0 rgba(0,0,0,.4)}
+.letter-feedback.fail .fb-letter{color:var(--neon-yellow);text-shadow:0 0 26px rgba(255,230,0,.8),3px 3px 0 rgba(0,0,0,.4)}
+.fb-subtext{font-size:.82rem;color:rgba(0,212,255,.85);line-height:1.3}
 .next-btn{background:linear-gradient(160deg,#052210,#0a3520);color:var(--neon-green);
-  font-family:'Fredoka One',sans-serif;font-size:1.1rem;padding:12px 36px;
-  border:2px solid rgba(57,255,20,.5);border-radius:10px;cursor:pointer;
-  box-shadow:0 0 14px rgba(57,255,20,.25),0 5px 0 rgba(0,0,0,.5);
-  text-shadow:0 0 10px rgba(57,255,20,.7);transition:all .1s;margin-top:4px}
-.next-btn:active{transform:translateY(3px);box-shadow:0 0 8px rgba(57,255,20,.2),0 2px 0 rgba(0,0,0,.5)}
+  font-family:'Fredoka One',sans-serif;font-size:1rem;padding:8px 28px;
+  border:2px solid rgba(57,255,20,.5);border-radius:8px;cursor:pointer;
+  box-shadow:0 0 12px rgba(57,255,20,.25),0 4px 0 rgba(0,0,0,.5);
+  text-shadow:0 0 10px rgba(57,255,20,.7);transition:all .1s}
+.next-btn:active{transform:translateY(3px);box-shadow:0 0 6px rgba(57,255,20,.2),0 1px 0 rgba(0,0,0,.5)}
 .letter-feedback.fail .next-btn{
   background:linear-gradient(160deg,#1a0830,#280d45);color:#bf5fff;
   border-color:rgba(180,80,255,.55);
-  box-shadow:0 0 14px rgba(180,80,255,.3),0 5px 0 rgba(0,0,0,.5);
+  box-shadow:0 0 12px rgba(180,80,255,.3),0 4px 0 rgba(0,0,0,.5);
   text-shadow:0 0 10px rgba(180,80,255,.7)}
 /* Correct-reveal highlight (shown on fail) */
 .choice-btn.cc-reveal{
@@ -895,23 +898,24 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
       <button class="audio-btn" onclick="playLetAudio()">🔊 נגן</button>
     </div>
 
-    <div class="letter-scene">
-      <div class="scene-sun">☀️</div>
-      <div class="scene-char" id="scene-char">
-        <div class="sch">😊</div>
-        <div class="scb" id="sc-body"></div>
-        <div class="scl"><div id="sc-ll"></div><div id="sc-lr"></div></div>
+    <div class="scene-wrapper">
+      <div class="letter-scene">
+        <div class="scene-sun">☀️</div>
+        <div class="scene-char" id="scene-char">
+          <div class="sch">😊</div>
+          <div class="scb" id="sc-body"></div>
+          <div class="scl"><div id="sc-ll"></div><div id="sc-lr"></div></div>
+        </div>
+        <div class="speech-bubble" id="speech-bub">?</div>
       </div>
-      <div class="speech-bubble" id="speech-bub">?</div>
-    </div>
 
-    <div class="letter-feedback" id="let-feedback">
-      <div class="fb-icon" id="fb-icon">🏆</div>
-      <div class="fb-stars"><span>⭐</span><span>⭐</span><span>⭐</span></div>
-      <div class="fb-text" id="fb-text">כל הכבוד!</div>
-      <div class="fb-letter" id="fb-letter"></div>
-      <div class="fb-subtext" id="fb-subtext"></div>
-      <button class="next-btn" onclick="nextLetRound()">🚀 הבא!</button>
+      <div class="letter-feedback" id="let-feedback">
+        <div class="fb-icon" id="fb-icon">🏆</div>
+        <div class="fb-text" id="fb-text">כל הכבוד!</div>
+        <div class="fb-letter" id="fb-letter"></div>
+        <div class="fb-subtext" id="fb-subtext"></div>
+        <button class="next-btn" onclick="nextLetRound()">🚀 הבא!</button>
+      </div>
     </div>
 
     <div class="letter-choices" id="let-choices"></div>
@@ -1761,7 +1765,6 @@ function initLetters(){
   document.getElementById('sc-lr').style.background=G.pants;
   const fb=document.getElementById('let-feedback');
   fb.classList.remove('show','success','fail');
-  document.querySelector('.letter-scene').style.display='';
   nextLetRound();
 }
 
@@ -1769,7 +1772,6 @@ function nextLetRound(){
   LG.round++;LG.answered=false;LG.qAttempts=0;
   const fb=document.getElementById('let-feedback');
   fb.classList.remove('show','success','fail');
-  document.querySelector('.letter-scene').style.display='';
   if(LG.round>LG.total){endLetters();return}
   const wl=WORLDS[G.world].letters;
   const allL=LETTERS.map(l=>l.l);
@@ -1819,8 +1821,7 @@ function checkLet(ch,btn){
     document.getElementById('fb-subtext').textContent=ch.n;
     const fb=document.getElementById('let-feedback');
     fb.classList.remove('fail');fb.classList.add('success','show');
-    document.querySelector('.letter-scene').style.display='none';
-    document.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
+      document.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
   }else{
     btn.classList.add('cw');btn.disabled=true;snd_no();
     LG.qAttempts++;
@@ -1847,7 +1848,6 @@ function showLetFail(){
   document.getElementById('fb-subtext').textContent='האות הנכונה היא '+LG.cur.n+' — בוא ננסה שוב!';
   const fb=document.getElementById('let-feedback');
   fb.classList.remove('success');fb.classList.add('fail','show');
-  document.querySelector('.letter-scene').style.display='none';
 }
 
 function endLetters(){
