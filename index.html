@@ -1681,13 +1681,13 @@ function cycleToNextTrick(){
 function checkTrick(l,btn){
   if(l===FG.trickQ.ans){
     btn.classList.add('kc');snd_ok();
-    document.getElementById('trick-fb').textContent='⚡ מדהים! קיבלת 3 חיים!';
+    document.getElementById('trick-fb').textContent='⚡ מדהים! קיבלת חיים!';
     speak('כֹּל הַכָּבוֹד!');
     addCoins(20);
     setTimeout(()=>{
       document.getElementById('trick-overlay').classList.remove('show');
       document.getElementById('trick-prompt').classList.remove('show');
-      FG.lives=3;FG.active=true;
+      FG.lives=1;FG.active=true;
       FG.px=FG.W/2-FG.pw/2;FG.py=Math.round(FG.H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
       FG.obs=[];
       const _tgW=Math.max(Math.round(FG.W*0.45),Math.round(FG.W*0.75)-FG.level*12);
@@ -1703,7 +1703,7 @@ function checkTrick(l,btn){
         FG.walls.push({x:gx+_tgW,y:py,w:FG.W-gx-_tgW,h:44,c:tc});
       });
       FG.lastGapX=_tPrev;FG.lastGapW=_tgW;
-      document.getElementById('fall-lives').textContent=livesStr(3);
+      document.getElementById('fall-lives').textContent=livesStr(1);
       fallLoop();
     },1600);
   }else{
