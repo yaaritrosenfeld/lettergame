@@ -1766,10 +1766,10 @@ function checkTrick(l,btn){
 /* ═══════════════════════════════
    LETTER GAME
 ══════════════════════════════════ */
-const LG={round:0,total:5,cur:null,lives:3,coins:0,answered:false,qAttempts:0,maxQ:2};
+const LG={round:0,total:5,level:1,cur:null,lives:3,coins:0,answered:false,qAttempts:0,maxQ:2,queue:[]};
 
 function initLetters(){
-  LG.round=0;LG.lives=G.lives;LG.coins=0;LG.answered=false;
+  LG.round=0;LG.level=1;LG.lives=G.lives;LG.coins=0;LG.answered=false;LG.queue=[];
   // Apply avatar to scene char
   document.getElementById('sc-body').style.background=G.shirt;
   document.getElementById('sc-ll').style.background=G.pants;
@@ -1779,17 +1779,37 @@ function initLetters(){
   nextLetRound();
 }
 
+function showLevelUp(){
+  LG.answered=true;
+  speak('כָּל הַכָּבוֹד! עָלִיתָ לְרָמָה '+LG.level+'!');
+  document.getElementById('fb-icon').textContent='🎉';
+  document.getElementById('fb-text').textContent='עלית רמה '+LG.level+'!';
+  document.getElementById('fb-letter').textContent='⭐';
+  document.getElementById('fb-subtext').textContent='מדהים — בואו ממשיכים!';
+  const fb=document.getElementById('let-feedback');
+  fb.classList.remove('fail');fb.classList.add('success','show');
+}
+
 function nextLetRound(){
   LG.round++;LG.answered=false;LG.qAttempts=0;
   const fb=document.getElementById('let-feedback');
   fb.classList.remove('show','success','fail');
-  if(LG.round>LG.total){endLetters();return}
+  if(LG.round>LG.total){
+    LG.level++;LG.round=0;
+    showLevelUp();
+    return;
+  }
   const wl=WORLDS[G.world].letters;
   const allL=LETTERS.map(l=>l.l);
   const pool=wl.length?wl:allL;
-  const prev=LG.cur?.l;
-  const avail=pool.length>1?pool.filter(l=>l!==prev):pool;
-  const tl=avail[Math.floor(Math.random()*avail.length)];
+  if(!LG.queue.length){
+    LG.queue=[...pool].sort(()=>Math.random()-.5);
+    if(LG.queue.length>1&&LG.queue[0]===LG.cur?.l){
+      const i=Math.floor(Math.random()*(LG.queue.length-1))+1;
+      [LG.queue[0],LG.queue[i]]=[LG.queue[i],LG.queue[0]];
+    }
+  }
+  const tl=LG.queue.shift();
   LG.cur=LETTERS.find(l=>l.l===tl)||LETTERS[0];
   const wrong=LETTERS.filter(l=>l.l!==LG.cur.l).sort(()=>Math.random()-.5).slice(0,3);
   const choices=[...wrong,LG.cur].sort(()=>Math.random()-.5);
