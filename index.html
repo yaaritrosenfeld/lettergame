@@ -785,7 +785,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
       </div>
 
       <!-- Castle 2: Letters game — upper-right -->
-      <div class="ws-castle ws-castle-2" style="right:3%;top:22%" onclick="snd_click();launchGame('letters')">
+      <div class="ws-castle ws-castle-2" style="right:3%;top:22%" onclick="snd_click();G.world=1;launchGame('letters')">
         <div class="ws-castle-stars" id="castle-stars-letters">☆☆☆</div>
         <div class="ws-castle-label">ארמון האותיות</div>
         <div class="ws-castle-icon">🏯</div>
@@ -1300,7 +1300,7 @@ function startLifeTimer(){
   setInterval(()=>{
     if(Date.now()-G.lastLife>=5*60*1000){
       G.lastLife=Date.now();
-      if(G.lives<6){G.lives++;updateMapUI();snd_life();coinPop(window.innerWidth/2,100,'+❤️')}
+      if(G.lives<6){G.lives++;updateMapUI();snd_life();coinPop(window.innerWidth/2,100,'+❤️','')}
     }
   },30000);
 }
@@ -1312,9 +1312,9 @@ function addCoins(n){
   G.coins+=n;
   ['map-coins','fall-coins','let-coins'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=G.coins});
 }
-function coinPop(x,y,txt){
+function coinPop(x,y,txt,icon='💎'){
   const el=document.createElement('div');el.className='coin-pop';
-  el.textContent=txt+' 💎';el.style.left=x+'px';el.style.top=y+'px';
+  el.textContent=txt+' '+icon;el.style.left=x+'px';el.style.top=y+'px';
   document.body.appendChild(el);setTimeout(()=>el.remove(),1000);
 }
 
@@ -1863,12 +1863,16 @@ function showLetFail(){
   fb.classList.remove('success');fb.classList.add('fail','show');
 }
 
+const WORLD_CASTLE_STAR={1:'castle-stars-letters',3:'castle-stars-letters',5:'castle-stars-letters',7:'castle-stars-letters',9:'castle-stars-dragon'};
+
 function endLetters(){
   document.getElementById('win-earned').textContent=LG.coins;
   document.getElementById('win-body').style.background=G.shirt;
   const stars=Math.min(3,Math.max(1,Math.ceil(LG.coins/10)));
   G.worldStars[G.world]=Math.max(G.worldStars[G.world],stars);
-  document.getElementById('w-stars-'+G.world).textContent=['☆','☆','☆'].map((_,i)=>i<stars?'⭐':'☆').join('');
+  const starElId=WORLD_CASTLE_STAR[G.world]||'castle-stars-letters';
+  const starEl=document.getElementById(starElId);
+  if(starEl)starEl.textContent=['☆','☆','☆'].map((_,i)=>i<stars?'⭐':'☆').join('');
   snd_ok();speak('כֹּל הַכָּבוֹד! סִיַּמְתָּ אֶת הַמִּשְׂחָק!');
   goScreen('s-win');
 }
@@ -1880,11 +1884,13 @@ function exitGame(){
   FG.active=false;
   if(FG.animId){cancelAnimationFrame(FG.animId);FG.animId=null}
   if(FG._gyroHandler){window.removeEventListener('deviceorientation',FG._gyroHandler);FG._gyroHandler=null;}
+  if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
   document.onkeydown=null;document.onkeyup=null;
   snd_click();goScreen('s-map');
 }
 
 function exitTrick(){
+  if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
   document.getElementById('trick-overlay').classList.remove('show');
   document.getElementById('trick-prompt').classList.add('show');
   snd_click();
