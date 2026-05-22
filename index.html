@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>עולם האותיות 🎮</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
 :root {
   --red:#e63946; --blue:#1d7bf0; --green:#00b894; --yellow:#ffd166;
@@ -571,6 +574,22 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .pc-confirm-btns{display:flex;gap:.5rem}
 .btn-confirm-yes{background:#e74c3c;color:#fff;border:none;border-radius:12px;padding:.35rem .85rem;cursor:pointer;font-family:'Fredoka One','Rubik',sans-serif;font-size:.9rem}
 .btn-confirm-no{background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:12px;padding:.35rem .85rem;cursor:pointer;font-family:'Fredoka One','Rubik',sans-serif;font-size:.9rem}
+.sp-footer{display:flex;flex-direction:column;align-items:center;gap:.5rem;margin-top:.5rem}
+.sp-family-code{color:rgba(255,255,255,.5);font-size:.8rem;display:flex;align-items:center;gap:.4rem}
+.sp-family-code strong{color:rgba(255,255,255,.8);letter-spacing:1px}
+.sp-copy-btn{background:none;border:none;cursor:pointer;font-size:.9rem;opacity:.6;padding:0}
+.sp-copy-btn:hover{opacity:1}
+.sp-other-device{background:none;border:none;color:rgba(255,255,255,.4);font-size:.78rem;cursor:pointer;font-family:'Fredoka One','Rubik',sans-serif;text-decoration:underline}
+.sp-other-device:hover{color:rgba(255,255,255,.7)}
+.sp-import-wrap{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:500}
+.sp-import-box{background:#1a1a3e;border:2px solid rgba(255,255,255,.2);border-radius:20px;padding:1.5rem;display:flex;flex-direction:column;gap:.8rem;align-items:center;min-width:260px}
+.sp-import-title{color:#fff;font-size:1.1rem;font-weight:700}
+.sp-import-input{background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:12px;color:#fff;font-family:'Fredoka One','Rubik',sans-serif;font-size:1rem;padding:.5rem .8rem;width:100%;text-align:center;direction:ltr}
+.sp-import-input::placeholder{color:rgba(255,255,255,.3)}
+.sp-import-status{color:rgba(255,255,255,.7);font-size:.85rem;min-height:1.2em}
+.sp-import-btns{display:flex;gap:.6rem;width:100%}
+.btn-import-go{flex:1;background:linear-gradient(135deg,#4caf50,#27ae60);color:#fff;border:none;border-radius:12px;padding:.5rem;font-family:'Fredoka One','Rubik',sans-serif;font-size:.95rem;cursor:pointer}
+.btn-import-cancel{flex:1;background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:12px;padding:.5rem;font-family:'Fredoka One','Rubik',sans-serif;font-size:.95rem;cursor:pointer}
 </style>
 </head>
 <body>
@@ -664,6 +683,27 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
   <div class="promo-stars-bg" id="stars-bg-players"></div>
   <div class="sp-title">🎮 מי משחק?</div>
   <div class="sp-cards" id="players-wrap"></div>
+  <div class="sp-footer">
+    <div class="sp-family-code">
+      קוד משפחה: <strong id="family-code-display"></strong>
+      <button class="sp-copy-btn" onclick="copyFamilyCode()" title="העתק קוד">📋</button>
+    </div>
+    <button class="sp-other-device" onclick="showImportCode()">📲 עבר ממכשיר אחר?</button>
+  </div>
+</div>
+
+<!-- Import overlay -->
+<div class="sp-import-wrap" id="sp-import-wrap">
+  <div class="sp-import-box">
+    <div class="sp-import-title">📲 ייבוא ממכשיר אחר</div>
+    <div style="color:rgba(255,255,255,.6);font-size:.85rem;text-align:center">הכנס את קוד המשפחה<br>מהמכשיר הישן</div>
+    <input class="sp-import-input" id="sp-import-input" placeholder="ארנב-1234" dir="ltr">
+    <div class="sp-import-status" id="sp-import-status"></div>
+    <div class="sp-import-btns">
+      <button class="btn-import-go" onclick="importFromCode()">✓ טען</button>
+      <button class="btn-import-cancel" onclick="hideImportCode()">✗ ביטול</button>
+    </div>
+  </div>
 </div>
 
 <!-- ══ SCREEN 2: AVATAR BUILDER ══ -->
@@ -989,17 +1029,86 @@ const G = {
 };
 
 /* ═══════════════════════════════
-   PLAYER STORAGE (localStorage)
+   FIREBASE + PLAYER STORAGE
+   localStorage = מהיר + תמונות
+   Firestore    = ענן + cross-device
 ══════════════════════════════════ */
-const LS_KEY='letter_game_v1';
-let G_playerIdx=-1; // index of active player in saved array
 
+// ── Firebase init ──
+const _fbCfg={
+  apiKey:'AIzaSyBx8HXViLvRQtgWBxNfOwbRHbREk-WmohU',
+  authDomain:'lettergame-firstgrade.firebaseapp.com',
+  projectId:'lettergame-firstgrade',
+  storageBucket:'lettergame-firstgrade.firebasestorage.app',
+  messagingSenderId:'1003771933914',
+  appId:'1:1003771933914:web:0ec6342b695184d52321e3'
+};
+let _db=null;
+try{firebase.initializeApp(_fbCfg);_db=firebase.firestore();}catch(e){console.warn('Firebase:',e);}
+
+// ── מפתחות ──
+const LS_KEY='letter_game_v1';
+const LS_CODE='family_code';
+let G_playerIdx=-1;
+
+// ── קוד משפחה (מזהה ייחודי לכל מכשיר/משפחה) ──
+function getFamilyCode(){
+  let c=localStorage.getItem(LS_CODE);
+  if(!c){
+    const w=['ארנב','פיל','נמר','דולפין','ינשוף','קוף','צב','גמל'];
+    c=w[Math.floor(Math.random()*w.length)]+'-'+Math.floor(1000+Math.random()*9000);
+    localStorage.setItem(LS_CODE,c);
+  }
+  return c;
+}
+
+// ── Local (sync, מהיר) ──
 function loadPlayers(){
   try{return JSON.parse(localStorage.getItem(LS_KEY))||[];}catch(e){return[];}
 }
-function savePlayers(arr){
+function _saveLocal(arr){
   try{localStorage.setItem(LS_KEY,JSON.stringify(arr));}catch(e){}
 }
+
+// ── Firestore (async, גיבוי ענן) ──
+// הערה: תמונות (photo) לא נשמרות בענן — גדולות מדי ל-Firestore
+// הן נשמרות רק ב-localStorage של המכשיר הנוכחי
+async function _cloudSave(arr){
+  if(!_db)return;
+  try{
+    const famRef=_db.collection('families').doc(getFamilyCode());
+    const batch=_db.batch();
+    batch.set(famRef,{count:arr.length,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    for(let i=0;i<3;i++){
+      const ref=famRef.collection('players').doc(String(i));
+      if(i<arr.length){
+        const {photo,...rest}=arr[i];
+        batch.set(ref,{...rest,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      }else{
+        batch.delete(ref);
+      }
+    }
+    await batch.commit();
+  }catch(e){}
+}
+
+async function _cloudLoad(code){
+  if(!_db)return null;
+  try{
+    const snap=await _db.collection('families').doc(code).collection('players').get();
+    if(snap.empty)return null;
+    const arr=new Array(3).fill(null);
+    snap.docs.forEach(d=>{arr[parseInt(d.id)]={...d.data(),photo:null};});
+    return arr.filter(Boolean);
+  }catch(e){return null;}
+}
+
+// ── Public API ──
+function savePlayers(arr){
+  _saveLocal(arr);
+  _cloudSave(arr); // fire and forget — לא חוסם את ה-UI
+}
+
 function saveCurrentPlayer(){
   if(G_playerIdx<0)return;
   const arr=loadPlayers();
@@ -1012,11 +1121,34 @@ function saveCurrentPlayer(){
   savePlayers(arr);
 }
 
+// ── ייבוא ממכשיר אחר ──
+async function importFromCode(){
+  const inp=document.getElementById('sp-import-input');
+  const status=document.getElementById('sp-import-status');
+  const code=(inp.value||'').trim();
+  if(!code)return;
+  status.textContent='טוען...';
+  const players=await _cloudLoad(code);
+  if(!players||!players.length){status.textContent='❌ קוד לא נמצא';return;}
+  localStorage.setItem(LS_CODE,code);
+  _saveLocal(players);
+  document.getElementById('sp-import-wrap').style.display='none';
+  inp.value='';status.textContent='';
+  renderPlayerSelect();
+}
+function showImportCode(){document.getElementById('sp-import-wrap').style.display='flex';}
+function hideImportCode(){document.getElementById('sp-import-wrap').style.display='none';document.getElementById('sp-import-status').textContent='';}
+async function copyFamilyCode(){
+  try{await navigator.clipboard.writeText(getFamilyCode());snd_ok();}catch(e){}
+}
+
 let _confirmDeleteIdx=-1;
 
 function openPlayerSelect(){
   _confirmDeleteIdx=-1;
   renderPlayerSelect();
+  const codeEl=document.getElementById('family-code-display');
+  if(codeEl)codeEl.textContent=getFamilyCode();
   goScreen('s-players');
   // seed stars background once
   const bg=document.getElementById('stars-bg-players');
