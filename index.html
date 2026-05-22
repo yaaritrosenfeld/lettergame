@@ -161,8 +161,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 #map-lives{font-size:1.2rem;letter-spacing:2px}
 
 /* World scene title */
-.ws-title{text-align:center;padding:6px 12px 4px;flex-shrink:0;position:relative;z-index:10}
-.map-title-text{display:inline-block;background:linear-gradient(135deg,#ffe066,#ff9800,#ffe066);color:#333;font-size:clamp(.85rem,3.8vw,1.2rem);font-weight:900;padding:6px 20px;border-radius:25px;border:3px solid #fff;box-shadow:0 5px 0 rgba(0,0,0,.3),0 0 24px rgba(255,215,0,.7);text-shadow:1px 1px 0 rgba(255,255,255,.5);animation:titleGlow 2.5s ease-in-out infinite;letter-spacing:1px;white-space:nowrap}
+.ws-title{text-align:center;padding:18px 12px 0;flex-shrink:0;position:relative;z-index:10}
+.map-title-text{display:inline-block;color:#fff;font-size:clamp(1rem,4.5vw,1.5rem);font-weight:900;text-shadow:0 0 18px rgba(255,215,0,.9),0 2px 6px rgba(0,0,0,.5);animation:titleGlow 2.5s ease-in-out infinite;letter-spacing:2px;white-space:nowrap}
 @keyframes titleGlow{0%,100%{box-shadow:0 6px 0 rgba(0,0,0,.3),0 0 18px rgba(255,215,0,.5)}50%{box-shadow:0 6px 0 rgba(0,0,0,.3),0 0 42px rgba(255,215,0,1)}}
 
 /* Sky elements */
@@ -774,46 +774,32 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     <!-- Castles layer -->
     <div class="ws-castles">
 
-      <!-- Castle 1: Fall game — upper-left, top:4% -->
-      <div class="ws-castle" style="left:5%;top:4%" onclick="snd_click();launchGame('fall')">
-        <div class="ws-castle-stars" id="castle-stars-fall">☆☆☆</div>
-        <div class="ws-castle-label">טירת ההרפתקה</div>
-        <div class="ws-castle-icon">🏰</div>
-      </div>
-
-      <!-- Castle 2: Letters game — upper-right, top:16% -->
-      <div class="ws-castle ws-castle-2" style="right:5%;top:16%" onclick="snd_click();G.world=1;launchGame('letters')">
-        <div class="ws-castle-stars" id="castle-stars-letters">☆☆☆</div>
-        <div class="ws-castle-label">ארמון האותיות</div>
-        <div class="ws-castle-icon">🏯</div>
-      </div>
-
-      <!-- Castle 3: Superheroes — mid-left, top:28% -->
-      <div class="ws-castle ws-castle-3" style="left:5%;top:28%" onclick="snd_click();G.world=9;launchGame('letters')">
+      <!-- Castle 1: Superheroes letters — upper-left -->
+      <div class="ws-castle" style="left:5%;top:10%" onclick="snd_click();G.world=9;launchGame('letters')">
         <div class="ws-castle-stars" id="castle-stars-dragon">☆☆☆</div>
         <div class="ws-castle-label">טירת גיבורי העל</div>
         <div class="ws-castle-icon">🏰</div>
       </div>
 
-      <!-- Castle 4: Trace game — mid-right, top:40% -->
-      <div class="ws-castle ws-castle-4" style="right:5%;top:40%" onclick="snd_click();launchGame('trace')">
+      <!-- Castle 2: Race game — upper-right -->
+      <div class="ws-castle ws-castle-2" style="right:5%;top:28%" onclick="snd_click();launchGame('race')">
+        <div class="ws-castle-stars" id="castle-stars-race">☆☆☆</div>
+        <div class="ws-castle-label">מסלול המירוצים</div>
+        <div class="ws-castle-icon">🏎️</div>
+      </div>
+
+      <!-- Castle 3: Trace game — mid-left -->
+      <div class="ws-castle ws-castle-3" style="left:5%;top:46%" onclick="snd_click();launchGame('trace')">
         <div class="ws-castle-stars" id="castle-stars-trace">☆☆☆</div>
         <div class="ws-castle-label">מגדל הכתיבה</div>
         <div class="ws-castle-icon">✏️</div>
       </div>
 
-      <!-- Castle 5: Space Champions — lower-left, top:52% -->
-      <div class="ws-castle" style="left:5%;top:52%" onclick="snd_click();G.world=10;launchGame('fall')">
+      <!-- Castle 4: Space Champions fall — lower-right -->
+      <div class="ws-castle ws-castle-4" style="right:5%;top:64%" onclick="snd_click();G.world=10;launchGame('fall')">
         <div class="ws-castle-stars" id="castle-stars-space">☆☆☆</div>
         <div class="ws-castle-label">טירת אלופי העל חלל</div>
         <div class="ws-castle-icon">🛸</div>
-      </div>
-
-      <!-- Castle 6: Race game — lower-right, top:64% -->
-      <div class="ws-castle ws-castle-2" style="right:5%;top:64%" onclick="snd_click();launchGame('race')">
-        <div class="ws-castle-stars" id="castle-stars-race">☆☆☆</div>
-        <div class="ws-castle-label">מסלול המירוצים</div>
-        <div class="ws-castle-icon">🏎️</div>
       </div>
     </div>
 
@@ -998,7 +984,8 @@ const G = {
   coins:0, lives:3, world:1,
   worldStars:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0},
   lastLife:Date.now(), audioCtx:null,
-  muteAll:false, muteSpeech:false, volume:0.7, hints:true, theme:'classic'
+  muteAll:false, muteSpeech:false, volume:0.7, hints:true, theme:'classic',
+  trickCaller:'fall'
 };
 
 const WORLDS = {
@@ -1010,8 +997,8 @@ const WORLDS = {
   6:{icon:'🌈',name:'עולם הקשת',letters:['ע','פ','צ'],game:'fall'},
   7:{icon:'🚀',name:'עולם החלל',letters:['ק','ר','ש'],game:'letters'},
   8:{icon:'⭐',name:'עולם הכוכבים',letters:['ת'],game:'fall'},
-  9:{icon:'🦸',name:'טירת גיבורי העל',letters:['ז','ח','ט','כ','נ','ס','פ','צ','ק','ת'],game:'letters'},
-  10:{icon:'🚀',name:'טירת אלופי העל חלל',letters:['ז','ח','ט','כ','נ','ס','פ','צ','ק','ת'],game:'fall'}
+  9:{icon:'🦸',name:'טירת גיבורי העל',letters:['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'],game:'letters'},
+  10:{icon:'🚀',name:'טירת אלופי העל חלל',letters:['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'],game:'fall'}
 };
 
 const LETTERS = [
@@ -1736,24 +1723,31 @@ function checkTrick(l,btn){
     setTimeout(()=>{
       document.getElementById('trick-overlay').classList.remove('show');
       document.getElementById('trick-prompt').classList.remove('show');
-      FG.lives=1;FG.active=true;
-      FG.px=FG.W/2-FG.pw/2;FG.py=Math.round(FG.H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
-      FG.obs=[];
-      const _tgW=Math.max(Math.round(FG.W*0.45),Math.round(FG.W*0.75)-FG.level*12);
-      const _tMinX=Math.round(FG.W*0.04),_tMaxX=Math.max(_tMinX,FG.W-_tgW-_tMinX);
-      const _tDrift=Math.round(FG.W*Math.min(0.35,0.12+FG.level*0.03));
-      let _tPrev=FG.W/2-_tgW/2;
-      FG.walls=[];
-      [FG.H*.62,FG.H*.38,FG.H*.12].forEach(py=>{
-        const lo=Math.max(_tMinX,_tPrev-_tDrift),hi=Math.min(_tMaxX,_tPrev+_tDrift);
-        const gx=hi>lo?lo+Math.random()*(hi-lo):_tMinX;_tPrev=gx;
-        const tc=wallClr();
-        FG.walls.push({x:0,y:py,w:gx,h:44,c:tc});
-        FG.walls.push({x:gx+_tgW,y:py,w:FG.W-gx-_tgW,h:44,c:tc});
-      });
-      FG.lastGapX=_tPrev;FG.lastGapW=_tgW;
-      document.getElementById('fall-lives').textContent=livesStr(1);
-      fallLoop();
+      if(G.trickCaller==='race'){
+        RG.lives=1;RG.active=true;
+        RG.obs=[];RG.walls=[];RG.lastGF=.22;RG.lastGW=.56;RG.hitCD=0;RG.cf=.5;RG.cvf=0;
+        document.getElementById('race-lives').textContent='❤️';
+        RG.animId=requestAnimationFrame(rcLoop);
+      }else{
+        FG.lives=1;FG.active=true;
+        FG.px=FG.W/2-FG.pw/2;FG.py=Math.round(FG.H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
+        FG.obs=[];
+        const _tgW=Math.max(Math.round(FG.W*0.45),Math.round(FG.W*0.75)-FG.level*12);
+        const _tMinX=Math.round(FG.W*0.04),_tMaxX=Math.max(_tMinX,FG.W-_tgW-_tMinX);
+        const _tDrift=Math.round(FG.W*Math.min(0.35,0.12+FG.level*0.03));
+        let _tPrev=FG.W/2-_tgW/2;
+        FG.walls=[];
+        [FG.H*.62,FG.H*.38,FG.H*.12].forEach(py=>{
+          const lo=Math.max(_tMinX,_tPrev-_tDrift),hi=Math.min(_tMaxX,_tPrev+_tDrift);
+          const gx=hi>lo?lo+Math.random()*(hi-lo):_tMinX;_tPrev=gx;
+          const tc=wallClr();
+          FG.walls.push({x:0,y:py,w:gx,h:44,c:tc});
+          FG.walls.push({x:gx+_tgW,y:py,w:FG.W-gx-_tgW,h:44,c:tc});
+        });
+        FG.lastGapX=_tPrev;FG.lastGapW=_tgW;
+        document.getElementById('fall-lives').textContent=livesStr(1);
+        fallLoop();
+      }
     },1600);
   }else{
     btn.classList.add('kw');btn.disabled=true;snd_no();
@@ -1901,7 +1895,7 @@ function showLetFail(){
   fb.classList.remove('success');fb.classList.add('fail','show');
 }
 
-const WORLD_CASTLE_STAR={1:'castle-stars-letters',3:'castle-stars-letters',5:'castle-stars-letters',7:'castle-stars-letters',9:'castle-stars-dragon'};
+const WORLD_CASTLE_STAR={9:'castle-stars-dragon',10:'castle-stars-space'};
 
 function endLetters(){
   document.getElementById('win-earned').textContent=LG.coins;
@@ -2580,7 +2574,7 @@ function rcHit(){
   document.getElementById('race-lives').textContent='❤️'.repeat(Math.max(0,RG.lives));
   document.getElementById('race-spd').textContent=RG.spd.toFixed(1);
   RG.cf=.5;RG.cvf=0;RG.obs=[];RG.walls=[];RG.lastGF=.22;RG.lastGW=.56;
-  if(RG.lives<=0){RG.active=false;setTimeout(exitRace,700)}
+  if(RG.lives<=0){RG.active=false;G.trickCaller='race';setTimeout(showTrick,500)}
 }
 // resize
 window.addEventListener('resize',()=>{
