@@ -783,9 +783,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     <div class="ws-castles">
       <!-- Winding path connecting all 4 castles -->
       <svg class="ws-path" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82 C 84,92 38,90 38,92" stroke="rgba(0,0,0,.18)" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82 C 84,92 38,90 38,92" stroke="#e8c96e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82 C 84,92 38,90 38,92" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round"
+        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82 C 40,88 12,82 12,78 C 12,70 86,68 86,72" stroke="rgba(0,0,0,.18)" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82 C 40,88 12,82 12,78 C 12,70 86,68 86,72" stroke="#e8c96e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82 C 40,88 12,82 12,78 C 12,70 86,68 86,72" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round"
               stroke-dasharray="5 3"/>
       </svg>
 
@@ -818,14 +818,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
       </div>
 
       <!-- Castle 5: Space Champions — lower-left -->
-      <div class="ws-castle ws-castle-4" style="left:5%;top:74%" onclick="snd_click();G.world=10;launchGame('fall')">
+      <div class="ws-castle ws-castle-4" style="left:3%;top:65%" onclick="snd_click();G.world=10;launchGame('fall')">
         <div class="ws-castle-stars" id="castle-stars-space">☆☆☆</div>
         <div class="ws-castle-label">טירת אלופי העל חלל</div>
         <div class="ws-castle-icon">🛸</div>
       </div>
 
-      <!-- Castle 6: Race game — lower-center -->
-      <div class="ws-castle" style="left:28%;top:85%" onclick="snd_click();launchGame('race')">
+      <!-- Castle 6: Race game — lower-right -->
+      <div class="ws-castle" style="right:3%;top:65%" onclick="snd_click();launchGame('race')">
         <div class="ws-castle-stars" id="castle-stars-race">☆☆☆</div>
         <div class="ws-castle-label">מסלול המירוצים</div>
         <div class="ws-castle-icon">🏎️</div>
