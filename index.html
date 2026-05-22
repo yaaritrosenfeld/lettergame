@@ -255,16 +255,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 #fall-canvas{flex:1;width:100%;display:block;touch-action:none;min-height:0}
 
 /* ── RACE GAME ── */
-#s-race{background:#000;flex-direction:column;position:relative}
+#s-race{background:#000;flex-direction:column}
 #race-canvas{flex:1;width:100%;display:block;touch-action:none;min-height:0}
-.race-pad{position:absolute;bottom:env(safe-area-inset-bottom,0);left:50%;transform:translateX(-50%);
-  display:flex;gap:12px;padding:10px;z-index:100;pointer-events:none}
-.race-pb{min-width:70px;height:62px;background:rgba(0,212,255,.10);
-  border:3px solid rgba(0,212,255,.4);border-radius:14px;padding:0 10px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:.95rem;pointer-events:all;cursor:pointer;color:#fff;
-  -webkit-tap-highlight-color:transparent;user-select:none}
-.race-pb.on,.race-pb:active{background:rgba(0,212,255,.38)}
 
 /* Return-to-question prompt (shown on frozen game after dismissing trick) */
 .trick-prompt{position:absolute;inset:56px 0 0 0;background:rgba(10,8,30,.72);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;overflow:hidden}
@@ -779,53 +771,46 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
       <div class="map-title-text">🚀 בואו נתחיל את ההרפתקה!</div>
     </div>
 
-    <!-- Connecting path + castles layer -->
+    <!-- Castles layer -->
     <div class="ws-castles">
-      <!-- Winding path connecting all 4 castles -->
-      <svg class="ws-path" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82 C 40,88 12,82 12,78 C 12,70 86,68 86,72" stroke="rgba(0,0,0,.18)" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82 C 40,88 12,82 12,78 C 12,70 86,68 86,72" stroke="#e8c96e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82 C 40,88 12,82 12,78 C 12,70 86,68 86,72" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round"
-              stroke-dasharray="5 3"/>
-      </svg>
 
-      <!-- Castle 1: Fall game — upper-left -->
-      <div class="ws-castle" style="left:3%;top:5%" onclick="snd_click();launchGame('fall')">
+      <!-- Castle 1: Fall game — upper-left, top:4% -->
+      <div class="ws-castle" style="left:5%;top:4%" onclick="snd_click();launchGame('fall')">
         <div class="ws-castle-stars" id="castle-stars-fall">☆☆☆</div>
         <div class="ws-castle-label">טירת ההרפתקה</div>
         <div class="ws-castle-icon">🏰</div>
       </div>
 
-      <!-- Castle 2: Letters game — upper-right -->
-      <div class="ws-castle ws-castle-2" style="right:3%;top:22%" onclick="snd_click();G.world=1;launchGame('letters')">
+      <!-- Castle 2: Letters game — upper-right, top:16% -->
+      <div class="ws-castle ws-castle-2" style="right:5%;top:16%" onclick="snd_click();G.world=1;launchGame('letters')">
         <div class="ws-castle-stars" id="castle-stars-letters">☆☆☆</div>
         <div class="ws-castle-label">ארמון האותיות</div>
         <div class="ws-castle-icon">🏯</div>
       </div>
 
-      <!-- Castle 3: Superheroes — mid-left -->
-      <div class="ws-castle ws-castle-3" style="left:18%;top:40%" onclick="snd_click();G.world=9;launchGame('letters')">
+      <!-- Castle 3: Superheroes — mid-left, top:28% -->
+      <div class="ws-castle ws-castle-3" style="left:5%;top:28%" onclick="snd_click();G.world=9;launchGame('letters')">
         <div class="ws-castle-stars" id="castle-stars-dragon">☆☆☆</div>
         <div class="ws-castle-label">טירת גיבורי העל</div>
         <div class="ws-castle-icon">🏰</div>
       </div>
 
-      <!-- Castle 4: Trace game — mid-right -->
-      <div class="ws-castle" style="right:5%;top:57%" onclick="snd_click();launchGame('trace')">
+      <!-- Castle 4: Trace game — mid-right, top:40% -->
+      <div class="ws-castle ws-castle-4" style="right:5%;top:40%" onclick="snd_click();launchGame('trace')">
         <div class="ws-castle-stars" id="castle-stars-trace">☆☆☆</div>
         <div class="ws-castle-label">מגדל הכתיבה</div>
         <div class="ws-castle-icon">✏️</div>
       </div>
 
-      <!-- Castle 5: Space Champions — lower-left -->
-      <div class="ws-castle ws-castle-4" style="left:3%;top:65%" onclick="snd_click();G.world=10;launchGame('fall')">
+      <!-- Castle 5: Space Champions — lower-left, top:52% -->
+      <div class="ws-castle" style="left:5%;top:52%" onclick="snd_click();G.world=10;launchGame('fall')">
         <div class="ws-castle-stars" id="castle-stars-space">☆☆☆</div>
         <div class="ws-castle-label">טירת אלופי העל חלל</div>
         <div class="ws-castle-icon">🛸</div>
       </div>
 
-      <!-- Castle 6: Race game — lower-right -->
-      <div class="ws-castle" style="right:3%;top:65%" onclick="snd_click();launchGame('race')">
+      <!-- Castle 6: Race game — lower-right, top:64% -->
+      <div class="ws-castle ws-castle-2" style="right:5%;top:64%" onclick="snd_click();launchGame('race')">
         <div class="ws-castle-stars" id="castle-stars-race">☆☆☆</div>
         <div class="ws-castle-label">מסלול המירוצים</div>
         <div class="ws-castle-icon">🏎️</div>
@@ -922,10 +907,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     </div>
   </div>
   <canvas id="race-canvas"></canvas>
-  <div class="race-pad">
-    <div class="race-pb" id="race-pb-accel">⬆ גז</div>
-    <div class="race-pb" id="race-pb-brake">⬇ בלם</div>
-  </div>
 </div>
 
 <!-- Letter Game — "לא נורא" popup -->
@@ -2251,15 +2232,6 @@ function rcSetupControls(){
   cv.addEventListener('pointerdown',RG._pdHandler);
   cv.addEventListener('pointermove',RG._pmHandler);
   cv.addEventListener('pointerup',()=>{RG._dragId=null});
-
-  // Speed buttons
-  ['accel','brake'].forEach(flag=>{
-    const el=document.getElementById('race-pb-'+flag);
-    if(!el)return;
-    el.addEventListener('pointerdown',e=>{e.preventDefault();RG[flag]=true;el.classList.add('on')});
-    el.addEventListener('pointerup',()=>{RG[flag]=false;el.classList.remove('on')});
-    el.addEventListener('pointercancel',()=>{RG[flag]=false;el.classList.remove('on')});
-  });
 
   // Keyboard
   RG._keyDown=e=>{
