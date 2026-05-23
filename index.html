@@ -1269,7 +1269,7 @@ function openParentPanel(){
     openPinScreen('set');
   }
 }
-function closeParentPanel(){snd_click();goScreen('s-players');}
+function closeParentPanel(){goScreen('s-players');}
 
 // ── PIN ──
 function openPinScreen(mode){
@@ -1551,7 +1551,7 @@ function editCurrentAvatar(){
     if(fc)fc.style.display='none';
     if(af)af.style.display='';
   }
-  snd_click();goScreen('s-avatar');
+  goScreen('s-avatar');
 }
 
 function startNewPlayer(){
@@ -1570,7 +1570,7 @@ function startNewPlayer(){
   if(fc){fc.style.display='none';}
   const af=document.getElementById('av-face');
   if(af){af.style.display='';}
-  snd_click();goScreen('s-avatar');
+  goScreen('s-avatar');
 }
 
 function applyAvatarToMap(){
@@ -1961,6 +1961,8 @@ const TRICK_QS=[
 ];
 
 function initFall(){
+  document.getElementById('trick-overlay').classList.remove('show');
+  document.getElementById('trick-prompt').classList.remove('show');
   FG.canvas=document.getElementById('fall-canvas');
   const dpr=window.devicePixelRatio||1;
   const _hdrH=document.getElementById('global-header').getBoundingClientRect().height;
@@ -1979,7 +1981,7 @@ function initFall(){
   FG.obs=[];FG.stars=[];
   const _W=FG.W;const _H=FG.H;
   // Level 1 gap: 75% of screen width — comfortable but not trivial
-  const _gW=Math.max(Math.round(_W*0.45),Math.round(_W*0.75));
+  const _gW=Math.round(_W*0.75);
   const _safeM=Math.max(20,Math.round(_W*0.04));
   const _gX1=Math.min(_W-_gW-_safeM,Math.max(_safeM,_W/2-_gW/2));
   const _c1=wallClr();
@@ -2336,7 +2338,7 @@ function checkTrick(l,btn){
     btn.classList.add('kc');snd_ok();
     document.getElementById('trick-fb').textContent='⚡ מדהים! קיבלת חיים!';
     speak('כֹּל הַכָּבוֹד!');
-    addCoins(20);trackLetter(FG.trickQ.ans,true);saveCurrentPlayer();
+    addCoins(20);FG.coins+=20;document.getElementById('fall-coins').textContent=FG.coins;trackLetter(FG.trickQ.ans,true);saveCurrentPlayer();
     setTimeout(()=>{
       document.getElementById('trick-overlay').classList.remove('show');
       document.getElementById('trick-prompt').classList.remove('show');
@@ -2500,11 +2502,12 @@ function endLetters(){
    EXIT
 ══════════════════════════════════ */
 function exitGame(){
+  endSession();
   FG.active=false;
   if(FG.animId){cancelAnimationFrame(FG.animId);FG.animId=null}
   if(FG._gyroHandler){window.removeEventListener('deviceorientation',FG._gyroHandler);FG._gyroHandler=null;}
   document.onkeydown=null;document.onkeyup=null;
-  snd_click();goScreen('s-map');
+  goScreen('s-map');
 }
 
 function exitTrick(){
