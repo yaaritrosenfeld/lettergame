@@ -729,6 +729,13 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
         <div class="toggle-switch on" id="tog-hints" onclick="toggleSetting('hints')"></div>
       </div>
     </div>
+
+    <div class="sp-section">
+      <div class="sp-section-title">👨‍👩‍👧 הורים</div>
+      <button onclick="closeSettings();openParentPanel()" style="width:100%;padding:.7rem 1rem;background:linear-gradient(135deg,#1a3a5c,#0d2240);border:1.5px solid rgba(0,212,255,.3);border-radius:12px;color:#fff;font-size:1rem;font-family:'Fredoka One',sans-serif;cursor:pointer;letter-spacing:.5px">
+        👨‍👩‍👧 פאנל הורים — מעקב התקדמות
+      </button>
+    </div>
   </div>
 </div>
 
@@ -936,51 +943,36 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 
     <!-- Castles layer -->
     <div class="ws-castles">
-      <!-- Winding path connecting all 4 castles -->
+      <!-- Winding path connecting 4 castles -->
       <svg class="ws-path" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82" stroke="rgba(0,0,0,.18)" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82" stroke="#e8c96e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round"
-              stroke-dasharray="5 3"/>
+        <path d="M 14,14 C 14,26 86,22 86,36 C 86,50 14,52 14,64 C 14,74 86,72 86,84" stroke="rgba(0,0,0,.18)" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+        <path d="M 14,14 C 14,26 86,22 86,36 C 86,50 14,52 14,64 C 14,74 86,72 86,84" stroke="#e8c96e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M 14,14 C 14,26 86,22 86,36 C 86,50 14,52 14,64 C 14,74 86,72 86,84" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round" stroke-dasharray="5 3"/>
       </svg>
 
-      <!-- Castle 1: Fall game — upper-left -->
-      <div class="ws-castle" style="left:3%;top:5%" onclick="snd_click();G.world=10;G.launchSource='castle-stars-fall';launchGame('fall')">
-        <div class="ws-castle-stars" id="castle-stars-fall">☆☆☆</div>
-        <div class="ws-castle-label">טירת ההרפתקה</div>
-        <div class="ws-castle-icon">🏰</div>
-      </div>
-
-      <!-- Castle 2: Letters game — upper-right -->
-      <div class="ws-castle ws-castle-2" style="right:3%;top:22%" onclick="snd_click();G.world=9;G.launchSource='castle-stars-letters';launchGame('letters')">
-        <div class="ws-castle-stars" id="castle-stars-letters">☆☆☆</div>
-        <div class="ws-castle-label">ארמון האותיות</div>
-        <div class="ws-castle-icon">🏯</div>
-      </div>
-
-      <!-- Castle 3: Superheroes — mid-left -->
-      <div class="ws-castle ws-castle-3" style="left:18%;top:40%" onclick="snd_click();G.world=9;G.launchSource='castle-stars-dragon';launchGame('letters')">
+      <!-- Castle 1: Heroes (letters) — upper-left -->
+      <div class="ws-castle" style="left:2%;top:2%" onclick="snd_click();G.world=9;G.launchSource='castle-stars-dragon';launchGame('letters')">
         <div class="ws-castle-stars" id="castle-stars-dragon">☆☆☆</div>
         <div class="ws-castle-label">טירת גיבורי העל</div>
         <div class="ws-castle-icon">🏰</div>
       </div>
 
-      <!-- Castle 2: Race game — upper-right -->
-      <div class="ws-castle ws-castle-2" style="right:5%;top:28%" onclick="snd_click();launchGame('race')">
-        <div class="ws-castle-stars" id="castle-stars-race">☆☆☆</div>
-        <div class="ws-castle-label">מסלול המירוצים</div>
-        <div class="ws-castle-icon">🏎️</div>
-      </div>
-
-      <!-- Castle 3: Trace game — mid-left -->
-      <div class="ws-castle ws-castle-3" style="left:5%;top:46%" onclick="snd_click();launchGame('trace')">
+      <!-- Castle 2: Trace (writing) — upper-right -->
+      <div class="ws-castle ws-castle-2" style="right:2%;top:22%" onclick="snd_click();G.launchSource='castle-stars-trace';launchGame('trace')">
         <div class="ws-castle-stars" id="castle-stars-trace">☆☆☆</div>
         <div class="ws-castle-label">מגדל הכתיבה</div>
         <div class="ws-castle-icon">✏️</div>
       </div>
 
-      <!-- Castle 5: Space Champions — lower-left -->
-      <div class="ws-castle ws-castle-4" style="left:5%;top:74%" onclick="snd_click();G.world=10;G.launchSource='castle-stars-space';launchGame('fall')">
+      <!-- Castle 3: Race — lower-left -->
+      <div class="ws-castle ws-castle-3" style="left:2%;top:50%" onclick="snd_click();G.launchSource='castle-stars-race';launchGame('race')">
+        <div class="ws-castle-stars" id="castle-stars-race">☆☆☆</div>
+        <div class="ws-castle-label">מסלול המירוצים</div>
+        <div class="ws-castle-icon">🏎️</div>
+      </div>
+
+      <!-- Castle 4: Space fall — lower-right -->
+      <div class="ws-castle ws-castle-4" style="right:2%;top:70%" onclick="snd_click();G.world=10;G.launchSource='castle-stars-space';launchGame('fall')">
         <div class="ws-castle-stars" id="castle-stars-space">☆☆☆</div>
         <div class="ws-castle-label">טירת אלופי העל חלל</div>
         <div class="ws-castle-icon">🛸</div>
@@ -1110,7 +1102,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 <!-- ══ SCREEN 6: TRACE GAME ══ -->
 <div id="s-trace" class="screen">
   <div class="trace-hud">
-    <button class="gh-btn" onclick="snd_click();goScreen('s-map')" style="background:rgba(255,255,255,.1)">🗺️</button>
+    <button class="gh-btn" onclick="exitTrace()" style="background:rgba(255,255,255,.1)">🗺️</button>
     <div class="coins-pill">💎 <span id="trace-coins">0</span></div>
   </div>
   <div class="trace-wrap" id="trace-wrap">
@@ -1892,6 +1884,11 @@ function enterMap(){
 function updateMapUI(){
   document.getElementById('map-coins').textContent=G.coins;
   document.getElementById('map-lives').textContent=livesStr(G.lives);
+  // restore castle stars from saved data
+  Object.entries(G.castleStars||{}).forEach(([id,stars])=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=Array.from({length:3},(_,i)=>i<stars?'⭐':'☆').join('');
+  });
 }
 function livesStr(n){return Array.from({length:3},(_,i)=>i<n?'❤️':'🖤').join('')}
 
@@ -1902,12 +1899,14 @@ function openWorld(id){
 }
 function closePopup(){document.getElementById('world-popup').classList.remove('show');snd_click()}
 
+let _traceStartCoins=0;
 function launchGame(type){
   document.getElementById('world-popup').classList.remove('show');
   G.activeGame=type;
+  startSession();
   if(type==='fall'){G.trickCaller='fall';goScreen('s-fall');initFall()}
-  else if(type==='race'){goScreen('s-race');setTimeout(initRace,50)}
-  else if(type==='trace'){goScreen('s-trace');setTimeout(initTrace,50)}
+  else if(type==='race'){G.trickCaller='race';goScreen('s-race');setTimeout(initRace,50)}
+  else if(type==='trace'){_traceStartCoins=G.coins;goScreen('s-trace');setTimeout(initTrace,50)}
   else{initLetters();goScreen('s-letters')}
 }
 
@@ -2546,7 +2545,25 @@ function exitRace(){
   if(RG._keyDown){document.removeEventListener('keydown',RG._keyDown);RG._keyDown=null}
   if(RG._keyUp){document.removeEventListener('keyup',RG._keyUp);RG._keyUp=null}
   if(RG._gyro){window.removeEventListener('deviceorientation',RG._gyro);RG._gyro=null}
+  _saveGameExit('castle-stars-race', RG.coins||0);
   snd_click();goScreen('s-map');
+}
+
+function exitTrace(){
+  _saveGameExit('castle-stars-trace', G.coins - (_traceStartCoins||0));
+  snd_click();goScreen('s-map');
+}
+
+/* shared exit helper: save session + update castle stars */
+function _saveGameExit(castleId, coinsEarned){
+  endSession();
+  const stars = Math.min(3, Math.max(coinsEarned>=30?3:coinsEarned>=15?2:coinsEarned>0?1:0, 0));
+  if(stars>0 && castleId){
+    G.castleStars[castleId]=Math.max(G.castleStars[castleId]||0, stars);
+    const el=document.getElementById(castleId);
+    if(el)el.textContent=Array.from({length:3},(_,i)=>i<stars?'⭐':'☆').join('');
+  }
+  saveCurrentPlayer();
 }
 
 function exitTrick(){
@@ -2723,11 +2740,13 @@ function traceFeedback(type){
     el.className = 'show success';
     G.coins++;
     document.getElementById('trace-coins').textContent = G.coins;
+    trackLetter(TR.currentChar, true);
     snd_coin && snd_coin();
     setTimeout(()=>{ el.className=''; traceNext(); }, 1200);
   } else if(type === 'retry'){
     el.textContent = 'נסה שוב';
     el.className = 'show retry';
+    trackLetter(TR.currentChar, false);
     setTimeout(()=>{ el.className=''; traceClear(); }, 1000);
   } else if(type === 'small'){
     el.textContent = 'צייר יותר!';
