@@ -2041,8 +2041,14 @@ function setupFallControls(){
   document.onkeyup=()=>{FG.pvx*=.2;FG.pvy*=.2};
   // Gyro — remove old listener before adding to prevent accumulation across restarts
   if(FG._gyroHandler)window.removeEventListener('deviceorientation',FG._gyroHandler);
+  FG.gyroBase=null;
   if(window.DeviceOrientationEvent){
-    FG._gyroHandler=e=>{if(e.gamma)FG.pvx+=e.gamma*.15};
+    FG._gyroHandler=e=>{
+      if(e.gamma==null)return;
+      if(FG.gyroBase===null)FG.gyroBase=e.gamma;
+      const tilt=e.gamma-FG.gyroBase;
+      if(Math.abs(tilt)>4)FG.pvx+=tilt*.1;
+    };
     window.addEventListener('deviceorientation',FG._gyroHandler);
   }
 }
