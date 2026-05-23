@@ -1978,7 +1978,7 @@ function initFall(){
   FG.ctx=FG.canvas.getContext('2d');
   FG.ctx.setTransform(dpr,0,0,dpr,0,0);
   FG.active=true;FG.spd=1.0;FG.level=1;FG.score=0;FG.bgY=0;
-  FG.lives=G.lives;FG.coins=0;FG.lastGapX=undefined;FG.lastGapW=0;
+  FG.lives=G.lives;FG.coins=0;FG.lastGapX=undefined;FG.lastGapW=0;FG.savedPx=undefined;FG.savedPy=undefined;
   FG.px=FG.W/2-FG.pw/2;FG.py=Math.round(FG.H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
   FG.obs=[];FG.stars=[];
   const _W=FG.W;const _H=FG.H;
@@ -2813,6 +2813,7 @@ const RG={
   cf:0.5,cvf:0,bgY:0,
   walls:[],obs:[],stars:[],
   lastGF:0.22,lastGW:0.56,hitCD:0,
+  savedCf:undefined,gyroBase:null,
   _keyDown:null,_keyUp:null,_gyro:null,_dragId:null,_pdHandler:null,_pmHandler:null
 };
 
