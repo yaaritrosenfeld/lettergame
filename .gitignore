@@ -1,0 +1,11 @@
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# Private keys — NEVER commit these!
+*-adminsdk-*.json
+*.key.json
+
+# OS
+.DS_Store

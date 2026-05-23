@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // כל משפחה ניגשת רק לנתונים שלה דרך קוד המשפחה
+    match /families/{familyCode}/{document=**} {
+      allow read, write: if familyCode.size() >= 6;
+    }
+  }
+}
