@@ -847,7 +847,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 <!-- ══ SCREEN 2: AVATAR BUILDER ══ -->
 <div id="s-avatar" class="screen">
   <div class="av-header" style="position:relative">
-    <button onclick="snd_click();goScreen('s-players')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:12px;padding:.3rem .8rem;font-size:1rem;cursor:pointer">◀</button>
+    <button onclick="snd_click();_avatarFromMap?goScreen('s-map'):goScreen('s-players')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:12px;padding:.3rem .8rem;font-size:1rem;cursor:pointer">◀</button>
     <h2>🎨 בוא נבנה לך את הדמות שלך!</h2>
   </div>
 
@@ -917,11 +917,15 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 <div id="s-map" class="screen">
   <div class="map-topbar">
     <div class="map-player-info">
-      <div style="display:flex;flex-direction:column;align-items:center">
+      <div style="display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer" onclick="snd_click();editCurrentAvatar()" title="ערוך דמות">
         <div class="map-mini-head" id="map-mini-head">😊</div>
         <div class="mc-body" id="map-mini-body" style="width:28px;height:20px;border-radius:4px;border:2px solid rgba(0,0,0,.3)"></div>
+        <div style="position:absolute;bottom:-4px;right:-6px;width:16px;height:16px;background:var(--blue);border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:.55rem">✏️</div>
       </div>
-      <span id="map-player-name" style="color:#fff;font-size:.9rem">שחקן</span>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span id="map-player-name" style="color:#fff;font-size:.9rem">שחקן</span>
+        <button onclick="event.stopPropagation();snd_click();openPlayerSelect()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:2px 8px;font-size:.75rem;cursor:pointer;font-family:'Fredoka One',sans-serif">🔄 החלף</button>
+      </div>
     </div>
     <div class="coins-pill">💎 <span id="map-coins">0</span></div>
     <div id="map-lives" style="font-size:1.2rem">❤️❤️❤️</div>
@@ -941,14 +945,17 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
       <div class="map-title-text">🚀 בואו נתחיל את ההרפתקה!</div>
     </div>
 
+    <!-- Connecting path — sits below castles layer (z-index 4 vs 5) -->
+    <svg class="ws-path" viewBox="0 0 100 100" preserveAspectRatio="none" style="opacity:.55">
+      <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82" stroke="rgba(180,120,50,0.5)" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+      <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82" stroke="rgba(0,0,0,.18)" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+      <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82" stroke="#e8c96e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M 14,20 C 14,32 86,28 86,40 C 86,52 29,50 29,62 C 29,74 84,72 84,82" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round"
+            stroke-dasharray="5 3"/>
+    </svg>
+
     <!-- Castles layer -->
     <div class="ws-castles">
-      <!-- Winding path connecting 4 castles -->
-      <svg class="ws-path" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <path d="M 14,14 C 14,26 86,22 86,36 C 86,50 14,52 14,64 C 14,74 86,72 86,84" stroke="rgba(0,0,0,.18)" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-        <path d="M 14,14 C 14,26 86,22 86,36 C 86,50 14,52 14,64 C 14,74 86,72 86,84" stroke="#e8c96e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <path d="M 14,14 C 14,26 86,22 86,36 C 86,50 14,52 14,64 C 14,74 86,72 86,84" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round" stroke-dasharray="5 3"/>
-      </svg>
 
       <!-- Castle 1: Heroes (letters) — upper-left -->
       <div class="ws-castle" style="left:2%;top:2%" onclick="snd_click();G.world=9;G.launchSource='castle-stars-dragon';launchGame('letters')">
@@ -1293,7 +1300,7 @@ function openParentPanel(){
     openPinScreen('set');
   }
 }
-function closeParentPanel(){snd_click();goScreen('s-players');}
+function closeParentPanel(){goScreen('s-players');}
 
 // ── PIN ──
 function openPinScreen(mode){
@@ -1551,7 +1558,35 @@ function selectPlayer(idx){
   startSession();
 }
 
+let _avatarFromMap=false;
+
+function editCurrentAvatar(){
+  _avatarFromMap=true;
+  const n=G.name!=='שחקן'?G.name:'';
+  document.getElementById('name-inp').value=n;
+  document.getElementById('av-nametag').textContent=G.name;
+  document.getElementById('av-body').style.background=G.shirt;
+  document.getElementById('av-ll').style.background=G.pants;
+  document.getElementById('av-lr').style.background=G.pants;
+  document.querySelectorAll('#shirt-colors .col-btn').forEach(b=>b.classList.toggle('sel',b.style.background===G.shirt));
+  document.querySelectorAll('#pants-colors .col-btn').forEach(b=>b.classList.toggle('sel',b.style.background===G.pants));
+  const fc=document.getElementById('face-canvas');
+  const af=document.getElementById('av-face');
+  if(G.photo){
+    const img=new Image();
+    img.onload=()=>{const ctx=fc.getContext('2d');fc.width=80;fc.height=80;ctx.drawImage(img,0,0,80,80);};
+    img.src=G.photo;
+    fc.style.display='';
+    if(af)af.style.display='none';
+  }else{
+    if(fc)fc.style.display='none';
+    if(af)af.style.display='';
+  }
+  goScreen('s-avatar');
+}
+
 function startNewPlayer(){
+  _avatarFromMap=false;
   G_playerIdx=-1;
   G.name='שחקן';G.shirt='#e74c3c';G.pants='#2c3e50';
   G.photo=null;G.photoImg=null;G.coins=0;G.lives=3;
@@ -1566,7 +1601,7 @@ function startNewPlayer(){
   if(fc){fc.style.display='none';}
   const af=document.getElementById('av-face');
   if(af){af.style.display='';}
-  snd_click();goScreen('s-avatar');
+  goScreen('s-avatar');
 }
 
 function applyAvatarToMap(){
@@ -1965,6 +2000,8 @@ const TRICK_QS=[
 ];
 
 function initFall(){
+  document.getElementById('trick-overlay').classList.remove('show');
+  document.getElementById('trick-prompt').classList.remove('show');
   FG.canvas=document.getElementById('fall-canvas');
   const dpr=window.devicePixelRatio||1;
   const _hdrH=document.getElementById('global-header').getBoundingClientRect().height;
@@ -1983,7 +2020,7 @@ function initFall(){
   FG.obs=[];FG.stars=[];
   const _W=FG.W;const _H=FG.H;
   // Level 1 gap: 75% of screen width — comfortable but not trivial
-  const _gW=Math.max(Math.round(_W*0.45),Math.round(_W*0.75));
+  const _gW=Math.round(_W*0.75);
   const _safeM=Math.max(20,Math.round(_W*0.04));
   const _gX1=Math.min(_W-_gW-_safeM,Math.max(_safeM,_W/2-_gW/2));
   const _c1=wallClr();
@@ -2340,7 +2377,7 @@ function checkTrick(l,btn){
     btn.classList.add('kc');snd_ok();
     document.getElementById('trick-fb').textContent='⚡ מדהים! קיבלת חיים!';
     speak('כֹּל הַכָּבוֹד!');
-    addCoins(20);trackLetter(FG.trickQ.ans,true);saveCurrentPlayer();
+    addCoins(20);FG.coins+=20;document.getElementById('fall-coins').textContent=FG.coins;trackLetter(FG.trickQ.ans,true);saveCurrentPlayer();
     setTimeout(()=>{
       document.getElementById('trick-overlay').classList.remove('show');
       document.getElementById('trick-prompt').classList.remove('show');
@@ -2543,12 +2580,13 @@ function endLetters(){
    EXIT
 ══════════════════════════════════ */
 function exitGame(){
+  endSession();
   FG.active=false;
   if(FG.animId){cancelAnimationFrame(FG.animId);FG.animId=null}
   if(FG._gyroHandler){window.removeEventListener('deviceorientation',FG._gyroHandler);FG._gyroHandler=null;}
   if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
   document.onkeydown=null;document.onkeyup=null;
-  snd_click();goScreen('s-map');
+  goScreen('s-map');
 }
 
 function exitRace(){
