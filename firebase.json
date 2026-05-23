@@ -8,12 +8,15 @@
       "firestore.indexes.json",
       ".gitignore",
       "*.sh",
-      ".git",
-      ".claude",
+      ".git/**",
+      ".claude/**",
+      ".firebase/**",
+      ".DS_Store",
       "**/*.md",
       "race_mockup.html",
       "race_proto.html",
-      "APP_SPEC.md"
+      "APP_SPEC.md",
+      "plan.auth.md"
     ],
     "headers": [
       {
