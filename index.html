@@ -2100,7 +2100,7 @@ function fallLoop(){
   if(FG.frame%80===0)FG.stars.push({x:20+Math.random()*(W-40),y:-20,col:false});
 
   // Player move
-  FG.pvx*=.88;FG.px+=FG.pvx;
+  FG.pvx*=.88;FG.pvx=Math.max(-9,Math.min(9,FG.pvx));FG.px+=FG.pvx;
   FG.px=Math.max(0,Math.min(W-FG.pw,FG.px));
   FG.pvy*=.88;FG.py+=FG.pvy;
   FG.py=Math.max(0,Math.min(H-FG.ph,FG.py));
@@ -2152,6 +2152,7 @@ function fallLoop(){
     FG.spd=Math.max(1.0,FG.spd*.75);
     document.getElementById('fall-speed').textContent=FG.spd.toFixed(1);
     document.getElementById('fall-lives').textContent=livesStr(FG.lives);
+    if(FG.lives<=0){FG.savedPx=FG.px;FG.savedPy=FG.py;}
     FG.px=W/2-FG.pw/2;FG.py=Math.round(H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
     FG.obs=[];
     // Pre-fill screen with 3 spread-out walls so it's not blank on respawn
@@ -2340,7 +2341,10 @@ function checkTrick(l,btn){
       document.getElementById('trick-overlay').classList.remove('show');
       document.getElementById('trick-prompt').classList.remove('show');
       FG.lives=1;FG.active=true;
-      FG.px=FG.W/2-FG.pw/2;FG.py=Math.round(FG.H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
+      FG.px=(FG.savedPx!==undefined)?FG.savedPx:FG.W/2-FG.pw/2;
+      FG.py=(FG.savedPy!==undefined)?FG.savedPy:Math.round(FG.H*0.75-FG.ph/2);
+      FG.savedPx=undefined;FG.savedPy=undefined;
+      FG.pvx=0;FG.pvy=0;FG.gyroBase=null;
       FG.obs=[];
       const _tgW=Math.max(Math.round(FG.W*0.45),Math.round(FG.W*0.75)-FG.level*12);
       const _tMinX=Math.round(FG.W*0.04),_tMaxX=Math.max(_tMinX,FG.W-_tgW-_tMinX);
