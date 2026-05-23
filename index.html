@@ -590,6 +590,55 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .sp-import-btns{display:flex;gap:.6rem;width:100%}
 .btn-import-go{flex:1;background:linear-gradient(135deg,#4caf50,#27ae60);color:#fff;border:none;border-radius:12px;padding:.5rem;font-family:'Fredoka One','Rubik',sans-serif;font-size:.95rem;cursor:pointer}
 .btn-import-cancel{flex:1;background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:12px;padding:.5rem;font-family:'Fredoka One','Rubik',sans-serif;font-size:.95rem;cursor:pointer}
+
+/* ═══════════════════════════════
+   PARENT PANEL
+══════════════════════════════════ */
+#s-parent{background:linear-gradient(180deg,#0d1b2a 0%,#1a2940 100%);flex-direction:column;overflow-y:auto}
+.pp-header{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;background:rgba(0,0,0,.3);flex-shrink:0}
+.pp-title{color:#ffd166;font-size:1.3rem;font-weight:700}
+.pp-close{background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:12px;padding:.4rem .9rem;font-size:1rem;cursor:pointer;font-family:inherit}
+.pp-player-tabs{display:flex;gap:.5rem;padding:.7rem 1rem;overflow-x:auto;flex-shrink:0}
+.pp-tab{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:20px;color:rgba(255,255,255,.6);padding:.35rem .9rem;font-family:inherit;font-size:.9rem;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.pp-tab.active{background:rgba(255,209,102,.2);border-color:#ffd166;color:#ffd166}
+.pp-body{padding:1rem;display:flex;flex-direction:column;gap:1.2rem;flex:1}
+.pp-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1rem}
+.pp-card-title{color:rgba(255,255,255,.5);font-size:.8rem;margin-bottom:.7rem;letter-spacing:.5px}
+.pp-summary{display:flex;gap:1.2rem;flex-wrap:wrap}
+.pp-stat{display:flex;flex-direction:column;align-items:center;gap:.2rem}
+.pp-stat-val{color:#fff;font-size:1.4rem;font-weight:700}
+.pp-stat-lbl{color:rgba(255,255,255,.45);font-size:.72rem}
+.pp-letters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.5rem}
+.pp-letter-row{display:flex;align-items:center;gap:.5rem}
+.pp-letter-char{color:#fff;font-size:1.1rem;font-weight:700;width:22px;text-align:center;flex-shrink:0}
+.pp-bar-wrap{flex:1;height:10px;background:rgba(255,255,255,.1);border-radius:5px;overflow:hidden}
+.pp-bar{height:100%;border-radius:5px;transition:width .4s}
+.pp-bar.good{background:linear-gradient(90deg,#27ae60,#2ecc71)}
+.pp-bar.ok{background:linear-gradient(90deg,#f39c12,#f4d03f)}
+.pp-bar.weak{background:linear-gradient(90deg,#c0392b,#e74c3c)}
+.pp-pct{color:rgba(255,255,255,.55);font-size:.72rem;width:28px;text-align:left;flex-shrink:0}
+.pp-weak-wrap{display:flex;flex-wrap:wrap;gap:.5rem}
+.pp-weak-chip{background:rgba(231,76,60,.2);border:1px solid rgba(231,76,60,.4);border-radius:10px;color:#ff8a80;padding:.25rem .7rem;font-size:1rem;font-weight:700}
+.pp-sessions{display:flex;flex-direction:column;gap:.4rem}
+.pp-session-row{display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:rgba(255,255,255,.04);border-radius:8px}
+.pp-session-date{color:rgba(255,255,255,.6);font-size:.8rem}
+.pp-session-info{color:rgba(255,255,255,.8);font-size:.8rem}
+.pp-empty{color:rgba(255,255,255,.3);font-size:.85rem;text-align:center;padding:1rem}
+/* PIN screen */
+.pp-pin-wrap{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:600}
+.pp-pin-box{background:#1a2940;border:2px solid rgba(255,209,102,.3);border-radius:20px;padding:2rem;display:flex;flex-direction:column;align-items:center;gap:1rem;min-width:260px}
+.pp-pin-title{color:#ffd166;font-size:1.2rem;font-weight:700}
+.pp-pin-dots{display:flex;gap:.6rem;margin:.3rem 0}
+.pp-pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:transparent;transition:background .15s}
+.pp-pin-dot.filled{background:#ffd166;border-color:#ffd166}
+.pp-pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;width:180px}
+.pp-pin-btn{background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:12px;padding:.7rem;font-size:1.3rem;cursor:pointer;font-family:inherit}
+.pp-pin-btn:active{background:rgba(255,255,255,.25)}
+.pp-pin-err{color:#ff8a80;font-size:.85rem;min-height:1.2em}
+.pp-pin-cancel{background:none;border:none;color:rgba(255,255,255,.4);font-size:.85rem;cursor:pointer;font-family:inherit;text-decoration:underline}
+/* Parent button in player select */
+.sp-parent-btn{background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);color:rgba(255,209,102,.7);border-radius:16px;padding:.35rem .9rem;font-family:inherit;font-size:.8rem;cursor:pointer;margin-top:.3rem}
+.sp-parent-btn:hover{background:rgba(255,209,102,.2);color:#ffd166}
 </style>
 </head>
 <body>
@@ -678,6 +727,45 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
   </div>
 </div>
 
+<!-- ══ SCREEN 1.4: PARENT PANEL ══ -->
+<div id="s-parent" class="screen">
+  <div class="pp-header">
+    <div class="pp-title">👨‍👩‍👧 פאנל הורים</div>
+    <button class="pp-close" onclick="closeParentPanel()">✕ יציאה</button>
+  </div>
+  <div class="pp-player-tabs" id="pp-tabs"></div>
+  <div class="pp-body" id="pp-body"></div>
+</div>
+
+<!-- PIN overlay -->
+<div class="pp-pin-wrap" id="pp-pin-wrap" style="display:none">
+  <div class="pp-pin-box">
+    <div class="pp-pin-title">🔒 קוד הורים</div>
+    <div class="pp-pin-dots" id="pp-pin-dots">
+      <div class="pp-pin-dot" id="pd0"></div>
+      <div class="pp-pin-dot" id="pd1"></div>
+      <div class="pp-pin-dot" id="pd2"></div>
+      <div class="pp-pin-dot" id="pd3"></div>
+    </div>
+    <div class="pp-pin-pad">
+      <button class="pp-pin-btn" onclick="pinDigit('1')">1</button>
+      <button class="pp-pin-btn" onclick="pinDigit('2')">2</button>
+      <button class="pp-pin-btn" onclick="pinDigit('3')">3</button>
+      <button class="pp-pin-btn" onclick="pinDigit('4')">4</button>
+      <button class="pp-pin-btn" onclick="pinDigit('5')">5</button>
+      <button class="pp-pin-btn" onclick="pinDigit('6')">6</button>
+      <button class="pp-pin-btn" onclick="pinDigit('7')">7</button>
+      <button class="pp-pin-btn" onclick="pinDigit('8')">8</button>
+      <button class="pp-pin-btn" onclick="pinDigit('9')">9</button>
+      <button class="pp-pin-btn" onclick="pinDigit('del')" style="font-size:.9rem">⌫</button>
+      <button class="pp-pin-btn" onclick="pinDigit('0')">0</button>
+      <button class="pp-pin-btn" onclick="pinDigit('del')" style="font-size:.9rem;opacity:.3">—</button>
+    </div>
+    <div class="pp-pin-err" id="pp-pin-err"></div>
+    <button class="pp-pin-cancel" onclick="closePinScreen()">ביטול</button>
+  </div>
+</div>
+
 <!-- ══ SCREEN 1.5: PLAYER SELECT ══ -->
 <div id="s-players" class="screen">
   <div class="promo-stars-bg" id="stars-bg-players"></div>
@@ -689,6 +777,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
       <button class="sp-copy-btn" onclick="copyFamilyCode()" title="העתק קוד">📋</button>
     </div>
     <button class="sp-other-device" onclick="showImportCode()">📲 עבר ממכשיר אחר?</button>
+    <button class="sp-parent-btn" onclick="openParentPanel()">👨‍👩‍👧 פאנל הורים</button>
   </div>
 </div>
 
@@ -1024,6 +1113,8 @@ const G = {
   coins:0, lives:3, world:1, launchSource:'castle-stars-letters',
   worldStars:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0},
   castleStars:{},
+  letterStats:{}, // {א:{correct:0,wrong:0}, ...}
+  sessions:[],    // [{date,duration,coins}, ...] — 10 אחרונים
   lastLife:Date.now(), audioCtx:null,
   muteAll:false, muteSpeech:false, volume:0.7, hints:true, theme:'classic'
 };
@@ -1116,9 +1207,200 @@ function saveCurrentPlayer(){
   arr[G_playerIdx]={...arr[G_playerIdx],
     name:G.name,shirt:G.shirt,pants:G.pants,photo:G.photo,
     coins:G.coins,lives:G.lives,worldStars:G.worldStars,
-    castleStars:G.castleStars,lastLife:G.lastLife
+    castleStars:G.castleStars,lastLife:G.lastLife,
+    letterStats:G.letterStats,sessions:G.sessions
   };
   savePlayers(arr);
+}
+
+/* ═══════════════════════════════
+   LETTER STATS TRACKING
+══════════════════════════════════ */
+function trackLetter(letter,isCorrect){
+  if(!letter)return;
+  if(!G.letterStats[letter])G.letterStats[letter]={correct:0,wrong:0};
+  if(isCorrect)G.letterStats[letter].correct++;
+  else G.letterStats[letter].wrong++;
+  saveCurrentPlayer();
+}
+
+/* ═══════════════════════════════
+   SESSION TRACKING
+══════════════════════════════════ */
+let _sessionStart=0;
+let _sessionCoins=0;
+function startSession(){
+  _sessionStart=Date.now();
+  _sessionCoins=G.coins;
+}
+function endSession(){
+  if(!_sessionStart)return;
+  const dur=Math.round((Date.now()-_sessionStart)/1000);
+  if(dur<10)return; // סשן קצר מדי — מתעלמים
+  const earned=G.coins-_sessionCoins;
+  const dateStr=new Date().toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit',year:'2-digit'});
+  const session={date:dateStr,duration:dur,coins:Math.max(0,earned)};
+  G.sessions=[session,...(G.sessions||[])].slice(0,10); // שומרים 10 אחרונים
+  _sessionStart=0;
+  saveCurrentPlayer();
+}
+
+/* ═══════════════════════════════
+   PARENT PANEL
+══════════════════════════════════ */
+const PP_PIN_KEY='parent_pin';
+let _ppEntry='';
+let _ppAfterPin=null;
+let _ppPlayerIdx=0;
+
+function openParentPanel(){
+  const pin=localStorage.getItem(PP_PIN_KEY);
+  if(pin){
+    _ppAfterPin=()=>{_renderParentPanel();goScreen('s-parent');};
+    openPinScreen('enter');
+  }else{
+    _ppAfterPin=()=>{_renderParentPanel();goScreen('s-parent');};
+    openPinScreen('set');
+  }
+}
+function closeParentPanel(){snd_click();goScreen('s-players');}
+
+// ── PIN ──
+function openPinScreen(mode){
+  _ppEntry='';
+  _pinMode=mode;
+  document.getElementById('pp-pin-wrap').style.display='flex';
+  document.getElementById('pp-pin-err').textContent=
+    mode==='set'?'בחר קוד 4 ספרות לפאנל ההורים':'';
+  _updatePinDots();
+}
+let _pinMode='enter';
+let _pinSetFirst='';
+function closePinScreen(){
+  document.getElementById('pp-pin-wrap').style.display='none';
+  _ppEntry='';_pinSetFirst='';
+}
+function _updatePinDots(){
+  for(let i=0;i<4;i++){
+    const d=document.getElementById('pd'+i);
+    if(d)d.classList.toggle('filled',i<_ppEntry.length);
+  }
+}
+function pinDigit(d){
+  if(d==='del'){_ppEntry=_ppEntry.slice(0,-1);_updatePinDots();return;}
+  if(_ppEntry.length>=4)return;
+  _ppEntry+=d;_updatePinDots();
+  if(_ppEntry.length===4)setTimeout(_checkPin,150);
+}
+function _checkPin(){
+  const err=document.getElementById('pp-pin-err');
+  if(_pinMode==='set'){
+    if(!_pinSetFirst){
+      _pinSetFirst=_ppEntry;_ppEntry='';
+      err.textContent='אשר את הקוד שוב';_updatePinDots();
+    }else if(_ppEntry===_pinSetFirst){
+      localStorage.setItem(PP_PIN_KEY,_ppEntry);
+      closePinScreen();snd_ok();
+      if(_ppAfterPin)_ppAfterPin();
+    }else{
+      err.textContent='הקודים לא תואמים — נסי שוב';
+      _ppEntry='';_pinSetFirst='';_updatePinDots();
+    }
+  }else{
+    const saved=localStorage.getItem(PP_PIN_KEY);
+    if(_ppEntry===saved){
+      closePinScreen();snd_ok();
+      if(_ppAfterPin)_ppAfterPin();
+    }else{
+      err.textContent='קוד שגוי ❌';
+      _ppEntry='';_updatePinDots();
+    }
+  }
+}
+
+// ── Render ──
+function _renderParentPanel(){
+  const players=loadPlayers();
+  const tabs=document.getElementById('pp-tabs');
+  const body=document.getElementById('pp-body');
+  if(!players.length){
+    tabs.innerHTML='';
+    body.innerHTML='<div class="pp-empty">אין שחקנים עדיין</div>';
+    return;
+  }
+  if(_ppPlayerIdx>=players.length)_ppPlayerIdx=0;
+
+  // Tabs
+  tabs.innerHTML=players.map((p,i)=>`
+    <button class="pp-tab${i===_ppPlayerIdx?' active':''}"
+      onclick="_ppPlayerIdx=${i};_renderParentPanel()">${p.name}</button>`).join('');
+
+  const p=players[_ppPlayerIdx];
+  const ls=p.letterStats||{};
+  const sessions=p.sessions||[];
+  const totalStars=Object.values(p.worldStars||{}).reduce((a,b)=>a+b,0);
+  const totalSeconds=sessions.reduce((a,s)=>a+s.duration,0);
+  const totalMins=Math.round(totalSeconds/60);
+  const allLetters=Object.keys(ls);
+  const weakLetters=allLetters.filter(l=>{const s=ls[l];const t=s.correct+s.wrong;return t>=3&&s.correct/t<0.6;}).sort((a,b)=>{const sa=ls[a],sb=ls[b];return (sa.correct/(sa.correct+sa.wrong))-(sb.correct/(sb.correct+sb.wrong));});
+
+  // Render letter bars
+  const LETTERS_ORDER=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+  const lettersHtml=LETTERS_ORDER.map(l=>{
+    const s=ls[l];
+    if(!s)return '';
+    const total=s.correct+s.wrong;
+    const pct=total?Math.round(s.correct/total*100):0;
+    const cls=pct>=70?'good':pct>=40?'ok':'weak';
+    return `<div class="pp-letter-row">
+      <div class="pp-letter-char">${l}</div>
+      <div class="pp-bar-wrap"><div class="pp-bar ${cls}" style="width:${pct}%"></div></div>
+      <div class="pp-pct">${pct}%</div>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  const weakHtml=weakLetters.length
+    ?weakLetters.map(l=>`<div class="pp-weak-chip">${l}</div>`).join('')
+    :'<div class="pp-empty">אין אותיות חלשות 🎉</div>';
+
+  const sessionsHtml=sessions.length
+    ?sessions.slice(0,5).map(s=>`<div class="pp-session-row">
+        <div class="pp-session-date">📅 ${s.date}</div>
+        <div class="pp-session-info">⏱️ ${Math.round(s.duration/60)} דק׳ &nbsp; 💎 ${s.coins}</div>
+      </div>`).join('')
+    :'<div class="pp-empty">אין סשנים עדיין</div>';
+
+  body.innerHTML=`
+    <div class="pp-card">
+      <div class="pp-card-title">📊 סיכום</div>
+      <div class="pp-summary">
+        <div class="pp-stat"><div class="pp-stat-val">⭐${totalStars}</div><div class="pp-stat-lbl">כוכבים</div></div>
+        <div class="pp-stat"><div class="pp-stat-val">💎${p.coins||0}</div><div class="pp-stat-lbl">יהלומים</div></div>
+        <div class="pp-stat"><div class="pp-stat-val">⏱️${totalMins}</div><div class="pp-stat-lbl">דקות שיחק</div></div>
+        <div class="pp-stat"><div class="pp-stat-val">${sessions.length}</div><div class="pp-stat-lbl">סשנים</div></div>
+      </div>
+    </div>
+    ${weakLetters.length?`<div class="pp-card">
+      <div class="pp-card-title">⚠️ אותיות לתרגול</div>
+      <div class="pp-weak-wrap">${weakHtml}</div>
+    </div>`:''}
+    ${lettersHtml?`<div class="pp-card">
+      <div class="pp-card-title">📖 ביצועים לפי אות</div>
+      <div class="pp-letters-grid">${lettersHtml}</div>
+    </div>`:'<div class="pp-card"><div class="pp-empty">עדיין לא שיחק — אין נתונים לאותיות</div></div>'}
+    <div class="pp-card">
+      <div class="pp-card-title">🕐 5 סשנים אחרונים</div>
+      <div class="pp-sessions">${sessionsHtml}</div>
+    </div>
+    <div class="pp-card" style="text-align:center">
+      <button onclick="resetParentPin()" style="background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);color:#ff8a80;border-radius:12px;padding:.4rem 1rem;cursor:pointer;font-family:inherit;font-size:.85rem">🔑 שנה קוד הורים</button>
+    </div>`;
+}
+
+function resetParentPin(){
+  localStorage.removeItem(PP_PIN_KEY);
+  snd_ok();
+  openPinScreen('set');
 }
 
 // ── ייבוא ממכשיר אחר ──
@@ -1222,6 +1504,8 @@ function selectPlayer(idx){
   G.lives=p.lives!=null?p.lives:3;
   G.worldStars=p.worldStars||{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0};
   G.castleStars=p.castleStars||{};
+  G.letterStats=p.letterStats||{};
+  G.sessions=p.sessions||[];
   G.lastLife=p.lastLife||Date.now();
   if(G.photo){
     const img=new Image();
@@ -1234,6 +1518,7 @@ function selectPlayer(idx){
   snd_ok();speak('בֹּואוּ נַתְחִיל!');
   goScreen('s-map');
   startLifeTimer();
+  startSession();
 }
 
 function startNewPlayer(){
@@ -1560,6 +1845,7 @@ function enterMap(){
   speak('בֹּואוּ נַתְחִיל אֶת הַהַרְפַּתְקָה!');
   goScreen('s-map');
   startLifeTimer();
+  startSession();
 }
 
 /* ═══════════════════════════════
@@ -2009,7 +2295,7 @@ function checkTrick(l,btn){
     btn.classList.add('kc');snd_ok();
     document.getElementById('trick-fb').textContent='⚡ מדהים! קיבלת חיים!';
     speak('כֹּל הַכָּבוֹד!');
-    addCoins(20);saveCurrentPlayer();
+    addCoins(20);trackLetter(FG.trickQ.ans,true);saveCurrentPlayer();
     setTimeout(()=>{
       document.getElementById('trick-overlay').classList.remove('show');
       document.getElementById('trick-prompt').classList.remove('show');
@@ -2116,6 +2402,7 @@ function checkLet(ch,btn){
   if(ch.l===LG.cur.l){
     LG.answered=true;btn.classList.add('cc');snd_ok();
     LG.coins+=10;addCoins(10);
+    trackLetter(LG.cur.l,true);
     document.getElementById('speech-bub').textContent='✅';
     speak('כל הכבוד! '+(ch.p||ch.n));
     document.getElementById('fb-text').textContent='🔥 מדהים!';
@@ -2139,6 +2426,7 @@ function checkLet(ch,btn){
 }
 
 function showLetFail(){
+  trackLetter(LG.cur.l,false);
   speak('לֹא נוֹרָא! הָאוֹת הַנְּכוֹנָה הִיא '+(LG.cur.p||LG.cur.n),true);
   document.getElementById('let-fail-letter').textContent=LG.cur.l;
   document.getElementById('let-fail-name').textContent=LG.cur.n;
@@ -2158,6 +2446,7 @@ function endLetters(){
   if(G.launchSource)G.castleStars[G.launchSource]=Math.max(G.castleStars[G.launchSource]||0,stars);
   const _starsEl=document.getElementById(G.launchSource)||document.getElementById('w-stars-'+G.world);
   if(_starsEl)_starsEl.textContent=Array.from({length:3},(_,i)=>i<stars?'⭐':'☆').join('');
+  endSession();
   saveCurrentPlayer();
   snd_ok();speak('כֹּל הַכָּבוֹד! סִיַּמְתָּ אֶת הַמִּשְׂחָק!');
   goScreen('s-win');
