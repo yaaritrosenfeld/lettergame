@@ -36,6 +36,42 @@
 | `fix/trick-question-audio-only` | הקראת שם האות בלבד, הסרת טקסט השאלה מהUI |
 | `claude/eloquent-almeida-5494f7` | תיקון מיקום דמות במשחק הנפילה — נראית מעל רבע תחתון בכל מכשיר |
 
+## ✅ Checklist לפני מיזוג ו-push
+
+**בכל פעם שמתבקש "מזג ודחוף" — חובה לבצע את כל הבדיקות הבאות לפני ה-merge. אם נמצא באג — לדווח ולא להמשיך.**
+
+### א. בדיקות קוד (Static Review)
+
+1. **`G.trickCaller`** — כל קריאה ל-`showTrick()` מוודאת ש-`G.trickCaller` מוגדר נכון לפני הקריאה (`'fall'` / `'race'`). משחק האותיות והtrace **לא** קוראים ל-`showTrick`.
+
+2. **State isolation** — כל `init*()` (כגון `initFall`, `initRace`) מאפסת את כל שדות ה-state הרלוונטיים. בפרט: state שנכתב בתוך `hit handler` ומשמש ב-`checkTrick` (כגון `savedPx`, `savedPy`, `savedCf`) חייב להיות מאופס ב-`init*`.
+
+3. **Event listeners** — כל event listener שנרשם (pointer, keyboard, gyro, deviceorientation) מוסר לפני הרישום מחדש (`removeEventListener` לפני `addEventListener`). לבדוק ב-`setupFallControls`, `rcSetupControls`, `exitGame`, `exitRace`.
+
+4. **גבולות ערכים** — velocity caps קיימים: `FG.pvx` מוגבל ל-±9. אין runaway accumulation של `cvf` ב-RG.
+
+5. **ענף else ב-`checkTrick`** — הענף `if(G.trickCaller==='race')` מכסה את כל מקרי המירוץ. הענף `else` מטפל בנפילה. אם מתווסף משחק חדש עם שאלת הצלה — הוסף ענף מפורש, לא תסמוך על ה-else.
+
+### ב. בדיקות בדפדפן (Runtime)
+
+6. **אין שגיאות console** — פתח את `preview` ובדוק console (level: error). אפס שגיאות JS לפני מיזוג.
+
+7. **זרימת שאלת הצלה — משחק נפילה**:
+   - שחקן מפסיד 3 חיים → שאלה מופיעה
+   - תשובה נכונה → שחקן חוזר לאותו X/Y שהיה לפני הפסילה (לא מרכז)
+   - גם אחרי `exitTrick` + פתיחה מחדש — אין drift מג'ירוסקופ
+
+8. **זרימת שאלת הצלה — משחק מירוץ**:
+   - מכונית מפסידה → שאלה מופיעה
+   - תשובה נכונה → מכונית חוזרת לאותה נתיב (`cf`) שהייתה לפני הפסילה
+   - גם אחרי `exitTrick` + פתיחה מחדש — אין drift
+
+9. **משחקי letters + trace לא נפגעו** — שחק משחק אותיות ומשחק כתיבה, ודא שהם עובדים כרגיל ללא שגיאות.
+
+10. **יציאה וחזרה למשחק** — לחץ 🏠, חזור למשחק. ודא ש-state נקי (אין שיורי חיים/מיקום מהפעלה קודמת).
+
+---
+
 ## הערות טכניות חשובות
 
 - **TTS**: המשחק משתמש ב-Google Translate TTS API (לא רשמי) — דורש אינטרנט. fallback ל-Web Speech API אם גוגל לא זמין.
