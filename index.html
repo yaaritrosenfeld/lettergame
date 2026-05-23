@@ -1772,7 +1772,7 @@ function openSettings(){snd_click();document.getElementById('settings-modal').cl
 function closeSettings(){document.getElementById('settings-modal').classList.remove('open')}
 function settingsOverlayClick(e){if(e.target.id==='settings-modal')closeSettings()}
 function openGameMenu(){snd_click();const o=document.getElementById('game-menu-overlay');o.style.background='rgba(0,0,0,0)';o.classList.add('open');requestAnimationFrame(()=>o.style.background='rgba(0,0,0,.52)')}
-function closeGameMenu(){const o=document.getElementById('game-menu-overlay');o.style.background='rgba(0,0,0,0)';setTimeout(()=>o.classList.remove('open'),280)}
+function closeGameMenu(){const o=document.getElementById('game-menu-overlay');o.style.background='rgba(0,0,0,0)';o.style.pointerEvents='none';setTimeout(()=>{o.classList.remove('open');o.style.pointerEvents=''},280)}
 function gameMenuOverlayClick(e){if(e.target.id==='game-menu-overlay')closeGameMenu()}
 
 function toggleSetting(key){
