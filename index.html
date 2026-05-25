@@ -1097,7 +1097,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     <div class="letter-scene" id="letter-scene">
       <div class="scene-sun">☀️</div>
       <div class="scene-char" id="scene-char">
-        <div class="sch">😊</div>
+        <div class="sch" id="sc-head">😊</div>
         <div class="scb" id="sc-body"></div>
         <div class="scl"><div id="sc-ll"></div><div id="sc-lr"></div></div>
       </div>
@@ -2290,10 +2290,6 @@ function drawFallPlayer(ctx,x,y,w,h){
     ctx.strokeStyle='#333';ctx.lineWidth=2;
     ctx.beginPath();ctx.arc(x+w/2,y+hh*.72,5,.1,Math.PI-.1);ctx.stroke();
   }
-  // Hair
-  ctx.fillStyle='#5D4037';
-  rr(ctx,x+5,y-5,w-10,10,4);
-  if(G.hair==='long'){ctx.fillRect(x+5,y,8,hh*.7);ctx.fillRect(x+w-13,y,8,hh*.7)}
 }
 
 function rectsOverlap(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
@@ -2443,6 +2439,11 @@ function initLetters(){
   document.getElementById('sc-body').style.background=G.shirt;
   document.getElementById('sc-ll').style.background=G.pants;
   document.getElementById('sc-lr').style.background=G.pants;
+  const sch=document.getElementById('sc-head');
+  if(sch){
+    if(G.photo){sch.textContent='';sch.style.backgroundImage='url('+G.photo+')';sch.style.backgroundSize='cover';sch.style.backgroundPosition='center';}
+    else{sch.textContent='😊';sch.style.backgroundImage='';}
+  }
   document.getElementById('let-feedback').classList.remove('show');
   document.getElementById('let-stars').textContent='0';
   document.getElementById('let-coins').textContent='0';
