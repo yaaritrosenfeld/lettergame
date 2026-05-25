@@ -1797,6 +1797,8 @@ if('speechSynthesis' in window){
 function goScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  document.getElementById('trick-prompt').classList.remove('show');
+  document.getElementById('trick-overlay').classList.remove('show');
   snd_click();
 }
 
@@ -2050,6 +2052,12 @@ function initFall(){
   document.getElementById('fall-speed').textContent=FG.spd.toFixed(1);
   setupFallControls();
   if(FG.animId)cancelAnimationFrame(FG.animId);
+  if(FG.lives<=0){
+    FG.active=false;
+    G.trickCaller='fall';
+    document.getElementById('trick-prompt').classList.add('show');
+    return;
+  }
   fallLoop();
 }
 
@@ -2407,7 +2415,7 @@ function checkTrick(l,btn){
         document.getElementById('race-lives').textContent='❤️';
         RG.animId=requestAnimationFrame(rcLoop);
       }else{
-        FG.lives=1;FG.active=true;
+        FG.lives=1;G.lives=1;FG.active=true;
         FG.px=(FG.savedPx!==undefined)?FG.savedPx:FG.W/2-FG.pw/2;
         FG.py=(FG.savedPy!==undefined)?FG.savedPy:Math.round(FG.H*0.75-FG.ph/2);
         FG.savedPx=undefined;FG.savedPy=undefined;
@@ -2574,6 +2582,8 @@ function exitGame(){
   if(FG.animId){cancelAnimationFrame(FG.animId);FG.animId=null}
   if(FG._gyroHandler){window.removeEventListener('deviceorientation',FG._gyroHandler);FG._gyroHandler=null;}
   document.onkeydown=null;document.onkeyup=null;
+  G.lives=Math.max(0,FG.lives);
+  saveCurrentPlayer();
   goScreen('s-map');
 }
 
