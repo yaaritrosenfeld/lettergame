@@ -731,23 +731,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
       </div>
     </div>
 
-    <div class="sp-section" style="opacity:.45;pointer-events:none">
-      <div class="sp-section-title">🎨 ערכת העולם שלי <span style="font-size:.7rem;opacity:.8">— בקרוב!</span></div>
-      <div class="theme-grid">
-        <button class="theme-btn sel" disabled><span>🎮</span>Classic</button>
-        <button class="theme-btn" disabled><span>🦄</span>Unicorn Magic</button>
-        <button class="theme-btn" disabled><span>🚀</span>Space Explorer</button>
-        <button class="theme-btn" disabled><span>🌊</span>Ocean Adventure</button>
-      </div>
-    </div>
-
-    <div class="sp-section">
-      <div class="sp-section-title">💡 משחק</div>
-      <div class="toggle-row">
-        <span>רמזים</span>
-        <div class="toggle-switch on" id="tog-hints" onclick="toggleSetting('hints')"></div>
-      </div>
-    </div>
 
     <div style="text-align:center;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12);opacity:.55;font-size:.72rem;letter-spacing:.04em;color:#fff">
       גרסה <span id="app-version-display"></span>
@@ -1767,6 +1750,27 @@ function openGameMenu(){snd_click();const o=document.getElementById('game-menu-o
 function closeGameMenu(){const o=document.getElementById('game-menu-overlay');o.style.background='rgba(0,0,0,0)';setTimeout(()=>o.classList.remove('open'),280)}
 function gameMenuOverlayClick(e){if(e.target.id==='game-menu-overlay')closeGameMenu()}
 
+const LS_SETTINGS='letter_game_settings';
+
+function saveSettings(){
+  try{localStorage.setItem(LS_SETTINGS,JSON.stringify({muteAll:G.muteAll,volume:G.volume}));}catch(e){}
+}
+
+function loadSettings(){
+  try{
+    const s=JSON.parse(localStorage.getItem(LS_SETTINGS));
+    if(!s)return;
+    if(s.muteAll!=null)G.muteAll=s.muteAll;
+    if(s.volume!=null)G.volume=s.volume;
+    document.getElementById('tog-mute-all').classList.toggle('on',G.muteAll);
+    const btn=document.getElementById('btn-mute');
+    btn.textContent=G.muteAll?'🔇':'🔊';
+    btn.classList.toggle('muted',G.muteAll);
+    const slider=document.getElementById('vol-slider');
+    slider.value=Math.round(G.volume*100);
+  }catch(e){}
+}
+
 function toggleSetting(key){
   G[key]=!G[key];
   const id='tog-'+key.replace(/([A-Z])/g,'-$1').toLowerCase();
@@ -1778,9 +1782,14 @@ function toggleSetting(key){
     btn.classList.toggle('muted',G.muteAll);
   }
   if(!G.muteAll)snd_click();
+  saveSettings();
 }
 
-function setVolume(val){G.volume=val/100;if(_currentAudio)_currentAudio.volume=G.volume;}
+function setVolume(val){
+  G.volume=val/100;
+  if(_currentAudio)_currentAudio.volume=G.volume;
+  saveSettings();
+}
 
 function selectTheme(name,btn){
   G.theme=name;
@@ -2816,6 +2825,7 @@ window.addEventListener('resize',()=>{
 document.addEventListener('touchmove',e=>{if(e.target.tagName==='CANVAS')e.preventDefault()},{passive:false});
 
 document.getElementById('app-version-display').textContent = APP_VERSION;
+loadSettings();
 
 /* Welcome message on desktop auto-plays on load */
 if(!_isMobile){
