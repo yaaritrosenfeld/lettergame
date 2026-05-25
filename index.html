@@ -748,6 +748,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
         <div class="toggle-switch on" id="tog-hints" onclick="toggleSetting('hints')"></div>
       </div>
     </div>
+
+    <div style="text-align:center;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12);opacity:.45;font-size:.72rem;letter-spacing:.04em">
+      גרסה <span id="app-version-display"></span>
+    </div>
   </div>
 </div>
 
@@ -1153,6 +1157,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
+const APP_VERSION = '01.25.05.26';
+
 /* ═══════════════════════════════
    STATE
 ══════════════════════════════════ */
@@ -2808,6 +2814,8 @@ window.addEventListener('resize',()=>{
 
 /* Prevent scroll on canvas */
 document.addEventListener('touchmove',e=>{if(e.target.tagName==='CANVAS')e.preventDefault()},{passive:false});
+
+document.getElementById('app-version-display').textContent = APP_VERSION;
 
 /* Welcome message on desktop auto-plays on load */
 if(!_isMobile){
