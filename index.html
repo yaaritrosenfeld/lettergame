@@ -268,7 +268,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 #race-canvas{flex:1;width:100%;display:block;touch-action:none;min-height:0}
 
 /* Return-to-question prompt (shown on frozen game after dismissing trick) */
-.trick-prompt{position:absolute;inset:56px 0 0 0;background:rgba(10,8,30,.72);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;overflow:hidden}
+.trick-prompt{position:fixed;inset:56px 0 0 0;background:rgba(10,8,30,.72);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;overflow:hidden}
 .trick-prompt.show{display:flex}
 .tp-floaters{position:absolute;inset:0;pointer-events:none}
 .tp-float{position:absolute;bottom:-10%;left:var(--x);font-size:2.4rem;animation:tpFloat 2.8s var(--d) infinite ease-out}
@@ -1038,40 +1038,40 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     </div>
   </div>
   <canvas id="fall-canvas" style="flex:1;width:100%;display:block;touch-action:none"></canvas>
+</div>
 
-  <!-- Return-to-question prompt -->
-  <div id="trick-prompt" class="trick-prompt">
-    <div class="tp-floaters">
-      <span class="tp-float" style="--d:0s;--x:8%">💎</span>
-      <span class="tp-float" style="--d:.6s;--x:22%">⭐</span>
-      <span class="tp-float" style="--d:1.2s;--x:40%">💎</span>
-      <span class="tp-float" style="--d:.3s;--x:58%">⭐</span>
-      <span class="tp-float" style="--d:.9s;--x:74%">💎</span>
-      <span class="tp-float" style="--d:1.5s;--x:88%">⭐</span>
-    </div>
-    <div class="tp-card">
-      <div class="tp-eq">🤔 ➡️ ❤️❤️❤️</div>
-      <button class="tp-cta" onclick="reopenTrick()">🤔</button>
-    </div>
+<!-- Return-to-question prompt (shared: fall + race) -->
+<div id="trick-prompt" class="trick-prompt">
+  <div class="tp-floaters">
+    <span class="tp-float" style="--d:0s;--x:8%">💎</span>
+    <span class="tp-float" style="--d:.6s;--x:22%">⭐</span>
+    <span class="tp-float" style="--d:1.2s;--x:40%">💎</span>
+    <span class="tp-float" style="--d:.3s;--x:58%">⭐</span>
+    <span class="tp-float" style="--d:.9s;--x:74%">💎</span>
+    <span class="tp-float" style="--d:1.5s;--x:88%">⭐</span>
   </div>
+  <div class="tp-card">
+    <div class="tp-eq">🤔 ➡️ ❤️❤️❤️</div>
+    <button class="tp-cta" onclick="reopenTrick()">🤔</button>
+  </div>
+</div>
 
-  <!-- Trick Question -->
-  <div class="trick-overlay" id="trick-overlay">
-    <div class="trick-box">
-      <div class="trick-icon" id="trick-icon">🤔</div>
-      <div class="trick-title" id="trick-title">שאלת הצלה!</div>
-      <div class="trick-audio-btn" id="trick-audio-btn" onclick="playTrickAudio()">🔊 נגן שוב</div>
-      <div class="trick-kb" id="trick-kb"></div>
-      <div class="trick-fb" id="trick-fb"></div>
-      <div class="trick-tries" id="trick-tries">נסיון 1 מתוך 2</div>
-      <button class="trick-next-btn" id="trick-next-btn" onclick="cycleToNextTrick()">⚡ שאלה חדשה!</button>
-      <div class="trick-retry-anim" id="trick-retry-anim">
-        <div class="trick-retry-emoji">💛</div>
-        <div class="trick-retry-text">לא נורא, בוא ננסה שוב!</div>
-        <div class="trick-retry-sub">שאלה חדשה מיד...</div>
-      </div>
-      <button class="trick-exit-btn" onclick="exitTrick()">✕</button>
+<!-- Trick Question (shared: fall + race) -->
+<div class="trick-overlay" id="trick-overlay">
+  <div class="trick-box">
+    <div class="trick-icon" id="trick-icon">🤔</div>
+    <div class="trick-title" id="trick-title">שאלת הצלה!</div>
+    <div class="trick-audio-btn" id="trick-audio-btn" onclick="playTrickAudio()">🔊 נגן שוב</div>
+    <div class="trick-kb" id="trick-kb"></div>
+    <div class="trick-fb" id="trick-fb"></div>
+    <div class="trick-tries" id="trick-tries">נסיון 1 מתוך 2</div>
+    <button class="trick-next-btn" id="trick-next-btn" onclick="cycleToNextTrick()">⚡ שאלה חדשה!</button>
+    <div class="trick-retry-anim" id="trick-retry-anim">
+      <div class="trick-retry-emoji">💛</div>
+      <div class="trick-retry-text">לא נורא, בוא ננסה שוב!</div>
+      <div class="trick-retry-sub">שאלה חדשה מיד...</div>
     </div>
+    <button class="trick-exit-btn" onclick="exitTrick()">✕</button>
   </div>
 </div>
 
@@ -2578,8 +2578,7 @@ function exitTrick(){
   if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
   document.getElementById('trick-overlay').classList.remove('show');
   snd_click();
-  if(G.trickCaller==='race'){exitRace();}
-  else{document.getElementById('trick-prompt').classList.add('show');}
+  document.getElementById('trick-prompt').classList.add('show');
 }
 
 function reopenTrick(){
