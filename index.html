@@ -268,7 +268,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 #race-canvas{flex:1;width:100%;display:block;touch-action:none;min-height:0}
 
 /* Return-to-question prompt (shown on frozen game after dismissing trick) */
-.trick-prompt{position:absolute;inset:56px 0 0 0;background:rgba(10,8,30,.72);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;overflow:hidden}
+.trick-prompt{position:fixed;inset:56px 0 0 0;background:rgba(10,8,30,.72);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;overflow:hidden}
 .trick-prompt.show{display:flex}
 .tp-floaters{position:absolute;inset:0;pointer-events:none}
 .tp-float{position:absolute;bottom:-10%;left:var(--x);font-size:2.4rem;animation:tpFloat 2.8s var(--d) infinite ease-out}
@@ -1038,40 +1038,40 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     </div>
   </div>
   <canvas id="fall-canvas" style="flex:1;width:100%;display:block;touch-action:none"></canvas>
+</div>
 
-  <!-- Return-to-question prompt -->
-  <div id="trick-prompt" class="trick-prompt">
-    <div class="tp-floaters">
-      <span class="tp-float" style="--d:0s;--x:8%">💎</span>
-      <span class="tp-float" style="--d:.6s;--x:22%">⭐</span>
-      <span class="tp-float" style="--d:1.2s;--x:40%">💎</span>
-      <span class="tp-float" style="--d:.3s;--x:58%">⭐</span>
-      <span class="tp-float" style="--d:.9s;--x:74%">💎</span>
-      <span class="tp-float" style="--d:1.5s;--x:88%">⭐</span>
-    </div>
-    <div class="tp-card">
-      <div class="tp-eq">🤔 ➡️ ❤️❤️❤️</div>
-      <button class="tp-cta" onclick="reopenTrick()">🤔</button>
-    </div>
+<!-- Return-to-question prompt (shared: fall + race) -->
+<div id="trick-prompt" class="trick-prompt">
+  <div class="tp-floaters">
+    <span class="tp-float" style="--d:0s;--x:8%">💎</span>
+    <span class="tp-float" style="--d:.6s;--x:22%">⭐</span>
+    <span class="tp-float" style="--d:1.2s;--x:40%">💎</span>
+    <span class="tp-float" style="--d:.3s;--x:58%">⭐</span>
+    <span class="tp-float" style="--d:.9s;--x:74%">💎</span>
+    <span class="tp-float" style="--d:1.5s;--x:88%">⭐</span>
   </div>
+  <div class="tp-card">
+    <div class="tp-eq">🤔 ➡️ ❤️❤️❤️</div>
+    <button class="tp-cta" onclick="reopenTrick()">🤔</button>
+  </div>
+</div>
 
-  <!-- Trick Question -->
-  <div class="trick-overlay" id="trick-overlay">
-    <div class="trick-box">
-      <div class="trick-icon" id="trick-icon">🤔</div>
-      <div class="trick-title" id="trick-title">שאלת הצלה!</div>
-      <div class="trick-audio-btn" id="trick-audio-btn" onclick="playTrickAudio()">🔊 נגן שוב</div>
-      <div class="trick-kb" id="trick-kb"></div>
-      <div class="trick-fb" id="trick-fb"></div>
-      <div class="trick-tries" id="trick-tries">נסיון 1 מתוך 2</div>
-      <button class="trick-next-btn" id="trick-next-btn" onclick="cycleToNextTrick()">⚡ שאלה חדשה!</button>
-      <div class="trick-retry-anim" id="trick-retry-anim">
-        <div class="trick-retry-emoji">💛</div>
-        <div class="trick-retry-text">לא נורא, בוא ננסה שוב!</div>
-        <div class="trick-retry-sub">שאלה חדשה מיד...</div>
-      </div>
-      <button class="trick-exit-btn" onclick="exitTrick()">✕</button>
+<!-- Trick Question (shared: fall + race) -->
+<div class="trick-overlay" id="trick-overlay">
+  <div class="trick-box">
+    <div class="trick-icon" id="trick-icon">🤔</div>
+    <div class="trick-title" id="trick-title">שאלת הצלה!</div>
+    <div class="trick-audio-btn" id="trick-audio-btn" onclick="playTrickAudio()">🔊 נגן שוב</div>
+    <div class="trick-kb" id="trick-kb"></div>
+    <div class="trick-fb" id="trick-fb"></div>
+    <div class="trick-tries" id="trick-tries">נסיון 1 מתוך 2</div>
+    <button class="trick-next-btn" id="trick-next-btn" onclick="cycleToNextTrick()">שאלה הבאה ➜</button>
+    <div class="trick-retry-anim" id="trick-retry-anim">
+      <div class="trick-retry-emoji">💛</div>
+      <div class="trick-retry-text">לא נורא, בוא ננסה שוב!</div>
+      <div class="trick-retry-sub">שאלה חדשה מיד...</div>
     </div>
+    <button class="trick-exit-btn" onclick="exitTrick()">✕</button>
   </div>
 </div>
 
@@ -1797,6 +1797,8 @@ if('speechSynthesis' in window){
 function goScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  document.getElementById('trick-prompt').classList.remove('show');
+  document.getElementById('trick-overlay').classList.remove('show');
   snd_click();
 }
 
@@ -2050,6 +2052,12 @@ function initFall(){
   document.getElementById('fall-speed').textContent=FG.spd.toFixed(1);
   setupFallControls();
   if(FG.animId)cancelAnimationFrame(FG.animId);
+  if(FG.lives<=0){
+    FG.active=false;
+    G.trickCaller='fall';
+    document.getElementById('trick-prompt').classList.add('show');
+    return;
+  }
   fallLoop();
 }
 
@@ -2320,6 +2328,20 @@ function _setTrickQuestionVisible(v){
     document.getElementById(id).style.display=v?'':'none';
   });
 }
+function _showCorrectAndWait(){
+  if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
+  document.getElementById('trick-retry-anim').classList.remove('show');
+  _setTrickQuestionVisible(true);
+  document.querySelectorAll('#trick-kb button').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===FG.trickQ.ans)b.classList.add('kc');
+  });
+  const ld=LETTERS.find(l=>l.l===FG.trickQ.ans);
+  speak(ld?(ld.p||ld.n):FG.trickQ.ans,true);
+  document.getElementById('trick-fb').textContent='התשובה הנכונה: '+FG.trickQ.ans+' 👆';
+  document.getElementById('trick-tries').textContent='';
+  document.getElementById('trick-next-btn').style.display='block';
+}
 function _resetTrickUI(){
   document.getElementById('trick-retry-anim').classList.remove('show');
   _setTrickQuestionVisible(true);
@@ -2386,14 +2408,14 @@ function checkTrick(l,btn){
       document.getElementById('trick-overlay').classList.remove('show');
       document.getElementById('trick-prompt').classList.remove('show');
       if(G.trickCaller==='race'){
-        RG.lives=1;RG.active=true;
+        RG.lives=1;G.lives=1;RG.active=true;
         RG.obs=[];RG.walls=[];RG.lastGF=.22;RG.lastGW=.56;RG.hitCD=0;
         RG.cf=(RG.savedCf!==undefined)?RG.savedCf:.5;RG.savedCf=undefined;
         RG.cvf=0;RG.gyroBase=null;
         document.getElementById('race-lives').textContent='❤️';
         RG.animId=requestAnimationFrame(rcLoop);
       }else{
-        FG.lives=1;FG.active=true;
+        FG.lives=1;G.lives=1;FG.active=true;
         FG.px=(FG.savedPx!==undefined)?FG.savedPx:FG.W/2-FG.pw/2;
         FG.py=(FG.savedPy!==undefined)?FG.savedPy:Math.round(FG.H*0.75-FG.ph/2);
         FG.savedPx=undefined;FG.savedPy=undefined;
@@ -2421,19 +2443,8 @@ function checkTrick(l,btn){
     FG.trickAttempts++;
     const allWrongs=[...document.querySelectorAll('#trick-kb button')].filter(b=>b.textContent!==FG.trickQ.ans);
     const allWrongsUsed=allWrongs.every(b=>b.disabled);
-    if(allWrongsUsed){
-      if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
-      document.querySelectorAll('#trick-kb button').forEach(b=>b.disabled=true);
-      speak('אוֹפְּס, לֹא נוֹרָא! בּוֹא נְנַסֶּה שׁוּב!');
-      document.getElementById('trick-fb').textContent='כמעט! נסה שוב 💪';
-      document.getElementById('trick-tries').textContent='';
-      document.getElementById('trick-next-btn').style.display='block';
-    }else if(FG.trickAttempts>=2){
-      document.querySelectorAll('#trick-kb button').forEach(b=>b.disabled=true);
-      _setTrickQuestionVisible(false);
-      document.getElementById('trick-retry-anim').classList.add('show');
-      speak('לֹא נוֹרָא, בּוֹא נְנַסֶּה שׁוּב!');
-      if(!FG.trickCycleTimer)FG.trickCycleTimer=setTimeout(cycleToNextTrick,3000);
+    if(allWrongsUsed||FG.trickAttempts>=2){
+      _showCorrectAndWait();
     }else{
       speak('נַסֶּה שׁוּב!');
       document.getElementById('trick-tries').textContent='נסיון 2 מתוך 2';
@@ -2571,6 +2582,8 @@ function exitGame(){
   if(FG.animId){cancelAnimationFrame(FG.animId);FG.animId=null}
   if(FG._gyroHandler){window.removeEventListener('deviceorientation',FG._gyroHandler);FG._gyroHandler=null;}
   document.onkeydown=null;document.onkeyup=null;
+  G.lives=Math.max(0,FG.lives);
+  saveCurrentPlayer();
   goScreen('s-map');
 }
 
@@ -2578,8 +2591,7 @@ function exitTrick(){
   if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
   document.getElementById('trick-overlay').classList.remove('show');
   snd_click();
-  if(G.trickCaller==='race'){exitRace();}
-  else{document.getElementById('trick-prompt').classList.add('show');}
+  document.getElementById('trick-prompt').classList.add('show');
 }
 
 function reopenTrick(){
@@ -2843,12 +2855,18 @@ function initRace(){
   const cv=document.getElementById('race-canvas');
   RG.canvas=cv; RG.ctx=cv.getContext('2d');
   rcResize();
-  Object.assign(RG,{active:true,frame:0,score:0,level:1,
+  Object.assign(RG,{active:false,frame:0,score:0,level:1,
     spd:3,spdBase:3,accel:false,brake:false,steerL:false,steerR:false,
-    coins:0,lives:3,cf:0.5,cvf:0,bgY:0,
+    coins:0,lives:G.lives>0?G.lives:0,cf:0.5,cvf:0,bgY:0,starsCollected:0,
     walls:[],obs:[],stars:[],lastGF:0.22,lastGW:0.56,hitCD:0,_dragId:null});
   rcHUD(); rcSetupControls();
-  RG.animId=requestAnimationFrame(rcLoop);
+  if(RG.lives<=0){
+    G.trickCaller='race';
+    document.getElementById('trick-prompt').classList.add('show');
+  }else{
+    RG.active=true;
+    RG.animId=requestAnimationFrame(rcLoop);
+  }
 }
 
 function rcSetupControls(){
@@ -3187,6 +3205,11 @@ function rcLoop(){
       coinPop(sx,s.y,'+5');
       document.getElementById('race-coins').textContent=RG.coins;
       document.getElementById('map-coins').textContent=G.coins;
+      RG.starsCollected++;
+      if(RG.starsCollected%3===0){
+        RG.level++;RG.spdBase=Math.min(8,RG.spdBase+0.5);
+        coinPop(CX,CY-60,'⚡+');
+      }
       return false;
     }
     return s.y<RG.H+30;
@@ -3206,7 +3229,7 @@ function rcLoop(){
 }
 function rcHit(){
   if(RG.hitCD>0)return;
-  RG.hitCD=90;RG.lives--;rcFlash();snd_hit();
+  RG.hitCD=90;RG.lives--;G.lives=Math.max(0,RG.lives);rcFlash();snd_hit();
   RG.spd=Math.max(1,RG.spd*.68);
   document.getElementById('race-lives').textContent='❤️'.repeat(Math.max(0,RG.lives));
   document.getElementById('race-spd').textContent=RG.spd.toFixed(1);
@@ -3235,6 +3258,7 @@ function exitRace(){
   if(RG._keyDown){document.removeEventListener('keydown',RG._keyDown);RG._keyDown=null}
   if(RG._keyUp){document.removeEventListener('keyup',RG._keyUp);RG._keyUp=null}
   if(RG._gyro){window.removeEventListener('deviceorientation',RG._gyro);RG._gyro=null}
+  G.lives=Math.max(0,RG.lives);
   _saveGameExit('castle-stars-race', RG.coins||0);
   snd_click();goScreen('s-map');
 }
