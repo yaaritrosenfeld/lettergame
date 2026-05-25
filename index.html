@@ -348,9 +348,18 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     linear-gradient(90deg,rgba(0,212,255,.04) 1px,transparent 1px);
   background-size:40px 40px}
 .letter-main{flex:1;display:flex;flex-direction:column;padding:14px;gap:12px;overflow-y:auto;position:relative;z-index:1}
-.letter-header{display:flex;align-items:center;gap:10px}
-.letter-prompt{color:var(--neon-blue);font-size:clamp(.9rem,3.8vw,1.15rem);font-weight:700;flex:1;
-  text-shadow:0 0 10px rgba(0,212,255,.5)}
+.let-audio-btn{position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  background:linear-gradient(160deg,#0a1628,#162040);color:var(--neon-blue);
+  font-family:'Fredoka One',sans-serif;font-size:1rem;padding:12px 16px;
+  border-radius:12px;border:2px solid rgba(0,212,255,.6);
+  cursor:pointer;z-index:4;box-shadow:0 0 18px rgba(0,212,255,.4),0 4px 0 rgba(0,0,0,.5);
+  animation:audioPulse 2s ease-in-out infinite;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px;
+  text-shadow:0 0 8px rgba(0,212,255,.7);white-space:nowrap}
+.let-audio-btn .let-audio-icon{font-size:1.8rem;line-height:1}
+.let-audio-btn:active{transform:translateY(calc(-50% + 3px));box-shadow:0 0 8px rgba(0,212,255,.2),0 1px 0 rgba(0,0,0,.5)}
+@keyframes audioPulse{0%,100%{box-shadow:0 0 12px rgba(0,212,255,.3),0 4px 0 rgba(0,0,0,.5)}
+  50%{box-shadow:0 0 26px rgba(0,212,255,.8),0 4px 0 rgba(0,0,0,.5)}}
 .audio-btn{background:linear-gradient(160deg,#0a1628,#162040);color:var(--neon-blue);
   font-family:'Fredoka One',sans-serif;font-size:.95rem;padding:10px 18px;
   border:2px solid rgba(0,212,255,.45);border-radius:8px;cursor:pointer;
@@ -381,15 +390,15 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .speech-bubble::after{content:'';position:absolute;bottom:-16px;right:18px;border:8px solid transparent;border-top-color:#fff}
 
 /* Letter choice buttons */
-.letter-choices{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.letter-choices{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);gap:14px;flex:1;max-height:42vh}
 .choice-btn{
   background:linear-gradient(160deg,#0a1628 0%,#0f2040 50%,#0a1628 100%);
   color:#fff;font-family:'Fredoka One',sans-serif;font-size:2.8rem;font-weight:900;
-  padding:22px 10px;border-radius:10px;cursor:pointer;text-align:center;
+  padding:22px 10px;border-radius:10px;cursor:pointer;text-align:center;height:100%;
   border:2px solid rgba(0,212,255,.45);
   box-shadow:0 0 14px rgba(0,212,255,.2), 0 6px 0 rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08);
   position:relative;overflow:hidden;display:flex;flex-direction:column;
-  align-items:center;gap:4px;transition:transform .12s,box-shadow .12s,border-color .15s;
+  align-items:center;justify-content:center;gap:4px;transition:transform .12s,box-shadow .12s,border-color .15s;
   text-shadow:0 0 18px rgba(0,212,255,.7),2px 2px 0 rgba(0,0,0,.5)}
 .choice-btn::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,transparent,rgba(0,212,255,.6),transparent)}
@@ -1065,15 +1074,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     <button class="back-btn" onclick="exitGame()">🏠</button>
     <div class="game-stats">
       <span>💎<span id="let-coins">0</span></span>
-      <span id="let-lives">❤️❤️❤️</span>
+      <span>⭐<span id="let-stars">0</span></span>
     </div>
   </div>
   <div class="letter-main">
-    <div class="letter-header">
-      <div class="letter-prompt" id="let-prompt">🎯 מצא את האות הנכונה!</div>
-      <button class="audio-btn" onclick="playLetAudio()">🔊 נגן</button>
-    </div>
-
     <div class="letter-scene">
       <div class="scene-sun">☀️</div>
       <div class="scene-char" id="scene-char">
@@ -1082,20 +1086,15 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
         <div class="scl"><div id="sc-ll"></div><div id="sc-lr"></div></div>
       </div>
       <div class="speech-bubble" id="speech-bub">?</div>
+      <button class="let-audio-btn" onclick="playLetAudio()"><span class="let-audio-icon">🔊</span>נגן שוב</button>
     </div>
 
     <div class="letter-choices" id="let-choices"></div>
 
     <div class="letter-feedback" id="let-feedback">
-      <div class="fb-stars"><span>⭐</span><span>⭐</span><span>⭐</span></div>
       <div class="fb-text" id="fb-text">🔥 מדהים!</div>
       <div class="fb-letter" id="fb-letter"></div>
       <button class="next-btn" onclick="nextLetRound()">🚀 הבא!</button>
-    </div>
-
-    <div class="progress-wrap">
-      <div class="prog-label">⚡ שלב <span id="let-round">1</span> מתוך 5</div>
-      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:20%"></div></div>
     </div>
   </div>
 </div>
@@ -2420,15 +2419,17 @@ function checkTrick(l,btn){
 /* ═══════════════════════════════
    LETTER GAME
 ══════════════════════════════════ */
-const LG={round:0,total:5,cur:null,lives:3,coins:0,answered:false,qAttempts:0,maxQ:2};
+const LG={round:0,cur:null,coins:0,answered:false,qAttempts:0,maxQ:2,correctCount:0,stars:0};
 
 function initLetters(){
-  LG.round=0;LG.lives=G.lives;LG.coins=0;LG.answered=false;
+  LG.round=0;LG.coins=0;LG.answered=false;LG.correctCount=0;LG.stars=0;
   // Apply avatar to scene char
   document.getElementById('sc-body').style.background=G.shirt;
   document.getElementById('sc-ll').style.background=G.pants;
   document.getElementById('sc-lr').style.background=G.pants;
   document.getElementById('let-feedback').classList.remove('show');
+  document.getElementById('let-stars').textContent='0';
+  document.getElementById('let-coins').textContent='0';
   nextLetRound();
 }
 
@@ -2436,7 +2437,6 @@ function nextLetRound(){
   LG.round++;LG.answered=false;LG.qAttempts=0;
   document.getElementById('let-feedback').classList.remove('show');
   document.getElementById('let-choices').style.display='';
-  if(LG.round>LG.total){endLetters();return}
   const wl=WORLDS[G.world].letters;
   const allL=LETTERS.map(l=>l.l);
   const pool=wl.length?wl:allL;
@@ -2444,18 +2444,14 @@ function nextLetRound(){
   LG.cur=LETTERS.find(l=>l.l===tl)||LETTERS[0];
   const wrong=LETTERS.filter(l=>l.l!==LG.cur.l).sort(()=>Math.random()-.5).slice(0,3);
   const choices=[...wrong,LG.cur].sort(()=>Math.random()-.5);
-  document.getElementById('let-prompt').textContent=`מצא את האות "${LG.cur.l}" (${LG.cur.n})`;
   document.getElementById('speech-bub').textContent='?';
-  document.getElementById('let-round').textContent=LG.round;
-  document.getElementById('prog-fill').style.width=(LG.round/LG.total*100)+'%';
-  document.getElementById('let-lives').textContent=livesStr(LG.maxQ);
   document.getElementById('let-coins').textContent=LG.coins;
   const el=document.getElementById('let-choices');
   el.innerHTML='';
   choices.forEach(ch=>{
     const btn=document.createElement('button');
     btn.className='choice-btn';
-    btn.innerHTML=`${ch.l}<span class="cbl">${ch.n}</span>`;
+    btn.textContent=ch.l;
     btn.onclick=()=>checkLet(ch,btn);
     el.appendChild(btn);
   });
@@ -2474,11 +2470,23 @@ function checkLet(ch,btn){
   if(LG.answered)return;
   if(ch.l===LG.cur.l){
     LG.answered=true;btn.classList.add('cc');snd_ok();
-    LG.coins+=10;addCoins(10);
+    const pts=LG.qAttempts===0?10:5;
+    LG.coins+=pts;addCoins(pts);
+    LG.correctCount++;
     trackLetter(LG.cur.l,true);
     document.getElementById('speech-bub').textContent='✅';
-    speak('כֹּל הַכָּבוֹד! '+(ch.p||ch.n));
-    document.getElementById('fb-text').textContent='🔥 מדהים!';
+    document.getElementById('let-coins').textContent=LG.coins;
+    // כוכב כל 5 תשובות נכונות
+    if(LG.correctCount%5===0 && LG.stars<3){
+      LG.stars++;
+      document.getElementById('let-stars').textContent=LG.stars;
+      saveLettersProgress();
+      speak('וָואוּ! קִיבַּלְתָּ כּוֹכָב! יֵשׁ לְךָ '+LG.stars+' כּוֹכָבִים!',true);
+      document.getElementById('fb-text').textContent='⭐ כוכב חדש! יש לך '+LG.stars+' כוכבים!';
+    }else{
+      speak('כֹּל הַכָּבוֹד! '+(ch.p||ch.n));
+      document.getElementById('fb-text').textContent='🔥 מדהים!';
+    }
     document.getElementById('fb-letter').textContent=ch.l;
     document.getElementById('let-choices').style.display='none';
     document.getElementById('let-feedback').classList.add('show');
@@ -2486,8 +2494,6 @@ function checkLet(ch,btn){
   }else{
     btn.classList.add('cw');btn.disabled=true;snd_no();
     LG.qAttempts++;
-    const rem=LG.maxQ-LG.qAttempts;
-    document.getElementById('let-lives').textContent=livesStr(rem);
     if(LG.qAttempts>=LG.maxQ){
       LG.answered=true;
       document.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
@@ -2511,24 +2517,20 @@ function closeLetFail(){
   nextLetRound();
 }
 
-function endLetters(){
-  document.getElementById('win-earned').textContent=LG.coins;
-  document.getElementById('win-body').style.background=G.shirt;
-  const stars=Math.min(3,Math.max(1,Math.ceil(LG.coins/10)));
+function saveLettersProgress(){
+  const stars=LG.stars;
   G.worldStars[G.world]=Math.max(G.worldStars[G.world]||0,stars);
   if(G.launchSource)G.castleStars[G.launchSource]=Math.max(G.castleStars[G.launchSource]||0,stars);
   const _starsEl=document.getElementById(G.launchSource)||document.getElementById('w-stars-'+G.world);
   if(_starsEl)_starsEl.textContent=Array.from({length:3},(_,i)=>i<stars?'⭐':'☆').join('');
-  endSession();
   saveCurrentPlayer();
-  snd_ok();speak('כֹּל הַכָּבוֹד! סִיַּמְתָּ אֶת הַמִּשְׂחָק!');
-  goScreen('s-win');
 }
 
 /* ═══════════════════════════════
    EXIT
 ══════════════════════════════════ */
 function exitGame(){
+  if(document.getElementById('s-letters').classList.contains('active'))saveLettersProgress();
   endSession();
   FG.active=false;
   if(FG.animId){cancelAnimationFrame(FG.animId);FG.animId=null}
