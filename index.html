@@ -2507,8 +2507,6 @@ function playLetAudio(){
   if(!LG.cur)return;
   speak(`מְצָא אֶת הָאוֹת ${LG.cur.p||LG.cur.n}. ${LG.cur.p||LG.cur.n}, כְּמוֹ ${LG.cur.w}`, true);
   snd_click();
-  document.getElementById('speech-bub').textContent=LG.cur.l;
-  setTimeout(()=>{if(!LG.answered)document.getElementById('speech-bub').textContent='?'},2200);
 }
 
 function checkLet(ch,btn){
