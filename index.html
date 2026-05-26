@@ -1144,7 +1144,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
-const APP_VERSION = '25.05.26.02';
+const APP_VERSION = '25.05.26.03';
 
 /* ═══════════════════════════════
    STATE
@@ -2011,7 +2011,7 @@ const FG={
   W:0,H:0,
   walls:[],obs:[],stars:[],
   touchX:0,touchY:0,trickAttempts:0,trickQ:null,
-  trickIdx:0
+  trickIdx:0,hitCD:0
 };
 
 const TRICK_QS=[
@@ -2043,7 +2043,7 @@ function initFall(){
   FG.canvas.height=FG.H*dpr;
   FG.ctx=FG.canvas.getContext('2d');
   FG.ctx.setTransform(dpr,0,0,dpr,0,0);
-  FG.active=true;FG.spd=1.0;FG.level=1;FG.score=0;FG.bgY=0;
+  FG.active=true;FG.spd=1.0;FG.level=1;FG.score=0;FG.bgY=0;FG.hitCD=0;
   FG.lives=G.lives;FG.coins=0;FG.lastGapX=undefined;FG.lastGapW=0;
   FG.px=FG.W/2-FG.pw/2;FG.py=Math.round(FG.H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
   FG.obs=[];FG.stars=[];
@@ -2219,11 +2219,14 @@ function fallLoop(){
     return s.y<H+30&&!s.col;
   });
 
-  // Draw player
-  drawFallPlayer(ctx,FG.px,FG.py,FG.pw,FG.ph);
+  // Invincibility countdown
+  if(FG.hitCD>0)FG.hitCD--;
+
+  // Draw player (blink during invincibility)
+  if(FG.hitCD===0||Math.floor(FG.hitCD/5)%2===0)drawFallPlayer(ctx,FG.px,FG.py,FG.pw,FG.ph);
 
   // HIT!
-  if(hit){
+  if(hit&&FG.hitCD===0){
     FG.lives--;snd_hit();flashRed();
     FG.spd=Math.max(1.0,FG.spd*.75);
     document.getElementById('fall-speed').textContent=FG.spd.toFixed(1);
@@ -2434,7 +2437,7 @@ function checkTrick(l,btn){
         document.getElementById('race-lives').textContent='❤️';
         RG.animId=requestAnimationFrame(rcLoop);
       }else{
-        FG.lives=1;G.lives=1;FG.active=true;
+        FG.lives=1;G.lives=1;FG.active=true;FG.hitCD=120;
         FG.px=(FG.savedPx!==undefined)?FG.savedPx:FG.W/2-FG.pw/2;
         FG.py=(FG.savedPy!==undefined)?FG.savedPy:Math.round(FG.H*0.75-FG.ph/2);
         FG.savedPx=undefined;FG.savedPy=undefined;
