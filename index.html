@@ -280,12 +280,13 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 @keyframes tpPulse{0%,100%{transform:scale(1);box-shadow:0 6px 0 rgba(0,0,0,.4),0 0 0 0 rgba(255,213,102,.8)}55%{transform:scale(1.08);box-shadow:0 6px 0 rgba(0,0,0,.4),0 0 0 22px rgba(255,213,102,0)}}
 
 /* Trick Question Popup */
-.trick-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:300;display:none}
+.trick-overlay{position:fixed;inset:0;background:rgba(0,0,0,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:300;overflow-y:auto;display:none}
 .trick-overlay.show{display:flex}
+.trick-paused-banner{color:rgba(0,212,255,.45);font-size:.78rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Fredoka One',sans-serif}
 .trick-box{position:relative;
   background:linear-gradient(160deg,#07101e,#0c1830);
   border:2px solid rgba(255,230,0,.45);border-radius:12px;
-  padding:24px 18px;max-width:330px;width:92%;
+  padding:24px 18px;max-width:340px;width:92%;max-height:88vh;overflow-y:auto;
   display:flex;flex-direction:column;align-items:center;gap:10px;
   box-shadow:0 0 28px rgba(255,230,0,.15),10px 10px 0 rgba(0,0,0,.5)}
 .trick-icon{font-size:3rem;animation:charBounce 1s infinite}
@@ -466,12 +467,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
   animation:keyPop .4s;line-height:1}
 .letter-feedback.fail .fb-letter{color:var(--neon-yellow);
   text-shadow:0 0 30px rgba(255,230,0,.8),3px 3px 0 rgba(0,0,0,.4)}
-.next-btn{background:linear-gradient(160deg,#052210,#0a3520);color:var(--neon-green);
-  font-family:'Fredoka One',sans-serif;font-size:1.1rem;padding:12px 32px;
-  border:2px solid rgba(57,255,20,.5);border-radius:8px;cursor:pointer;
-  box-shadow:0 0 14px rgba(57,255,20,.25),0 5px 0 rgba(0,0,0,.5);
-  text-shadow:0 0 10px rgba(57,255,20,.7);transition:all .1s}
-.next-btn:active{transform:translateY(3px);box-shadow:0 0 8px rgba(57,255,20,.2),0 2px 0 rgba(0,0,0,.5)}
+.next-btn{background:linear-gradient(160deg,#062b14,#0d4525);color:var(--neon-green);
+  font-family:'Fredoka One',sans-serif;font-size:1.5rem;padding:18px 0;
+  border:3px solid rgba(57,255,20,.7);border-radius:14px;cursor:pointer;width:100%;
+  box-shadow:0 0 22px rgba(57,255,20,.45),0 6px 0 rgba(0,0,0,.55);
+  text-shadow:0 0 14px rgba(57,255,20,.9);transition:transform .1s,box-shadow .1s;
+  animation:nextPulse 1.3s ease-in-out infinite;margin-top:4px}
+.next-btn:active{transform:translateY(4px);box-shadow:0 0 10px rgba(57,255,20,.2),0 2px 0 rgba(0,0,0,.4);animation:none}
+@keyframes nextPulse{0%,100%{transform:scale(1);box-shadow:0 0 22px rgba(57,255,20,.45),0 6px 0 rgba(0,0,0,.55)}50%{transform:scale(1.05);box-shadow:0 0 36px rgba(57,255,20,.75),0 6px 0 rgba(0,0,0,.55)}}
 
 .progress-wrap{margin-top:auto}
 .prog-label{color:rgba(0,212,255,.6);font-size:.82rem;margin-bottom:6px;
@@ -1049,6 +1052,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 
 <!-- Trick Question (shared: fall + race) -->
 <div class="trick-overlay" id="trick-overlay">
+  <div class="trick-paused-banner">⏸ משחק מושהה</div>
   <div class="trick-box">
     <div class="trick-icon" id="trick-icon">🤔</div>
     <div class="trick-title" id="trick-title">שאלת הצלה!</div>
@@ -1103,7 +1107,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     <div class="letter-feedback" id="let-feedback">
       <div class="fb-text" id="fb-text"><span id="fb-icon">🏆</span> יופי! ⭐</div>
       <div class="fb-letter" id="fb-letter"></div>
-      <button class="next-btn" onclick="nextLetRound()">🚀 הבא!</button>
+      <button class="next-btn" onclick="nextLetRound()">הבא ← 🚀</button>
     </div>
 
     <div class="letter-choices" id="let-choices"></div>
@@ -1144,7 +1148,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
-const APP_VERSION = '25.05.26.03';
+const APP_VERSION = '26.05.26.01';
 
 /* ═══════════════════════════════
    STATE
@@ -2047,6 +2051,10 @@ function initFall(){
   FG.lives=G.lives;FG.coins=0;FG.lastGapX=undefined;FG.lastGapW=0;
   FG.px=FG.W/2-FG.pw/2;FG.py=Math.round(FG.H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
   FG.obs=[];FG.stars=[];
+  // Clear any saved rescue state from a previous session
+  FG.savedPx=undefined;FG.savedPy=undefined;
+  FG.savedWalls=undefined;FG.savedObs=undefined;
+  FG.savedLastGapX=undefined;FG.savedLastGapW=undefined;
   const _W=FG.W;const _H=FG.H;
   // Level 1 gap: 75% of screen width — comfortable but not trivial
   const _gW=Math.round(_W*0.75);
@@ -2231,10 +2239,16 @@ function fallLoop(){
     FG.spd=Math.max(1.0,FG.spd*.75);
     document.getElementById('fall-speed').textContent=FG.spd.toFixed(1);
     document.getElementById('fall-lives').textContent=livesStr(FG.lives);
-    if(FG.lives<=0){FG.savedPx=FG.px;FG.savedPy=FG.py;}
+    if(FG.lives<=0){
+      // Game over — freeze state exactly as-is, show rescue question
+      FG.savedPx=FG.px;FG.savedPy=FG.py;
+      FG.savedWalls=[...FG.walls];FG.savedObs=[...FG.obs];
+      FG.savedLastGapX=FG.lastGapX;FG.savedLastGapW=FG.lastGapW;
+      FG.active=false;setTimeout(showTrick,500);return;
+    }
+    // Normal hit (lives > 0) — reset position and pre-fill walls
     FG.px=W/2-FG.pw/2;FG.py=Math.round(H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
     FG.obs=[];
-    // Pre-fill screen with 3 spread-out walls so it's not blank on respawn
     FG.walls=[];
     const pgW=Math.max(Math.round(W*0.45),Math.round(W*0.75)-FG.level*12);
     const pgMinX=Math.round(W*0.04),pgMaxX=Math.max(pgMinX,W-pgW-pgMinX);
@@ -2250,7 +2264,6 @@ function fallLoop(){
       FG.walls.push({x:pgX+pgW,y:preY,w:W-pgX-pgW,h:44,c:pc});
     });
     FG.lastGapX=pgPrev;FG.lastGapW=pgW;
-    if(FG.lives<=0){FG.active=false;setTimeout(showTrick,500);return}
   }
 
   FG.animId=requestAnimationFrame(fallLoop);
@@ -2438,24 +2451,15 @@ function checkTrick(l,btn){
         RG.animId=requestAnimationFrame(rcLoop);
       }else{
         FG.lives=1;G.lives=1;FG.active=true;FG.hitCD=120;
+        // Restore exact position and obstacles from the moment of the fatal hit
         FG.px=(FG.savedPx!==undefined)?FG.savedPx:FG.W/2-FG.pw/2;
         FG.py=(FG.savedPy!==undefined)?FG.savedPy:Math.round(FG.H*0.75-FG.ph/2);
         FG.savedPx=undefined;FG.savedPy=undefined;
+        if(FG.savedWalls!==undefined){FG.walls=FG.savedWalls;FG.savedWalls=undefined;}
+        if(FG.savedObs!==undefined){FG.obs=FG.savedObs;FG.savedObs=undefined;}
+        if(FG.savedLastGapX!==undefined){FG.lastGapX=FG.savedLastGapX;FG.savedLastGapX=undefined;}
+        if(FG.savedLastGapW!==undefined){FG.lastGapW=FG.savedLastGapW;FG.savedLastGapW=undefined;}
         FG.pvx=0;FG.pvy=0;FG.gyroBase=null;
-        FG.obs=[];
-        const _tgW=Math.max(Math.round(FG.W*0.45),Math.round(FG.W*0.75)-FG.level*12);
-        const _tMinX=Math.round(FG.W*0.04),_tMaxX=Math.max(_tMinX,FG.W-_tgW-_tMinX);
-        const _tDrift=Math.round(FG.W*Math.min(0.35,0.12+FG.level*0.03));
-        let _tPrev=FG.W/2-_tgW/2;
-        FG.walls=[];
-        [FG.H*.62,FG.H*.38,FG.H*.12].forEach(py=>{
-          const lo=Math.max(_tMinX,_tPrev-_tDrift),hi=Math.min(_tMaxX,_tPrev+_tDrift);
-          const gx=hi>lo?lo+Math.random()*(hi-lo):_tMinX;_tPrev=gx;
-          const tc=wallClr();
-          FG.walls.push({x:0,y:py,w:gx,h:44,c:tc});
-          FG.walls.push({x:gx+_tgW,y:py,w:FG.W-gx-_tgW,h:44,c:tc});
-        });
-        FG.lastGapX=_tPrev;FG.lastGapW=_tgW;
         document.getElementById('fall-lives').textContent=livesStr(1);
         fallLoop();
       }
