@@ -467,14 +467,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
   animation:keyPop .4s;line-height:1}
 .letter-feedback.fail .fb-letter{color:var(--neon-yellow);
   text-shadow:0 0 30px rgba(255,230,0,.8),3px 3px 0 rgba(0,0,0,.4)}
-.next-btn{background:linear-gradient(160deg,#062b14,#0d4525);color:var(--neon-green);
-  font-family:'Fredoka One',sans-serif;font-size:1.5rem;padding:18px 0;
-  border:3px solid rgba(57,255,20,.7);border-radius:14px;cursor:pointer;width:100%;
-  box-shadow:0 0 22px rgba(57,255,20,.45),0 6px 0 rgba(0,0,0,.55);
-  text-shadow:0 0 14px rgba(57,255,20,.9);transition:transform .1s,box-shadow .1s;
-  animation:nextPulse 1.3s ease-in-out infinite;margin-top:4px}
-.next-btn:active{transform:translateY(4px);box-shadow:0 0 10px rgba(57,255,20,.2),0 2px 0 rgba(0,0,0,.4);animation:none}
-@keyframes nextPulse{0%,100%{transform:scale(1);box-shadow:0 0 22px rgba(57,255,20,.45),0 6px 0 rgba(0,0,0,.55)}50%{transform:scale(1.05);box-shadow:0 0 36px rgba(57,255,20,.75),0 6px 0 rgba(0,0,0,.55)}}
+.next-btn{background:linear-gradient(160deg,#052210,#0a3520);color:var(--neon-green);
+  font-family:'Fredoka One',sans-serif;font-size:1.1rem;padding:12px 32px;
+  border:2px solid rgba(57,255,20,.5);border-radius:8px;cursor:pointer;
+  box-shadow:0 0 14px rgba(57,255,20,.25),0 5px 0 rgba(0,0,0,.5);
+  text-shadow:0 0 10px rgba(57,255,20,.7);transition:all .1s}
+.next-btn:active{transform:translateY(3px);box-shadow:0 0 8px rgba(57,255,20,.2),0 2px 0 rgba(0,0,0,.5)}
 
 .progress-wrap{margin-top:auto}
 .prog-label{color:rgba(0,212,255,.6);font-size:.82rem;margin-bottom:6px;
@@ -1107,7 +1105,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     <div class="letter-feedback" id="let-feedback">
       <div class="fb-text" id="fb-text"><span id="fb-icon">🏆</span> יופי! ⭐</div>
       <div class="fb-letter" id="fb-letter"></div>
-      <button class="next-btn" onclick="nextLetRound()">הבא ← 🚀</button>
+      <button class="next-btn" onclick="nextLetRound()">🚀 הבא!</button>
     </div>
 
     <div class="letter-choices" id="let-choices"></div>
@@ -1148,7 +1146,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
-const APP_VERSION = '27.05.26.01';
+const APP_VERSION = '27.05.26.02';
 
 /* ═══════════════════════════════
    STATE
