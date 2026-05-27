@@ -1148,7 +1148,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
-const APP_VERSION = '26.05.26.01';
+const APP_VERSION = '27.05.26.01';
 
 /* ═══════════════════════════════
    STATE
@@ -1649,6 +1649,35 @@ const WORLDS = {
   9:{icon:'🦸',name:'טירת גיבורי העל',letters:['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'],game:'letters'},
   10:{icon:'🚀',name:'טירת אלופי העל חלל',letters:['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'],game:'fall'}
 };
+
+// משחק האותיות
+const PRAISE_LETTERS = [
+  'כֹּל הַכָּבוֹד!','מְצוּיָן!','אֵיזֶה חָכָם!','וָואוּ, נָכוֹן!',
+  'יוֹפִי שֶׁל תְּשׁוּבָה!','אַתָּה גָּאוֹן!','פַנְטַסְטִי!','נָכוֹן מְאוֹד!'
+];
+const ENCOURAGE_LETTERS = [
+  'נַסֶּה שׁוּב!','כִּמְעַט! נַסֶּה שׁוּב','אַל תִּוַּתֵּר, עוֹד פַּעַם!',
+  'אוֹי, לֹא נָכוֹן. נַסֶּה שׁוּב','לֹא נוֹרָא, עוֹד נִיסָּיוֹן!'
+];
+// שאלת הצלה — משחק נפילה
+const PRAISE_FALL = [
+  'כֹּל הַכָּבוֹד!','יָדַעְתָּ! מַדְהִים!','נָכוֹן! חוֹזְרִים לַמִּשְׂחָק!',
+  'וָואוּ, חָכָם!','מוּשְׁלָם! בּוֹאוּ נְמַשִּׁיךְ!'
+];
+const ENCOURAGE_FALL = [
+  'נַסֶּה שׁוּב!','לֹא נָכוֹן, נַסֶּה שׁוּב!',
+  'כִּמְעַט! נַסֶּה עוֹד פַּעַם','אוֹי... נַסֶּה שׁוּב!'
+];
+// שאלת הצלה — מירוץ מכוניות
+const PRAISE_RACE = [
+  'כֹּל הַכָּבוֹד!','יָדַעְתָּ! מַדְהִים!','נָכוֹן! חוֹזְרִים לַמִּרוּץ!',
+  'וָואוּ, חָכָם!','מוּשְׁלָם! בּוֹאוּ נְמַשִּׁיךְ!'
+];
+const ENCOURAGE_RACE = [
+  'נַסֶּה שׁוּב!','לֹא נָכוֹן, נַסֶּה שׁוּב!',
+  'כִּמְעַט! נַסֶּה עוֹד פַּעַם','אוֹי... נַסֶּה שׁוּב!'
+];
+function randPhrase(arr){return arr[Math.floor(Math.random()*arr.length)];}
 
 const LETTERS = [
   {l:'א',n:'אלף',p:'אָלֶף',w:'אִמָּא'},{l:'ב',n:'בית',p:'בֵּית',w:'בּוּבָה'},{l:'ג',n:'גימל',p:'גִּימֶּל',w:'גָּמָל'},
@@ -2437,7 +2466,7 @@ function checkTrick(l,btn){
   if(l===FG.trickQ.ans){
     btn.classList.add('kc');snd_ok();
     document.getElementById('trick-fb').textContent='⚡ מדהים! קיבלת חיים!';
-    speak('כֹּל הַכָּבוֹד!');
+    speak(randPhrase(G.trickCaller==='race' ? PRAISE_RACE : PRAISE_FALL));
     addCoins(20);FG.coins+=20;document.getElementById('fall-coins').textContent=FG.coins;trackLetter(FG.trickQ.ans,true);saveCurrentPlayer();
     setTimeout(()=>{
       document.getElementById('trick-overlay').classList.remove('show');
@@ -2472,7 +2501,7 @@ function checkTrick(l,btn){
     if(allWrongsUsed||FG.trickAttempts>=2){
       _showCorrectAndWait();
     }else{
-      speak('נַסֶּה שׁוּב!');
+      speak(randPhrase(G.trickCaller==='race' ? ENCOURAGE_RACE : ENCOURAGE_FALL));
       document.getElementById('trick-tries').textContent='נסיון 2 מתוך 2';
       document.getElementById('trick-fb').textContent='לא נכון — אתה יכול! 🔥';
     }
@@ -2554,7 +2583,7 @@ function checkLet(ch,btn){
       speak('וָואוּ! קִיבַּלְתָּ כּוֹכָב! יֵשׁ לְךָ '+LG.stars+' כּוֹכָבִים!',true);
       document.getElementById('fb-text').innerHTML='<span id="fb-icon">⭐</span> כוכב חדש! יש לך '+LG.stars+'!';
     }else{
-      speak('כֹּל הַכָּבוֹד! '+(ch.p||ch.n));
+      speak(randPhrase(PRAISE_LETTERS)+' '+(ch.p||ch.n));
       document.getElementById('fb-text').innerHTML='<span id="fb-icon">🏆</span> יופי!';
     }
     document.getElementById('fb-letter').textContent=ch.l;
@@ -2569,7 +2598,7 @@ function checkLet(ch,btn){
       document.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
       setTimeout(()=>showLetFail(),400);
     }else{
-      speak('נַסֶּה שׁוּב!');
+      speak(randPhrase(ENCOURAGE_LETTERS));
     }
   }
 }
