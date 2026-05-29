@@ -935,7 +935,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
       <button class="sp-copy-btn" onclick="changeEmail()" title="שנה מייל">✏️</button>
     </div>
     <button class="sp-other-device" onclick="showImportWrap()">📲 עבר ממכשיר אחר?</button>
-    <button class="sp-parent-btn" onclick="openParentPanel()">👨‍👩‍👧 פאנל הורים</button>
   </div>
 </div>
 
@@ -1268,7 +1267,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
-const APP_VERSION = '29.05.26.10';
+const APP_VERSION = '29.05.26.11';
 
 /* ═══════════════════════════════
    STATE
@@ -1428,14 +1427,8 @@ let _ppAfterPin=null;
 let _ppPlayerIdx=0;
 
 function openParentPanel(){
-  const pin=localStorage.getItem(PP_PIN_KEY);
-  if(pin){
-    _ppAfterPin=()=>{_renderParentPanel();goScreen('s-parent');};
-    openPinScreen('enter');
-  }else{
-    _ppAfterPin=()=>{_renderParentPanel();goScreen('s-parent');};
-    openPinScreen('set');
-  }
+  _renderParentPanel();
+  goScreen('s-parent');
 }
 function closeParentPanel(){goScreen('s-players');}
 
@@ -1567,9 +1560,8 @@ function _renderParentPanel(){
       <div class="pp-sessions">${sessionsHtml}</div>
     </div>
     <div class="pp-card" style="text-align:center;display:flex;flex-direction:column;gap:.6rem;align-items:center">
-      <div style="color:rgba(255,255,255,.55);font-size:.85rem">קוד משפחה: <strong style="color:var(--teal);letter-spacing:2px">${getFamilyCode()}</strong></div>
+      <div style="color:rgba(255,255,255,.55);font-size:.85rem">☁️ מחובר כ: <strong style="color:var(--teal)">${getFamilyEmail()||'לא מוגדר'}</strong></div>
       <div id="cloud-sync-status" style="font-size:.8rem;color:${_lastSyncOk===true?'#00e5c8':_lastSyncOk===false?'#ff8a80':'rgba(255,255,255,.4)'}">${_lastSyncOk===true?'☁️ מסונכרן':_lastSyncOk===false?'⚠️ לא הצליח להתחבר לענן':'☁️ ...'}</div>
-      <button onclick="resetParentPin()" style="background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);color:#ff8a80;border-radius:12px;padding:.4rem 1rem;cursor:pointer;font-family:inherit;font-size:.85rem">🔑 שנה קוד הורים</button>
     </div>`;
 }
 
