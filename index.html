@@ -3132,6 +3132,8 @@ function rcSetupControls(){
       if(!RG.active||e.gamma==null)return;
       if(RG.gyroBase===null)RG.gyroBase=e.gamma;
       const tilt=e.gamma-RG.gyroBase;
+      // slowly drift baseline toward current gamma (~30s half-life) to cancel sensor bias
+      RG.gyroBase+=tilt*.002;
       if(Math.abs(tilt)>3)RG.cvf+=tilt*.0014;
     };
     window.addEventListener('deviceorientation',RG._gyro);
@@ -3387,7 +3389,7 @@ function rcLoop(){
   if(RG.score>0&&RG.score%700===0){RG.level++;RG.spdBase=Math.min(7,RG.spdBase+.35)}
   const sf=.007*(RG.spd/3);
   if(RG.steerL)RG.cvf-=sf;if(RG.steerR)RG.cvf+=sf;
-  RG.cvf*=.85;RG.cf=Math.max(.02,Math.min(.98,RG.cf+RG.cvf));
+  RG.cvf*=.85;RG.cvf=Math.max(-.04,Math.min(.04,RG.cvf));RG.cf=Math.max(.02,Math.min(.98,RG.cf+RG.cvf));
   RG.bgY=(RG.bgY+RG.spd)%80;
   rcBg();
   if(RG.frame%Math.max(36,198-RG.level*12)===0) rcSpawnWalls();
