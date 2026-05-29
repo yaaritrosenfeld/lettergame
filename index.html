@@ -272,16 +272,16 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
    GAME TOP BAR
 ══════════════════════════════════ */
 .game-bar{display:flex;align-items:center;justify-content:space-between;
-  background:linear-gradient(90deg,#030810,#06102a,#030810);
-  padding:8px 14px;border-bottom:2px solid rgba(0,212,255,.35);
-  box-shadow:0 2px 20px rgba(0,0,40,.9),0 0 40px rgba(0,212,255,.07);
+  background:rgba(13,11,30,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  padding:8px 14px;border-bottom:1.5px solid rgba(0,229,200,.25);
+  box-shadow:0 2px 20px rgba(0,229,200,.06);
   flex-shrink:0;z-index:50}
-.back-btn{background:linear-gradient(160deg,#1a0a2e,#2d1060);border:2px solid rgba(191,95,255,.5);
-  border-radius:8px;font-size:1.3rem;padding:6px 12px;cursor:pointer;color:#fff;
-  box-shadow:0 0 10px rgba(191,95,255,.3),0 4px 0 rgba(0,0,0,.5);transition:all .12s}
-.back-btn:active{transform:translateY(3px);box-shadow:0 0 5px rgba(191,95,255,.3),0 1px 0 rgba(0,0,0,.5)}
-.game-stats{display:flex;gap:14px;align-items:center;color:var(--neon-blue);font-size:1rem;
-  text-shadow:0 0 8px rgba(0,212,255,.6)}
+.back-btn{background:rgba(0,229,200,.1);border:1.5px solid rgba(0,229,200,.4);
+  border-radius:10px;font-size:1.3rem;padding:6px 12px;cursor:pointer;color:#fff;
+  box-shadow:0 0 12px rgba(0,229,200,.15),0 4px 0 rgba(0,0,0,.4);transition:all .12s}
+.back-btn:active{transform:translateY(3px);box-shadow:0 0 6px rgba(0,229,200,.1),0 1px 0 rgba(0,0,0,.4)}
+.game-stats{display:flex;gap:14px;align-items:center;color:var(--teal);font-size:1rem;
+  text-shadow:0 0 8px rgba(0,229,200,.5)}
 
 /* ═══════════════════════════════
    SCREEN 4 — FALLING GAME
@@ -627,10 +627,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 /* ═══════════════════════════════
    GLOBAL HEADER
 ══════════════════════════════════ */
-#global-header{position:fixed;top:0;right:0;left:0;height:48px;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:rgba(10,10,30,.72);backdrop-filter:blur(10px);border-bottom:2px solid rgba(255,255,255,.1)}
+#global-header{position:fixed;top:0;right:0;left:0;height:48px;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:rgba(13,11,30,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1.5px solid rgba(0,229,200,.25);box-shadow:0 2px 24px rgba(0,229,200,.06)}
 .game-menu-overlay{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0);transition:background .22s;display:none;align-items:flex-end;justify-content:center}
 .game-menu-overlay.open{display:flex}
-.game-menu-sheet{width:100%;max-width:480px;background:linear-gradient(170deg,#1a1a3e,#0d1f4a);border:2.5px solid rgba(255,255,255,.13);border-bottom:none;border-radius:22px 22px 0 0;padding:8px 14px max(20px,env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);box-shadow:0 -6px 36px rgba(0,0,0,.55),0 -1px 0 rgba(0,212,255,.1)}
+.game-menu-sheet{width:100%;max-width:480px;background:rgba(13,11,30,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1.5px solid rgba(0,229,200,.25);border-bottom:none;border-radius:22px 22px 0 0;padding:8px 14px max(20px,env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);box-shadow:0 -6px 36px rgba(0,0,0,.6),0 -1px 0 rgba(0,229,200,.15)}
 .game-menu-overlay.open .game-menu-sheet{transform:translateY(0)}
 .game-menu-handle{width:32px;height:3px;background:rgba(255,255,255,.18);border-radius:2px;margin:4px auto 12px}
 .game-menu-btn{width:100%;display:flex;align-items:center;gap:12px;padding:10px 16px;border:3px solid rgba(255,255,255,.2);border-radius:16px;cursor:pointer;direction:rtl;font-family:'Fredoka One',sans-serif;font-size:1rem;color:#fff;letter-spacing:1px;text-shadow:1px 2px 0 rgba(0,0,0,.5);transition:transform .1s,box-shadow .1s}
@@ -639,25 +639,26 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .game-menu-icon{width:32px;height:32px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
 .game-menu-btn-settings{background:linear-gradient(135deg,#1e3a8a,#2563eb);box-shadow:0 5px 0 #0e2166,0 8px 18px rgba(0,0,0,.4)}
 .game-menu-btn-switch{background:linear-gradient(135deg,#065f46,#059669);box-shadow:0 5px 0 #033a2b,0 8px 18px rgba(0,0,0,.4)}
-.gh-btn{width:38px;height:38px;border-radius:10px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;box-shadow:var(--sh)}
-.gh-btn:active{transform:scale(.88)}
-.gh-btn.muted{background:rgba(231,76,60,.4);border-color:#e74c3c}
+.gh-btn{width:38px;height:38px;border-radius:10px;border:1.5px solid rgba(0,229,200,.35);background:rgba(0,229,200,.08);color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;box-shadow:0 0 10px rgba(0,229,200,.1)}
+.gh-btn:active{transform:scale(.88);background:rgba(0,229,200,.18)}
+.gh-btn.muted{background:rgba(231,76,60,.25);border-color:#e74c3c;box-shadow:0 0 10px rgba(231,76,60,.2)}
 .screen{padding-top:48px}
 
 /* ═══════════════════════════════
    SETTINGS MODAL
 ══════════════════════════════════ */
-.settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:300;display:none;align-items:center;justify-content:center}
+.settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:300;display:none;align-items:center;justify-content:center}
 .settings-overlay.open{display:flex}
-.settings-panel{background:linear-gradient(160deg,#1a1a2e,#0f3460);border:3px solid rgba(255,255,255,.2);border-radius:20px;padding:20px;width:90%;max-width:400px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6);font-family:'Fredoka One',sans-serif;direction:rtl}
-.sp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;color:var(--yellow);font-size:1.3rem}
-.sp-close{width:32px;height:32px;border-radius:8px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:1rem;cursor:pointer}
-.sp-section{background:rgba(255,255,255,.06);border-radius:12px;border:2px solid rgba(255,255,255,.1);padding:14px;margin-bottom:12px}
-.sp-section-title{color:var(--yellow);font-size:.82rem;margin-bottom:12px;opacity:.8;letter-spacing:.5px}
+.settings-panel{background:linear-gradient(160deg,rgba(13,11,30,.98),rgba(10,20,40,.98));border:1.5px solid rgba(0,229,200,.3);border-radius:24px;padding:20px;width:90%;max-width:400px;max-height:85vh;overflow-y:auto;box-shadow:0 0 40px rgba(0,229,200,.12),0 24px 60px rgba(0,0,0,.7);font-family:'Fredoka One',sans-serif;direction:rtl}
+.sp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;color:var(--teal);font-size:1.3rem;text-shadow:0 0 12px rgba(0,229,200,.4)}
+.sp-close{width:32px;height:32px;border-radius:8px;border:1.5px solid rgba(0,229,200,.35);background:rgba(0,229,200,.08);color:#fff;font-size:1rem;cursor:pointer;transition:all .15s}
+.sp-close:hover{background:rgba(0,229,200,.2)}
+.sp-section{background:rgba(255,255,255,.04);border-radius:14px;border:1.5px solid rgba(0,229,200,.18);padding:14px;margin-bottom:12px}
+.sp-section-title{color:var(--teal);font-size:.82rem;margin-bottom:12px;opacity:.85;letter-spacing:.5px}
 .toggle-row{display:flex;align-items:center;justify-content:space-between;color:#fff;font-size:.95rem;margin-bottom:10px}
 .toggle-row:last-child{margin-bottom:0}
-.toggle-switch{width:48px;height:26px;background:rgba(255,255,255,.2);border-radius:13px;position:relative;cursor:pointer;transition:background .25s;border:2px solid rgba(255,255,255,.15);flex-shrink:0}
-.toggle-switch.on{background:var(--green);border-color:#00856a}
+.toggle-switch{width:48px;height:26px;background:rgba(255,255,255,.12);border-radius:13px;position:relative;cursor:pointer;transition:background .25s;border:1.5px solid rgba(255,255,255,.15);flex-shrink:0}
+.toggle-switch.on{background:var(--teal);border-color:var(--teal-dk);box-shadow:0 0 10px rgba(0,229,200,.3)}
 .toggle-switch::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:2px;right:2px;transition:transform .25s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
 .toggle-switch.on::after{transform:translateX(-22px)}
 .vol-row{display:flex;align-items:center;gap:10px;color:#fff;font-size:.95rem;margin-top:10px}
@@ -721,16 +722,20 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 /* ═══════════════════════════════
    PARENT PANEL
 ══════════════════════════════════ */
-#s-parent{background:linear-gradient(180deg,#0d1b2a 0%,#1a2940 100%);flex-direction:column;overflow-y:auto}
-.pp-header{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;background:rgba(0,0,0,.3);flex-shrink:0}
-.pp-title{color:#ffd166;font-size:1.3rem;font-weight:700}
-.pp-close{background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:12px;padding:.4rem .9rem;font-size:1rem;cursor:pointer;font-family:inherit}
-.pp-player-tabs{display:flex;gap:.5rem;padding:.7rem 1rem;overflow-x:auto;flex-shrink:0}
-.pp-tab{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:20px;color:rgba(255,255,255,.6);padding:.35rem .9rem;font-family:inherit;font-size:.9rem;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.pp-tab.active{background:rgba(255,209,102,.2);border-color:#ffd166;color:#ffd166}
-.pp-body{padding:1rem;display:flex;flex-direction:column;gap:1.2rem;flex:1}
-.pp-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1rem}
-.pp-card-title{color:rgba(255,255,255,.5);font-size:.8rem;margin-bottom:.7rem;letter-spacing:.5px}
+#s-parent{background:radial-gradient(ellipse at 50% 0%,#0a1a30 0%,var(--bg-deep) 70%);flex-direction:column;overflow-y:auto}
+#s-parent::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(0,229,200,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,200,.03) 1px,transparent 1px);
+  background-size:40px 40px}
+.pp-header{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;background:rgba(13,11,30,.85);backdrop-filter:blur(12px);border-bottom:1.5px solid rgba(0,229,200,.2);flex-shrink:0;position:relative;z-index:1}
+.pp-title{color:var(--teal);font-size:1.3rem;font-weight:700;text-shadow:0 0 12px rgba(0,229,200,.4)}
+.pp-close{background:rgba(0,229,200,.08);border:1.5px solid rgba(0,229,200,.35);color:#fff;border-radius:12px;padding:.4rem .9rem;font-size:1rem;cursor:pointer;font-family:inherit;transition:all .15s}
+.pp-close:hover{background:rgba(0,229,200,.2)}
+.pp-player-tabs{display:flex;gap:.5rem;padding:.7rem 1rem;overflow-x:auto;flex-shrink:0;position:relative;z-index:1}
+.pp-tab{background:rgba(255,255,255,.05);border:1.5px solid rgba(0,229,200,.2);border-radius:20px;color:rgba(255,255,255,.55);padding:.35rem .9rem;font-family:inherit;font-size:.9rem;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.pp-tab.active{background:rgba(0,229,200,.15);border-color:var(--teal);color:var(--teal);box-shadow:0 0 12px rgba(0,229,200,.15)}
+.pp-body{padding:1rem;display:flex;flex-direction:column;gap:1.2rem;flex:1;position:relative;z-index:1}
+.pp-card{background:rgba(255,255,255,.04);border:1.5px solid rgba(0,229,200,.18);border-radius:18px;padding:1rem;backdrop-filter:blur(8px)}
+.pp-card-title{color:var(--teal);font-size:.8rem;margin-bottom:.7rem;letter-spacing:.5px;opacity:.8}
 .pp-summary{display:flex;gap:1.2rem;flex-wrap:wrap}
 .pp-stat{display:flex;flex-direction:column;align-items:center;gap:.2rem}
 .pp-stat-val{color:#fff;font-size:1.4rem;font-weight:700}
@@ -753,8 +758,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .pp-empty{color:rgba(255,255,255,.3);font-size:.85rem;text-align:center;padding:1rem}
 /* PIN screen */
 .pp-pin-wrap{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:600}
-.pp-pin-box{background:#1a2940;border:2px solid rgba(255,209,102,.3);border-radius:20px;padding:2rem;display:flex;flex-direction:column;align-items:center;gap:1rem;min-width:260px}
-.pp-pin-title{color:#ffd166;font-size:1.2rem;font-weight:700}
+.pp-pin-box{background:linear-gradient(160deg,rgba(13,11,30,.98),rgba(10,20,40,.98));border:1.5px solid rgba(0,229,200,.3);border-radius:20px;padding:2rem;display:flex;flex-direction:column;align-items:center;gap:1rem;min-width:260px;box-shadow:0 0 32px rgba(0,229,200,.1),0 20px 50px rgba(0,0,0,.7)}
+.pp-pin-title{color:var(--teal);font-size:1.2rem;font-weight:700;text-shadow:0 0 10px rgba(0,229,200,.4)}
 .pp-pin-dots{display:flex;gap:.6rem;margin:.3rem 0}
 .pp-pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:transparent;transition:background .15s}
 .pp-pin-dot.filled{background:#ffd166;border-color:#ffd166}
@@ -904,6 +909,21 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
   </div>
 </div>
 
+<!-- ══ SCREEN 1.4: EMAIL ══ -->
+<div id="s-email" class="screen" style="background:radial-gradient(ellipse at 50% 20%,#0a1a3a 0%,var(--bg-deep) 70%);align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;padding:2rem">
+  <div style="font-size:3rem">📧</div>
+  <div style="font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,#fff 30%,var(--teal) 70%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center">מה כתובת המייל שלך?</div>
+  <div style="color:rgba(255,255,255,.55);font-size:.95rem;text-align:center;max-width:280px">המייל ישמש לשמירת הנתונים בענן — כדי שתוכל לשחק מכל מכשיר</div>
+  <input id="email-input" type="email" placeholder="your@email.com" dir="ltr"
+    style="background:rgba(255,255,255,.1);border:2px solid rgba(0,229,200,.4);border-radius:14px;color:#fff;font-family:'Fredoka One','Rubik',sans-serif;font-size:1.1rem;padding:.7rem 1rem;width:100%;max-width:300px;text-align:center;outline:none"
+    onkeydown="if(event.key==='Enter')submitEmail()">
+  <div id="email-status" style="color:rgba(255,255,255,.7);font-size:.85rem;min-height:1.2em;text-align:center"></div>
+  <button onclick="submitEmail()"
+    style="background:linear-gradient(135deg,var(--teal),#0090a0);color:#fff;border:none;border-radius:16px;padding:.8rem 2.5rem;font-size:1.2rem;font-family:'Fredoka One','Rubik',sans-serif;font-weight:900;cursor:pointer;box-shadow:0 4px 20px rgba(0,229,200,.35)">
+    המשך ▶
+  </button>
+</div>
+
 <!-- ══ SCREEN 1.5: PLAYER SELECT ══ -->
 <div id="s-players" class="screen">
   <div class="promo-stars-bg" id="stars-bg-players"></div>
@@ -911,10 +931,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
   <div class="sp-cards" id="players-wrap"></div>
   <div class="sp-footer">
     <div class="sp-family-code">
-      קוד משפחה: <strong id="family-code-display"></strong>
-      <button class="sp-copy-btn" onclick="copyFamilyCode()" title="העתק קוד">📋</button>
+      ☁️ <strong id="family-email-display"></strong>
+      <button class="sp-copy-btn" onclick="changeEmail()" title="שנה מייל">✏️</button>
     </div>
-    <button class="sp-other-device" onclick="showImportCode()">📲 עבר ממכשיר אחר?</button>
+    <button class="sp-other-device" onclick="showImportWrap()">📲 עבר ממכשיר אחר?</button>
     <button class="sp-parent-btn" onclick="openParentPanel()">👨‍👩‍👧 פאנל הורים</button>
   </div>
 </div>
@@ -923,12 +943,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 <div class="sp-import-wrap" id="sp-import-wrap">
   <div class="sp-import-box">
     <div class="sp-import-title">📲 ייבוא ממכשיר אחר</div>
-    <div style="color:rgba(255,255,255,.6);font-size:.85rem;text-align:center">הכנס את קוד המשפחה<br>מהמכשיר הישן</div>
-    <input class="sp-import-input" id="sp-import-input" placeholder="ארנב-1234" dir="ltr">
+    <div style="color:rgba(255,255,255,.6);font-size:.85rem;text-align:center">הכנס את כתובת המייל<br>שבה נרשמת</div>
+    <input class="sp-import-input" id="sp-import-input" type="email" placeholder="your@email.com" dir="ltr">
     <div class="sp-import-status" id="sp-import-status"></div>
     <div class="sp-import-btns">
-      <button class="btn-import-go" onclick="importFromCode()">✓ טען</button>
-      <button class="btn-import-cancel" onclick="hideImportCode()">✗ ביטול</button>
+      <button class="btn-import-go" onclick="importFromEmail()">✓ טען</button>
+      <button class="btn-import-cancel" onclick="hideImportWrap()">✗ ביטול</button>
     </div>
   </div>
 </div>
@@ -1248,7 +1268,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
-const APP_VERSION = '29.05.26.09';
+const APP_VERSION = '29.05.26.10';
 
 /* ═══════════════════════════════
    STATE
@@ -1285,19 +1305,13 @@ try{firebase.initializeApp(_fbCfg);_db=firebase.firestore();}catch(e){console.wa
 
 // ── מפתחות ──
 const LS_KEY='letter_game_v1';
-const LS_CODE='family_code';
+const LS_EMAIL='family_email';
 let G_playerIdx=-1;
 
-// ── קוד משפחה (מזהה ייחודי לכל מכשיר/משפחה) ──
-function getFamilyCode(){
-  let c=localStorage.getItem(LS_CODE);
-  if(!c){
-    const w=['ארנב','פיל','נמר','דולפין','ינשוף','קוף','צב','גמל'];
-    c=w[Math.floor(Math.random()*w.length)]+'-'+Math.floor(1000+Math.random()*9000);
-    localStorage.setItem(LS_CODE,c);
-  }
-  return c;
-}
+// ── מייל משפחה (מזהה ב-Firestore) ──
+// Firestore לא מקבל '.' ב-doc ID — מחליפים ב-','
+function _emailToDocId(email){return email.toLowerCase().replace(/\./g,',');}
+function getFamilyEmail(){return localStorage.getItem(LS_EMAIL)||'';}
 
 // ── Local (sync, מהיר) ──
 function loadPlayers(){
@@ -1321,12 +1335,13 @@ function _setSyncStatus(ok){
 }
 
 async function _cloudSave(arr){
-  if(!_db){_setSyncStatus(false);return;}
+  const email=getFamilyEmail();
+  if(!_db||!email){_setSyncStatus(false);return;}
   try{
-    const code=getFamilyCode();
-    const famRef=_db.collection('families').doc(code);
+    const docId=_emailToDocId(email);
+    const famRef=_db.collection('families').doc(docId);
     const batch=_db.batch();
-    batch.set(famRef,{code,count:arr.length,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    batch.set(famRef,{email,count:arr.length,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     for(let i=0;i<3;i++){
       const ref=famRef.collection('players').doc(String(i));
       if(i<arr.length){
@@ -1341,10 +1356,11 @@ async function _cloudSave(arr){
   }catch(e){_setSyncStatus(false);console.warn('Cloud save failed:',e);}
 }
 
-async function _cloudLoad(code){
-  if(!_db)return null;
+async function _cloudLoad(email){
+  if(!_db||!email)return null;
   try{
-    const snap=await _db.collection('families').doc(code).collection('players').get();
+    const docId=_emailToDocId(email);
+    const snap=await _db.collection('families').doc(docId).collection('players').get();
     if(snap.empty)return null;
     const arr=new Array(3).fill(null);
     snap.docs.forEach(d=>{arr[parseInt(d.id)]={...d.data(),photo:null};});
@@ -1564,33 +1580,39 @@ function resetParentPin(){
 }
 
 // ── ייבוא ממכשיר אחר ──
-async function importFromCode(){
+async function importFromEmail(){
   const inp=document.getElementById('sp-import-input');
   const status=document.getElementById('sp-import-status');
-  const code=(inp.value||'').trim();
-  if(!code)return;
+  const email=(inp.value||'').trim().toLowerCase();
+  if(!email||!email.includes('@')){status.textContent='❌ מייל לא תקין';return;}
   status.textContent='טוען...';
-  const players=await _cloudLoad(code);
-  if(!players||!players.length){status.textContent='❌ קוד לא נמצא';return;}
-  localStorage.setItem(LS_CODE,code);
+  const players=await _cloudLoad(email);
+  if(!players||!players.length){status.textContent='❌ מייל לא נמצא בענן';return;}
+  localStorage.setItem(LS_EMAIL,email);
   _saveLocal(players);
   document.getElementById('sp-import-wrap').style.display='none';
   inp.value='';status.textContent='';
   renderPlayerSelect();
+  _updateEmailDisplay();
 }
-function showImportCode(){document.getElementById('sp-import-wrap').style.display='flex';}
-function hideImportCode(){document.getElementById('sp-import-wrap').style.display='none';document.getElementById('sp-import-status').textContent='';}
-async function copyFamilyCode(){
-  try{await navigator.clipboard.writeText(getFamilyCode());snd_ok();}catch(e){}
+function showImportWrap(){document.getElementById('sp-import-wrap').style.display='flex';}
+function hideImportWrap(){document.getElementById('sp-import-wrap').style.display='none';document.getElementById('sp-import-status').textContent='';}
+function _updateEmailDisplay(){
+  const el=document.getElementById('family-email-display');
+  if(el)el.textContent=getFamilyEmail()||'לא מוגדר';
 }
 
 let _confirmDeleteIdx=-1;
 
 function openPlayerSelect(){
+  // אם אין מייל — הצג מסך מייל תחילה
+  if(!getFamilyEmail()){goScreen('s-email');return;}
+  _openPlayerSelectScreen();
+}
+function _openPlayerSelectScreen(){
   _confirmDeleteIdx=-1;
   renderPlayerSelect();
-  const codeEl=document.getElementById('family-code-display');
-  if(codeEl)codeEl.textContent=getFamilyCode();
+  _updateEmailDisplay();
   goScreen('s-players');
   // seed stars background once
   const bg=document.getElementById('stars-bg-players');
@@ -1603,6 +1625,32 @@ function openPlayerSelect(){
     }
   }
 }
+
+// ── מסך מייל ──
+async function submitEmail(){
+  const inp=document.getElementById('email-input');
+  const status=document.getElementById('email-status');
+  const email=(inp.value||'').trim().toLowerCase();
+  if(!email||!email.includes('@')||!email.includes('.')){
+    status.textContent='❌ נא להכניס כתובת מייל תקינה';return;
+  }
+  status.textContent='מתחבר...';
+  localStorage.setItem(LS_EMAIL,email);
+  // נסה לטעון נתונים קיימים מהענן — עם timeout של 5 שניות
+  const existing=await Promise.race([
+    _cloudLoad(email),
+    new Promise(r=>setTimeout(()=>r(null),5000))
+  ]);
+  if(existing&&existing.length){
+    _saveLocal(existing);
+    status.textContent='✅ הנתונים נטענו!';
+    setTimeout(()=>{status.textContent='';_openPlayerSelectScreen();},600);
+  }else{
+    status.textContent='';
+    _openPlayerSelectScreen();
+  }
+}
+function changeEmail(){goScreen('s-email');}
 
 function renderPlayerSelect(){
   const arr=loadPlayers();
