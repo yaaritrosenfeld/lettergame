@@ -805,7 +805,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 <!-- GLOBAL HEADER -->
 <div id="global-header">
   <button class="gh-btn" id="btn-menu" onclick="openGameMenu()" title="תפריט">☰</button>
-  <button class="gh-btn" id="btn-mute" onclick="toggleMute()" title="השתק">🔊</button>
+  <div style="display:flex;gap:4px;align-items:center">
+    <button class="gh-btn" id="btn-lang" onclick="toggleLang()" title="שפה">🇮🇱</button>
+    <button class="gh-btn" id="btn-mute" onclick="toggleMute()" title="השתק">🔊</button>
+  </div>
 </div>
 
 <!-- GAME MENU BOTTOM SHEET -->
@@ -1240,9 +1243,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     <div id="trace-feedback"></div>
   </div>
   <div class="trace-btns">
-    <button class="trace-btn trace-btn-clear" onclick="traceClear()">נקה</button>
-    <button class="trace-btn trace-btn-check" onclick="traceCheck()">סיימתי ✓</button>
-    <button class="trace-btn trace-btn-next" onclick="traceNext()">אות אחרת ➜</button>
+    <button class="trace-btn trace-btn-clear" id="trace-btn-clear" onclick="traceClear()">נקה</button>
+    <button class="trace-btn trace-btn-check" id="trace-btn-check" onclick="traceCheck()">סיימתי ✓</button>
+    <button class="trace-btn trace-btn-next" id="trace-btn-next" onclick="traceNext()">אות אחרת ➜</button>
   </div>
 </div>
 
@@ -1283,7 +1286,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
-const APP_VERSION = '31.05.26.01';
+const APP_VERSION = '31.05.26.02';
 
 /* ═══════════════════════════════
    STATE
@@ -1297,7 +1300,8 @@ const G = {
   letterStats:{}, // {א:{correct:0,wrong:0}, ...}
   sessions:[],    // [{date,duration,coins}, ...] — 10 אחרונים
   lastLife:Date.now(), audioCtx:null,
-  muteAll:false, muteSpeech:false, volume:0.7, hints:true, theme:'classic'
+  muteAll:false, muteSpeech:false, volume:0.7, hints:true, theme:'classic',
+  lang:'he'
 };
 
 /* ═══════════════════════════════
@@ -1397,7 +1401,7 @@ function saveCurrentPlayer(){
     name:G.name,shirt:G.shirt,pants:G.pants,photo:G.photo,
     coins:G.coins,lives:G.lives,worldStars:G.worldStars,
     castleStars:G.castleStars,lastLife:G.lastLife,
-    letterStats:G.letterStats,sessions:G.sessions
+    letterStats:G.letterStats,sessions:G.sessions,lang:G.lang
   };
   savePlayers(arr);
 }
@@ -1527,24 +1531,32 @@ function _renderParentPanel(){
   const allLetters=Object.keys(ls);
   const weakLetters=allLetters.filter(l=>{const s=ls[l];const t=s.correct+s.wrong;return t>=3&&s.correct/t<0.6;}).sort((a,b)=>{const sa=ls[a],sb=ls[b];return (sa.correct/(sa.correct+sa.wrong))-(sb.correct/(sb.correct+sb.wrong));});
 
-  // Render letter bars
-  const LETTERS_ORDER=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
-  const lettersHtml=LETTERS_ORDER.map(l=>{
-    const s=ls[l];
-    if(!s)return '';
-    const total=s.correct+s.wrong;
-    const pct=total?Math.round(s.correct/total*100):0;
-    const cls=pct>=70?'good':pct>=40?'ok':'weak';
-    return `<div class="pp-letter-row">
-      <div class="pp-letter-char">${l}</div>
-      <div class="pp-bar-wrap"><div class="pp-bar ${cls}" style="width:${pct}%"></div></div>
-      <div class="pp-pct">${pct}%</div>
-    </div>`;
-  }).filter(Boolean).join('');
+  // Render letter bars — Hebrew + English
+  const HE_ORDER=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+  const EN_ORDER=['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+  function _letterBarsHtml(order){
+    return order.map(l=>{
+      const s=ls[l];if(!s)return '';
+      const total=s.correct+s.wrong;
+      const pct=total?Math.round(s.correct/total*100):0;
+      const cls=pct>=70?'good':pct>=40?'ok':'weak';
+      return `<div class="pp-letter-row">
+        <div class="pp-letter-char">${l}</div>
+        <div class="pp-bar-wrap"><div class="pp-bar ${cls}" style="width:${pct}%"></div></div>
+        <div class="pp-pct">${pct}%</div>
+      </div>`;
+    }).filter(Boolean).join('');
+  }
+  const heLettersHtml=_letterBarsHtml(HE_ORDER);
+  const enLettersHtml=_letterBarsHtml(EN_ORDER);
+  const hasAnyStats=heLettersHtml||enLettersHtml;
 
-  const weakHtml=weakLetters.length
-    ?weakLetters.map(l=>`<div class="pp-weak-chip">${l}</div>`).join('')
-    :'<div class="pp-empty">אין אותיות חלשות 🎉</div>';
+  const heWeakLetters=weakLetters.filter(l=>HE_ORDER.includes(l));
+  const enWeakLetters=weakLetters.filter(l=>EN_ORDER.includes(l));
+  const weakHtml=[
+    heWeakLetters.length?heWeakLetters.map(l=>`<div class="pp-weak-chip">${l}</div>`).join(''):'',
+    enWeakLetters.length?enWeakLetters.map(l=>`<div class="pp-weak-chip" style="font-family:monospace">${l}</div>`).join(''):''
+  ].filter(Boolean).join('') || '<div class="pp-empty">אין אותיות חלשות 🎉</div>';
 
   const sessionsHtml=sessions.length
     ?sessions.slice(0,5).map(s=>`<div class="pp-session-row">
@@ -1567,10 +1579,15 @@ function _renderParentPanel(){
       <div class="pp-card-title">⚠️ אותיות לתרגול</div>
       <div class="pp-weak-wrap">${weakHtml}</div>
     </div>`:''}
-    ${lettersHtml?`<div class="pp-card">
-      <div class="pp-card-title">📖 ביצועים לפי אות</div>
-      <div class="pp-letters-grid">${lettersHtml}</div>
-    </div>`:'<div class="pp-card"><div class="pp-empty">עדיין לא שיחק — אין נתונים לאותיות</div></div>'}
+    ${heLettersHtml?`<div class="pp-card">
+      <div class="pp-card-title">📖 ביצועים — עברית 🇮🇱</div>
+      <div class="pp-letters-grid">${heLettersHtml}</div>
+    </div>`:''}
+    ${enLettersHtml?`<div class="pp-card">
+      <div class="pp-card-title">📖 ביצועים — אנגלית 🇺🇸</div>
+      <div class="pp-letters-grid">${enLettersHtml}</div>
+    </div>`:''}
+    ${!hasAnyStats?'<div class="pp-card"><div class="pp-empty">עדיין לא שיחק — אין נתונים לאותיות</div></div>':''}
     <div class="pp-card">
       <div class="pp-card-title">🕐 5 סשנים אחרונים</div>
       <div class="pp-sessions">${sessionsHtml}</div>
@@ -1723,6 +1740,8 @@ function selectPlayer(idx){
   G.letterStats=p.letterStats||{};
   G.sessions=p.sessions||[];
   G.lastLife=p.lastLife||Date.now();
+  G.lang=p.lang||'he';
+  document.getElementById('btn-lang').textContent=G.lang==='en'?'🇺🇸':'🇮🇱';
   if(G.photo){
     const img=new Image();
     img.onload=()=>{G.photoImg=img;};
@@ -1921,6 +1940,30 @@ function speak(txt, isQuestion=false){
   _currentAudio.volume=G.volume;
   let fallbackUsed=false;
   const fb=()=>{if(!fallbackUsed){fallbackUsed=true;_speakFallback(txt);}};
+  _currentAudio.onerror=fb;
+  _currentAudio.play().catch(fb);
+}
+
+function speakLang(txt, isQuestion=false){
+  if((G.muteAll&&!isQuestion)||G.muteSpeech){return;}
+  if(G.lang!=='en'){speak(txt,isQuestion);return;}
+  const now=Date.now();
+  if(txt===_lastSpeak.txt&&now-_lastSpeak.ts<800)return;
+  _lastSpeak={txt,ts:now};
+  if(_currentAudio){_currentAudio.pause();_currentAudio=null;}
+  const url='https://translate.google.com/translate_tts?ie=UTF-8&tl=en&client=tw-ob&q='+encodeURIComponent(txt);
+  _currentAudio=new Audio(url);
+  _currentAudio.volume=G.volume;
+  let fallbackUsed=false;
+  const fb=()=>{
+    if(!fallbackUsed){
+      fallbackUsed=true;
+      const u=new SpeechSynthesisUtterance(txt);
+      u.lang='en-US';u.rate=0.85;u.volume=G.volume;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    }
+  };
   _currentAudio.onerror=fb;
   _currentAudio.play().catch(fb);
 }
@@ -2165,7 +2208,7 @@ function livesStr(n){return Array.from({length:3},(_,i)=>i<n?'❤️':'🖤').jo
 function openWorld(id){
   G.world=id;
   snd_click();
-  launchGame(WORLDS[id].game);
+  launchGame(getWORLDS()[id].game);
 }
 function closePopup(){document.getElementById('world-popup').classList.remove('show');snd_click()}
 
@@ -2231,6 +2274,56 @@ const TRICK_QS=[
   {q:'לחץ על האות: ק',ans:'ק'},{q:'לחץ על האות: ר',ans:'ר'},
   {q:'לחץ על האות: ש',ans:'ש'},{q:'לחץ על האות: ת',ans:'ת'},
 ];
+
+/* ═══════════════════════════════
+   ENGLISH DATA
+══════════════════════════════════ */
+const LETTERS_EN = [
+  {l:'A',n:'A',p:'A',w:'Apple'},{l:'B',n:'B',p:'B',w:'Ball'},{l:'C',n:'C',p:'C',w:'Cat'},
+  {l:'D',n:'D',p:'D',w:'Dog'},{l:'E',n:'E',p:'E',w:'Egg'},{l:'F',n:'F',p:'F',w:'Fish'},
+  {l:'G',n:'G',p:'G',w:'Goat'},{l:'H',n:'H',p:'H',w:'Hat'},{l:'I',n:'I',p:'I',w:'Ice'},
+  {l:'J',n:'J',p:'J',w:'Jam'},{l:'K',n:'K',p:'K',w:'Kite'},{l:'L',n:'L',p:'L',w:'Lion'},
+  {l:'M',n:'M',p:'M',w:'Moon'},{l:'N',n:'N',p:'N',w:'Nest'},{l:'O',n:'O',p:'O',w:'Orange'},
+  {l:'P',n:'P',p:'P',w:'Pizza'},{l:'Q',n:'Q',p:'Q',w:'Queen'},{l:'R',n:'R',p:'R',w:'Robot'},
+  {l:'S',n:'S',p:'S',w:'Sun'},{l:'T',n:'T',p:'T',w:'Tree'},{l:'U',n:'U',p:'U',w:'Umbrella'},
+  {l:'V',n:'V',p:'V',w:'Van'},{l:'W',n:'W',p:'W',w:'Wolf'},{l:'X',n:'X',p:'X',w:'X-ray'},
+  {l:'Y',n:'Y',p:'Y',w:'Yo-yo'},{l:'Z',n:'Z',p:'Z',w:'Zebra'}
+];
+const WORLDS_EN = {
+  1:{icon:'🌋',name:'ABC World',letters:['A','B','C'],game:'letters'},
+  2:{icon:'🌊',name:'Sea World',letters:['D','E','F'],game:'fall'},
+  3:{icon:'🔮',name:'Magic World',letters:['G','H','I'],game:'letters'},
+  4:{icon:'🦁',name:'Jungle World',letters:['J','K','L'],game:'fall'},
+  5:{icon:'🏆',name:'Hero World',letters:['M','N','O'],game:'letters'},
+  6:{icon:'🌈',name:'Rainbow World',letters:['P','Q','R'],game:'fall'},
+  7:{icon:'🚀',name:'Space World',letters:['S','T','U'],game:'letters'},
+  8:{icon:'⭐',name:'Star World',letters:['V','W','X','Y','Z'],game:'fall'},
+  9:{icon:'🏰',name:'Super Castle',letters:['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'],game:'letters'},
+  10:{icon:'🚀',name:'Champions Castle',letters:['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'],game:'fall'}
+};
+const TRICK_QS_EN=[
+  {q:'Tap the letter: A',ans:'A'},{q:'Tap the letter: B',ans:'B'},{q:'Tap the letter: C',ans:'C'},
+  {q:'Tap the letter: D',ans:'D'},{q:'Tap the letter: E',ans:'E'},{q:'Tap the letter: F',ans:'F'},
+  {q:'Tap the letter: G',ans:'G'},{q:'Tap the letter: H',ans:'H'},{q:'Tap the letter: I',ans:'I'},
+  {q:'Tap the letter: J',ans:'J'},{q:'Tap the letter: K',ans:'K'},{q:'Tap the letter: L',ans:'L'},
+  {q:'Tap the letter: M',ans:'M'},{q:'Tap the letter: N',ans:'N'},{q:'Tap the letter: O',ans:'O'},
+  {q:'Tap the letter: P',ans:'P'},{q:'Tap the letter: Q',ans:'Q'},{q:'Tap the letter: R',ans:'R'},
+  {q:'Tap the letter: S',ans:'S'},{q:'Tap the letter: T',ans:'T'},{q:'Tap the letter: U',ans:'U'},
+  {q:'Tap the letter: V',ans:'V'},{q:'Tap the letter: W',ans:'W'},{q:'Tap the letter: X',ans:'X'},
+  {q:'Tap the letter: Y',ans:'Y'},{q:'Tap the letter: Z',ans:'Z'},
+];
+
+function getLETTERS(){return G.lang==='en'?LETTERS_EN:LETTERS;}
+function getWORLDS(){return G.lang==='en'?WORLDS_EN:WORLDS;}
+function getTRICK_QS(){return G.lang==='en'?TRICK_QS_EN:TRICK_QS;}
+function getRC_LETTERS(){return G.lang==='en'?LETTERS_EN.map(l=>l.l):RC_LETTERS;}
+
+function toggleLang(){
+  snd_click();
+  G.lang=G.lang==='en'?'he':'en';
+  document.getElementById('btn-lang').textContent=G.lang==='en'?'🇺🇸':'🇮🇱';
+  saveCurrentPlayer();
+}
 
 function initFall(){
   document.getElementById('trick-overlay').classList.remove('show');
@@ -2555,9 +2648,9 @@ function flashRed(){
 
 /* ── TRICK QUESTION ── */
 function _trickPool(){
-  const wl=WORLDS[G.world]&&WORLDS[G.world].letters;
+  const wl=getWORLDS()[G.world]&&getWORLDS()[G.world].letters;
   if(wl&&wl.length>=4)return wl;
-  return ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+  return getLETTERS().map(l=>l.l);
 }
 function _setTrickQuestionVisible(v){
   ['trick-icon','trick-title','trick-subtitle','trick-audio-btn','trick-kb','trick-fb','trick-tries','trick-next-btn'].forEach(id=>{
@@ -2572,8 +2665,8 @@ function _showCorrectAndWait(){
     b.disabled=true;
     if(b.textContent===FG.trickQ.ans)b.classList.add('kc');
   });
-  const ld=LETTERS.find(l=>l.l===FG.trickQ.ans);
-  speak(ld?(ld.p||ld.n):FG.trickQ.ans,true);
+  const ld=getLETTERS().find(l=>l.l===FG.trickQ.ans);
+  speakLang(ld?(ld.p||ld.n):FG.trickQ.ans,true);
   document.getElementById('trick-fb').textContent='התשובה הנכונה: '+FG.trickQ.ans+' 👆';
   document.getElementById('trick-tries').textContent='';
   document.getElementById('trick-next-btn').style.display='block';
@@ -2588,7 +2681,7 @@ function _resetTrickUI(){
 function showTrick(){
   if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
   const pool=_trickPool();
-  const poolQs=TRICK_QS.filter(q=>pool.includes(q.ans));
+  const poolQs=getTRICK_QS().filter(q=>pool.includes(q.ans));
   FG.trickIdx=Math.floor(Math.random()*poolQs.length);
   FG.trickQ=poolQs[FG.trickIdx];
   FG._trickPoolQs=poolQs;
@@ -2606,14 +2699,14 @@ function showTrick(){
     kb.appendChild(btn);
   });
   document.getElementById('trick-overlay').classList.add('show');
-  const ld=LETTERS.find(l=>l.l===FG.trickQ.ans);
-  speak(ld?(ld.p||ld.n):FG.trickQ.ans, true);
+  const ld=getLETTERS().find(l=>l.l===FG.trickQ.ans);
+  speakLang(ld?(ld.p||ld.n):FG.trickQ.ans, true);
 }
 
 function playTrickAudio(){
   if(!FG.trickQ)return;
-  const ld=LETTERS.find(l=>l.l===FG.trickQ.ans);
-  speak(ld?(ld.p||ld.n):FG.trickQ.ans, true);
+  const ld=getLETTERS().find(l=>l.l===FG.trickQ.ans);
+  speakLang(ld?(ld.p||ld.n):FG.trickQ.ans, true);
   snd_click();
 }
 
@@ -2621,7 +2714,7 @@ function cycleToNextTrick(){
   if(FG.trickCycleTimer){clearTimeout(FG.trickCycleTimer);FG.trickCycleTimer=null;}
   document.getElementById('trick-next-btn').style.display='none';
   const pool=_trickPool();
-  const poolQs=FG._trickPoolQs||(TRICK_QS.filter(q=>pool.includes(q.ans)));
+  const poolQs=FG._trickPoolQs||(getTRICK_QS().filter(q=>pool.includes(q.ans)));
   FG.trickIdx=(FG.trickIdx+1)%poolQs.length;
   FG.trickQ=poolQs[FG.trickIdx];
   FG.trickAttempts=0;
@@ -2631,7 +2724,7 @@ function cycleToNextTrick(){
   const ch=[newAns,...dist].sort(()=>Math.random()-.5);
   const kb=document.getElementById('trick-kb');kb.innerHTML='';
   ch.forEach(l=>{const b=document.createElement('button');b.className='trick-key';b.textContent=l;b.onclick=()=>checkTrick(l,b);kb.appendChild(b);});
-  const newLd=LETTERS.find(l=>l.l===newAns);speak(newLd?(newLd.p||newLd.n):newAns,true);
+  const newLd=getLETTERS().find(l=>l.l===newAns);speakLang(newLd?(newLd.p||newLd.n):newAns,true);
 }
 
 function checkTrick(l,btn){
@@ -2710,12 +2803,12 @@ function nextLetRound(){
   document.getElementById('letter-scene').style.display='';
   document.getElementById('let-choices').style.display='';
   document.querySelector('.let-audio-btn').style.display='';
-  const wl=WORLDS[G.world].letters;
-  const allL=LETTERS.map(l=>l.l);
+  const wl=getWORLDS()[G.world].letters;
+  const allL=getLETTERS().map(l=>l.l);
   const pool=wl.length?wl:allL;
   const tl=pool[Math.floor(Math.random()*pool.length)];
-  LG.cur=LETTERS.find(l=>l.l===tl)||LETTERS[0];
-  const wrong=LETTERS.filter(l=>l.l!==LG.cur.l).sort(()=>Math.random()-.5).slice(0,3);
+  LG.cur=getLETTERS().find(l=>l.l===tl)||getLETTERS()[0];
+  const wrong=getLETTERS().filter(l=>l.l!==LG.cur.l).sort(()=>Math.random()-.5).slice(0,3);
   const choices=[...wrong,LG.cur].sort(()=>Math.random()-.5);
   document.getElementById('speech-bub').textContent='?';
   document.getElementById('let-coins').textContent=LG.coins;
@@ -2734,7 +2827,7 @@ function nextLetRound(){
 
 function playLetAudio(){
   if(!LG.cur)return;
-  speak(`מְצָא אֶת הָאוֹת ${LG.cur.p||LG.cur.n}. ${LG.cur.p||LG.cur.n}, כְּמוֹ ${LG.cur.w}`, true);
+  speakLang(`${LG.cur.p||LG.cur.n}. ${LG.cur.w}`, true);
   snd_click();
 }
 
@@ -2850,6 +2943,17 @@ const TR = {
     {char:'ק',name:'קוף'},{char:'ר',name:'ריש'},{char:'ש',name:'שין'},
     {char:'ת',name:'תו'},
   ],
+  letters_en:[
+    {char:'A',name:'A'},{char:'B',name:'B'},{char:'C',name:'C'},
+    {char:'D',name:'D'},{char:'E',name:'E'},{char:'F',name:'F'},
+    {char:'G',name:'G'},{char:'H',name:'H'},{char:'I',name:'I'},
+    {char:'J',name:'J'},{char:'K',name:'K'},{char:'L',name:'L'},
+    {char:'M',name:'M'},{char:'N',name:'N'},{char:'O',name:'O'},
+    {char:'P',name:'P'},{char:'Q',name:'Q'},{char:'R',name:'R'},
+    {char:'S',name:'S'},{char:'T',name:'T'},{char:'U',name:'U'},
+    {char:'V',name:'V'},{char:'W',name:'W'},{char:'X',name:'X'},
+    {char:'Y',name:'Y'},{char:'Z',name:'Z'},
+  ],
   gCanvas:null, dCanvas:null, gCtx:null, dCtx:null,
   zCanvas:null, zCtx:null,
   drawing:false, lastX:0, lastY:0, size:0,
@@ -2956,6 +3060,35 @@ function traceDrawZone(char){
   ctx.fillText(char, S/2, S/2);
 }
 
+const TRACE_EMOJIS_EN = {
+  'A':[{e:'🍎',n:'Apple'},{e:'🐊',n:'Alligator'},{e:'✈️',n:'Airplane'}],
+  'B':[{e:'🎈',n:'Balloon'},{e:'🐝',n:'Bee'},{e:'🍌',n:'Banana'}],
+  'C':[{e:'🐱',n:'Cat'},{e:'🎂',n:'Cake'},{e:'🌵',n:'Cactus'}],
+  'D':[{e:'🐶',n:'Dog'},{e:'🦆',n:'Duck'},{e:'🍩',n:'Donut'}],
+  'E':[{e:'🥚',n:'Egg'},{e:'🐘',n:'Elephant'},{e:'🌍',n:'Earth'}],
+  'F':[{e:'🐟',n:'Fish'},{e:'🦊',n:'Fox'},{e:'🌸',n:'Flower'}],
+  'G':[{e:'🦒',n:'Giraffe'},{e:'🍇',n:'Grapes'},{e:'👻',n:'Ghost'}],
+  'H':[{e:'🐴',n:'Horse'},{e:'🍯',n:'Honey'},{e:'🎩',n:'Hat'}],
+  'I':[{e:'🍦',n:'Ice cream'},{e:'🏝️',n:'Island'},{e:'🦎',n:'Iguana'}],
+  'J':[{e:'🃏',n:'Joker'},{e:'🍓',n:'Jam'},{e:'🦘',n:'Jumper'}],
+  'K':[{e:'🪁',n:'Kite'},{e:'🦘',n:'Kangaroo'},{e:'🔑',n:'Key'}],
+  'L':[{e:'🦁',n:'Lion'},{e:'🍋',n:'Lemon'},{e:'🌿',n:'Leaf'}],
+  'M':[{e:'🌙',n:'Moon'},{e:'🐒',n:'Monkey'},{e:'🍄',n:'Mushroom'}],
+  'N':[{e:'🐦',n:'Nest'},{e:'🌙',n:'Night'},{e:'🪆',n:'Nesting doll'}],
+  'O':[{e:'🐙',n:'Octopus'},{e:'🍊',n:'Orange'},{e:'🦉',n:'Owl'}],
+  'P':[{e:'🍕',n:'Pizza'},{e:'🐧',n:'Penguin'},{e:'🎸',n:'Piano'}],
+  'Q':[{e:'👸',n:'Queen'},{e:'❓',n:'Question'},{e:'🦆',n:'Quack'}],
+  'R':[{e:'🤖',n:'Robot'},{e:'🌈',n:'Rainbow'},{e:'🚀',n:'Rocket'}],
+  'S':[{e:'☀️',n:'Sun'},{e:'🐍',n:'Snake'},{e:'⭐',n:'Star'}],
+  'T':[{e:'🌳',n:'Tree'},{e:'🐯',n:'Tiger'},{e:'🚂',n:'Train'}],
+  'U':[{e:'☂️',n:'Umbrella'},{e:'🦄',n:'Unicorn'},{e:'🎵',n:'Ukulele'}],
+  'V':[{e:'🚐',n:'Van'},{e:'🎻',n:'Violin'},{e:'🦅',n:'Vulture'}],
+  'W':[{e:'🐺',n:'Wolf'},{e:'🐋',n:'Whale'},{e:'🌊',n:'Wave'}],
+  'X':[{e:'🎄',n:'X-mas'},{e:'🔬',n:'X-ray'},{e:'❌',n:'X mark'}],
+  'Y':[{e:'🪀',n:'Yo-yo'},{e:'🎋',n:'Yard'},{e:'🟡',n:'Yellow'}],
+  'Z':[{e:'🦓',n:'Zebra'},{e:'⚡',n:'Zap'},{e:'🎷',n:'Jazz'}],
+};
+
 // מיפוי אות → emoji (ללא אותיות סופיות)
 const TRACE_EMOJIS = {
   'א': [{e:'🦁',n:'אריה'},{e:'🍉',n:'אבטיח'},{e:'🚌',n:'אוטובוס'}],
@@ -3039,21 +3172,22 @@ function traceClear(){
 }
 
 function traceNext(){
-  const pick = TR.letters[Math.floor(Math.random() * TR.letters.length)];
+  const pool = G.lang==='en' ? TR.letters_en : TR.letters;
+  const emojiMap = G.lang==='en' ? TRACE_EMOJIS_EN : TRACE_EMOJIS;
+  const pick = pool[Math.floor(Math.random() * pool.length)];
   TR.currentChar = pick.char;
   document.getElementById('trace-coins').textContent = G.coins;
   traceDrawGuide(pick.char);
   traceDrawZone(pick.char);
   traceClear();
   document.getElementById('trace-feedback').className = '';
-  // הצג emoji של מילים שמתחילות באות
-  const emojis = TRACE_EMOJIS[pick.char] || [];
+  const emojis = emojiMap[pick.char] || [];
   const emojiEl = document.getElementById('trace-emojis');
   emojiEl.innerHTML = emojis.map(item =>
     `<div class="trace-emoji-item"><span>${item.e}</span><span>${item.n}</span></div>`
   ).join('');
-  const ld=LETTERS.find(l=>l.l===pick.char);
-  speak(ld?ld.p:pick.name);
+  const ld=getLETTERS().find(l=>l.l===pick.char);
+  speakLang(ld?(ld.p||ld.n):pick.name);
 }
 
 /* Resize canvas */
@@ -3390,7 +3524,7 @@ function rcSpawnObject(){
   const lane=lanes[Math.floor(Math.random()*lanes.length)];
   const cf=rcLaneToCf(lane);
   if(type==='letter'){
-    const letter=RC_LETTERS[Math.floor(Math.random()*RC_LETTERS.length)];
+    const letter=getRC_LETTERS()[Math.floor(Math.random()*getRC_LETTERS().length)];
     RG.objects.push({type:'letter',lane,cf,y:rcVpY(),letter,collected:false});
   }else if(type==='enemy'){
     RG.objects.push({type:'enemy',lane,cf,y:rcVpY(),color:Math.random()<.6?'red':'purple',hit:false});
