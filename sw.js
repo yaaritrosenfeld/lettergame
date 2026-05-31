@@ -1,4 +1,4 @@
-const CACHE = 'olam-otiyot-v31';
+const CACHE = 'olam-otiyot-v32';
 const ASSETS = ['./', 'index.html', 'icon.svg'];
 
 self.addEventListener('install', e => {
