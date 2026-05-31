@@ -315,7 +315,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 @keyframes tpPulse{0%,100%{transform:scale(1);box-shadow:0 0 20px rgba(255,213,102,.4)}55%{transform:scale(1.05);box-shadow:0 0 32px rgba(255,213,102,.7)}}
 
 /* Trick Question Popup */
-.trick-overlay{position:fixed;inset:0;background:rgba(0,0,0,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:300;overflow-y:auto;display:none}
+.trick-overlay{position:fixed;inset:0;background:rgba(0,0,0,1);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;overflow-y:auto;display:none}
 .trick-overlay.show{display:flex}
 .trick-paused-banner{color:rgba(0,212,255,.45);font-size:.78rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Fredoka One','Rubik',sans-serif}
 .trick-box{position:relative;
@@ -1168,6 +1168,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 
 <!-- Trick Question (shared: fall + race) -->
 <div class="trick-overlay" id="trick-overlay">
+
   <div class="trick-box">
     <button class="trick-exit-btn" onclick="exitTrick()">✕</button>
     <div class="trick-icon" id="trick-icon">🎧</div>
@@ -1286,7 +1287,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
-const APP_VERSION = '31.05.26.04';
+const APP_VERSION = '31.05.26.05';
 
 /* ═══════════════════════════════
    STATE
@@ -2538,7 +2539,7 @@ function fallLoop(){
       FG.savedPx=FG.px;FG.savedPy=FG.py;
       FG.savedWalls=[...FG.walls];FG.savedObs=[...FG.obs];
       FG.savedLastGapX=FG.lastGapX;FG.savedLastGapW=FG.lastGapW;
-      FG.active=false;setTimeout(showTrick,500);return;
+      FG.active=false;if(FG.animId){cancelAnimationFrame(FG.animId);FG.animId=null;}setTimeout(showTrick,500);return;
     }
     // Normal hit (lives > 0) — reset position and pre-fill walls
     FG.px=W/2-FG.pw/2;FG.py=Math.round(H*0.75-FG.ph/2);FG.pvx=0;FG.pvy=0;
@@ -3605,6 +3606,7 @@ function rcHit(){
   document.getElementById('race-lives').textContent='❤️'.repeat(Math.max(0,RG.lives));
   if(RG.lives<=0){
     RG.savedCf=RG.cf;RG.active=false;G.trickCaller='race';RG.objects=[];
+    if(RG.animId){cancelAnimationFrame(RG.animId);RG.animId=null;}
     setTimeout(showTrick,500);
   }else{
     RG.objects=[];RG.invTimer=2000;RG.cvf=0;
