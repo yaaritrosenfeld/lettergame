@@ -1406,7 +1406,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
-const APP_VERSION = '01.06.26.17';
+const APP_VERSION = '01.06.26.18';
 
 /* ═══════════════════════════════
    STATE
@@ -1889,6 +1889,7 @@ function selectPlayer(idx){
   G.letterStats=p.letterStats||{};
   G.sessions=p.sessions||[];
   G.lastLife=p.lastLife||Date.now();
+  applyOfflineRegen();
   G.lang=p.lang||'he';
   document.getElementById('btn-lang').textContent=G.lang==='en'?'🇺🇸':'🇮🇱';
   if(G.photo){
@@ -2373,13 +2374,23 @@ function launchGame(type){
 /* ═══════════════════════════════
    LIFE TIMER
 ══════════════════════════════════ */
+const MAX_LIVES=3;
 let _lifeTimerId=null;
+function applyOfflineRegen(){
+  const elapsed=Date.now()-G.lastLife;
+  const earned=Math.floor(elapsed/(5*60*1000));
+  if(earned>0&&G.lives<MAX_LIVES){
+    G.lives=Math.min(MAX_LIVES,G.lives+earned);
+    G.lastLife+=earned*5*60*1000;
+    saveCurrentPlayer();
+  }
+}
 function startLifeTimer(){
   if(_lifeTimerId)clearInterval(_lifeTimerId);
   _lifeTimerId=setInterval(()=>{
     if(Date.now()-G.lastLife>=5*60*1000){
       G.lastLife=Date.now();
-      if(G.lives<6){G.lives++;saveCurrentPlayer();updateMapUI();snd_life();coinPop(window.innerWidth/2,100,'+❤️')}
+      if(G.lives<MAX_LIVES){G.lives++;saveCurrentPlayer();updateMapUI();snd_life();coinPop(window.innerWidth/2,100,'+❤️')}
     }
   },30000);
 }
@@ -3572,15 +3583,15 @@ function checkTrick(l,btn){
       document.getElementById('trick-overlay').classList.remove('show');
       document.getElementById('trick-prompt').classList.remove('show');
       if(G.trickCaller==='race'){
-        RG.lives=1;G.lives=1;RG.active=true;
+        RG.lives=Math.min(6,RG.lives+1);G.lives=RG.lives;RG.active=true;
         RG.objects=[];RG.invTimer=2000;RG.hitCD=0;
         RG.cf=(RG.savedCf!==undefined)?RG.savedCf:.5;RG.savedCf=undefined;
         RG.cvf=0;RG.gyroBase=null;
-        document.getElementById('race-lives').textContent='❤️';
+        document.getElementById('race-lives').textContent='❤️'.repeat(RG.lives);
         rcLastTs=performance.now();
         RG.animId=requestAnimationFrame(rcLoop);
       }else{
-        FG.lives=1;G.lives=1;FG.active=true;FG.hitCD=120;
+        FG.lives=Math.min(6,FG.lives+1);G.lives=FG.lives;FG.active=true;FG.hitCD=120;
         // Restore exact position and obstacles from the moment of the fatal hit
         FG.px=(FG.savedPx!==undefined)?FG.savedPx:FG.W/2-FG.pw/2;
         FG.py=(FG.savedPy!==undefined)?FG.savedPy:Math.round(FG.H*0.75-FG.ph/2);
@@ -3590,7 +3601,7 @@ function checkTrick(l,btn){
         if(FG.savedLastGapX!==undefined){FG.lastGapX=FG.savedLastGapX;FG.savedLastGapX=undefined;}
         if(FG.savedLastGapW!==undefined){FG.lastGapW=FG.savedLastGapW;FG.savedLastGapW=undefined;}
         FG.pvx=0;FG.pvy=0;FG.gyroBase=null;
-        document.getElementById('fall-lives').textContent=livesStr(1);
+        document.getElementById('fall-lives').textContent=livesStr(FG.lives);
         fallLoop();
       }
     },1600);
