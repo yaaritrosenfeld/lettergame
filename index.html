@@ -1406,7 +1406,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
-const APP_VERSION = '01.06.26.16';
+const APP_VERSION = '01.06.26.17';
 
 /* ═══════════════════════════════
    STATE
@@ -4048,6 +4048,32 @@ document.addEventListener('touchmove',e=>{if(e.target.tagName==='CANVAS')e.preve
 
 document.getElementById('app-version-display').textContent = APP_VERSION;
 loadSettings();
+
+/* סנכרון ענן בטעינה — אם יש מייל, טען שחקנים מהענן ועדכן מקומי */
+(async()=>{
+  const email=getFamilyEmail();
+  if(!email||!_db)return;
+  try{
+    const cloudPlayers=await Promise.race([
+      _cloudLoad(email),
+      new Promise(r=>setTimeout(()=>r(null),5000))
+    ]);
+    if(cloudPlayers&&cloudPlayers.length){
+      const local=loadPlayers();
+      // מיזוג: שחקן מהענן מנצח רק אם updatedAt שלו יותר חדש
+      const merged=cloudPlayers.map((cp,i)=>{
+        const lp=local[i];
+        if(!lp)return cp;
+        const ct=cp.updatedAt?.seconds||0;
+        const lt=lp.updatedAt?.seconds||0;
+        return ct>=lt?cp:lp;
+      });
+      // הוסף שחקנים מקומיים שאינם בענן
+      for(let i=cloudPlayers.length;i<local.length;i++)merged.push(local[i]);
+      _saveLocal(merged);
+    }
+  }catch(e){}
+})();
 
 /* Welcome message on desktop auto-plays on load */
 if(!_isMobile){
