@@ -285,7 +285,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 /* ═══════════════════════════════
    SCREEN 4 — FALLING GAME
 ══════════════════════════════════ */
-#s-fall{background:#0f0c29;flex-direction:column}
+#s-fall{background:radial-gradient(ellipse at 50% 0%,#1a0a3e 0%,#0d0b1e 70%);flex-direction:column}
 #fall-canvas{flex:1;width:100%;display:block;touch-action:none;min-height:0}
 /* ── RACE GAME ── */
 #s-race{background:#000;flex-direction:column}
@@ -1287,7 +1287,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
-const APP_VERSION = '31.05.26.05';
+const APP_VERSION = '31.05.26.06';
 
 /* ═══════════════════════════════
    STATE
@@ -2499,8 +2499,11 @@ function fallLoop(){
     o.y+=spd;
     if(o.osc){const raw=o.baseX+Math.sin(FG.frame*.05)*35;const gX=FG.lastGapX??W/2;const gW=FG.lastGapW||Math.round(W*0.55);o.x=o.baseX<gX?Math.min(raw,gX-o.r-4):Math.max(raw,gX+gW+o.r+4);}
     ctx.font=`${o.r*1.7}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.shadowColor='rgba(255,100,0,.6)';ctx.shadowBlur=12;
-    ctx.fillText(o.e,o.x,o.y);ctx.shadowBlur=0;
+    // Glow ring behind obstacle
+    const og=ctx.createRadialGradient(o.x,o.y,2,o.x,o.y,o.r*1.6);
+    og.addColorStop(0,'rgba(255,77,166,.4)');og.addColorStop(1,'rgba(255,77,166,0)');
+    ctx.fillStyle=og;ctx.beginPath();ctx.arc(o.x,o.y,o.r*1.6,0,Math.PI*2);ctx.fill();
+    ctx.fillText(o.e,o.x,o.y);
     if(circRectHit(o.x,o.y,o.r,FG.px,FG.py,FG.pw,FG.ph))hit=true;
     return o.y<H+80;
   });
@@ -2510,8 +2513,11 @@ function fallLoop(){
     s.y+=spd;
     if(!s.col){
       ctx.font='26px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.shadowColor='gold';ctx.shadowBlur=10;
-      ctx.fillText('⭐',s.x,s.y);ctx.shadowBlur=0;
+      // Glow ring behind star
+      const sg=ctx.createRadialGradient(s.x,s.y,2,s.x,s.y,22);
+      sg.addColorStop(0,'rgba(255,217,61,.35)');sg.addColorStop(1,'rgba(255,217,61,0)');
+      ctx.fillStyle=sg;ctx.beginPath();ctx.arc(s.x,s.y,22,0,Math.PI*2);ctx.fill();
+      ctx.fillText('⭐',s.x,s.y);
       if(Math.hypot(FG.px+FG.pw/2-s.x,FG.py+FG.ph/2-s.y)<34){
         s.col=true;FG.coins+=5;G.coins+=5;snd_coin();
         document.getElementById('fall-coins').textContent=FG.coins;
@@ -2564,13 +2570,13 @@ function fallLoop(){
   FG.animId=requestAnimationFrame(fallLoop);
 }
 
-function wallClr(){return['#e63946','#1d7bf0','#2d6a4f','#9b5de5','#f77f00','#457b9d'][Math.floor(Math.random()*6)]}
+function wallClr(){return['#00e5c8','#6c3fff','#ff4da6','#ffd93d','#00d4ff','#bf5fff'][Math.floor(Math.random()*6)]}
 
 function drawFallBG(ctx,W,H){
   const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#0f0c29');g.addColorStop(1,'#302b63');
+  g.addColorStop(0,'#1a0a3e');g.addColorStop(0.5,'#0d0b1e');g.addColorStop(1,'#0a1628');
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='rgba(255,255,255,.04)';ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(0,229,200,.04)';ctx.lineWidth=1;
   for(let y=-FG.bgY;y<H;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
   for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
 }
