@@ -1405,7 +1405,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
-const APP_VERSION = '01.06.26.12';
+const APP_VERSION = '01.06.26.13';
 
 /* ═══════════════════════════════
    STATE
@@ -2451,6 +2451,12 @@ function toggleLang(){
   G.lang=G.lang==='en'?'he':'en';
   document.getElementById('btn-lang').textContent=G.lang==='en'?'🇺🇸':'🇮🇱';
   saveCurrentPlayer();
+  if(document.getElementById('s-word-builder').classList.contains('active')){
+    const prog = _wbGetProgress();
+    const key = `${Math.max(0,G_playerIdx)}_${G.lang}`;
+    WB.level = (prog[key]||{}).level || 1;
+    _wbStartSession();
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
