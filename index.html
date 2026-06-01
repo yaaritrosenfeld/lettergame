@@ -1406,7 +1406,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 </div>
 
 <script>
-const APP_VERSION = '01.06.26.14';
+const APP_VERSION = '01.06.26.15';
 
 /* ═══════════════════════════════
    STATE
@@ -1724,7 +1724,24 @@ function _renderParentPanel(){
     <div class="pp-card" style="text-align:center;display:flex;flex-direction:column;gap:.6rem;align-items:center">
       <div style="color:rgba(255,255,255,.55);font-size:.85rem">☁️ מחובר כ: <strong style="color:var(--teal)">${getFamilyEmail()||'לא מוגדר'}</strong></div>
       <div id="cloud-sync-status" style="font-size:.8rem;color:${_lastSyncOk===true?'#00e5c8':_lastSyncOk===false?'#ff8a80':'rgba(255,255,255,.4)'}">${_lastSyncOk===true?'☁️ מסונכרן':_lastSyncOk===false?'⚠️ לא הצליח להתחבר לענן':'☁️ ...'}</div>
+      <button onclick="forceSyncNow()" style="margin-top:.3rem;padding:.4rem 1rem;border-radius:10px;border:none;background:var(--teal);color:#0d1f1c;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer">🔄 סנכרן עכשיו</button>
     </div>`;
+}
+
+async function forceSyncNow(){
+  const btn=document.querySelector('button[onclick="forceSyncNow()"]');
+  if(btn)btn.textContent='⏳ שומר...';
+  const email=getFamilyEmail();
+  const status=document.getElementById('cloud-sync-status');
+  if(!email){if(status)status.textContent='❌ אין מייל מוגדר';return;}
+  if(!_db){if(status)status.textContent='❌ Firebase לא אותחל — בדקי חיבור לאינטרנט';if(btn)btn.textContent='🔄 סנכרן עכשיו';return;}
+  try{
+    await _cloudSave(loadPlayers());
+    if(btn)btn.textContent='🔄 סנכרן עכשיו';
+  }catch(e){
+    if(status)status.textContent='❌ שגיאה: '+e.message;
+    if(btn)btn.textContent='🔄 סנכרן עכשיו';
+  }
 }
 
 function resetParentPin(){
