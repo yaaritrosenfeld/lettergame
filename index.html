@@ -893,6 +893,68 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
 .pp-wb-save-btn{flex:1;background:linear-gradient(145deg,var(--teal),var(--teal-dk));color:#0d1f1c;border:none;border-bottom:4px solid #006b5e;border-radius:12px;padding:.6rem;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer}
 .pp-wb-cancel-btn{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);border-radius:12px;padding:.6rem 1rem;font-family:inherit;font-size:.9rem;cursor:pointer}
 .pp-wb-img-preview{width:56px;height:56px;border-radius:10px;object-fit:cover;border:2px solid rgba(0,229,200,.3)}
+/* ===== משחק התמונות ===== */
+#s-picture{
+  background:radial-gradient(ellipse at top,#08113a 0%,#030810 60%);
+  flex-direction:column}
+#s-picture::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(0,212,255,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,212,255,.04) 1px,transparent 1px);
+  background-size:40px 40px}
+.pg-gamebar{width:100%;display:flex;align-items:center;justify-content:space-between;
+  padding:.4rem .8rem;background:rgba(5,10,30,.85);
+  border-bottom:1.5px solid rgba(0,212,255,.15);
+  box-sizing:border-box;flex-shrink:0;position:relative;z-index:2}
+.pg-score{color:#ffd700;font-size:1rem;font-weight:700;font-family:'Fredoka One','Rubik',sans-serif;display:flex;align-items:center;gap:.3rem}
+.pg-lives{font-size:1rem;letter-spacing:2px}
+.pg-body{flex:1;width:100%;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:clamp(.6rem,2vh,1.2rem);
+  padding:.8rem 1rem;box-sizing:border-box;min-height:0;position:relative;z-index:1}
+.pg-image-wrap{
+  width:clamp(130px,38vw,240px);height:clamp(130px,38vw,240px);
+  border-radius:20px;overflow:hidden;
+  background:rgba(255,255,255,.06);
+  border:3px solid rgba(0,212,255,.35);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 32px rgba(0,212,255,.2),0 8px 24px rgba(0,0,0,.5)}
+.pg-image-wrap img{width:100%;height:100%;object-fit:cover}
+.pg-emoji-display{font-size:clamp(4.5rem,16vw,8rem);line-height:1;text-align:center}
+.pg-speak-btn{
+  background:linear-gradient(145deg,var(--teal,#00e5c8),var(--teal-dk,#009e8c));
+  color:#0d1f1c;
+  font-family:'Fredoka One','Rubik',sans-serif;font-size:1.1rem;font-weight:700;
+  padding:12px 28px;border:none;border-bottom:4px solid #006b5e;border-radius:100px;
+  cursor:pointer;display:flex;align-items:center;gap:.5rem;
+  box-shadow:0 0 20px rgba(0,229,200,.4);
+  transition:transform .1s,border-bottom-width .1s;
+  animation:audioPulse 2s ease-in-out infinite}
+.pg-speak-btn:active{transform:translateY(4px);border-bottom-width:1px}
+.pg-feedback{font-family:'Fredoka One','Rubik',sans-serif;font-size:1.2rem;
+  color:#ffd700;min-height:1.8rem;text-align:center;
+  text-shadow:0 0 12px rgba(255,215,0,.5)}
+.pg-choices{display:flex;flex-direction:column;gap:.6rem;width:100%;max-width:360px}
+/* כפתורי בחירה — אותו סגנון בדיוק כמו letter-choices */
+.pg-choices .choice-btn{font-size:1.6rem;padding:14px 12px;border-radius:14px}
+.pg-choices .choice-btn:nth-child(1){
+  background:linear-gradient(145deg,#7c52ff,#4a1dc8);
+  border:none;border-bottom:5px solid #2d1a8c;
+  box-shadow:0 0 18px rgba(108,63,255,.4)}
+.pg-choices .choice-btn:nth-child(2){
+  background:linear-gradient(145deg,#00e5c8,#009e8c);
+  color:#0d1f1c;border:none;border-bottom:5px solid #006b5e;
+  box-shadow:0 0 18px rgba(0,229,200,.4);text-shadow:none}
+.pg-choices .choice-btn:nth-child(3){
+  background:linear-gradient(145deg,#ff4da6,#d4006e);
+  border:none;border-bottom:5px solid #8c0049;
+  box-shadow:0 0 18px rgba(255,77,166,.4)}
+.pg-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1rem;z-index:200}
+.pg-overlay h2{font-family:'Fredoka One','Rubik',sans-serif;font-size:2rem;
+  color:#ffd700;text-align:center;text-shadow:0 0 20px rgba(255,215,0,.6)}
+.pg-overlay .pg-sub{font-family:'Fredoka One','Rubik',sans-serif;
+  font-size:1.1rem;color:rgba(255,255,255,.8)}
 </style>
 </head>
 <body>
@@ -1223,11 +1285,18 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
         <div class="ws-castle-icon">🛸</div>
       </div>
 
-      <!-- Castle 5: Word Builder — center-bottom -->
-      <div class="ws-castle" style="left:50%;transform:translateX(-50%);bottom:3%" onclick="snd_click();launchWordBuilder()">
+      <!-- Castle 5: Word Builder — center-bottom-left -->
+      <div class="ws-castle" style="left:25%;transform:translateX(-50%);bottom:3%" onclick="snd_click();launchWordBuilder()">
         <div class="ws-castle-stars" id="castle-stars-words">☆☆☆</div>
         <div class="ws-castle-label" id="castle-words-label">מגדל המילים</div>
         <div class="ws-castle-icon" style="font-size:clamp(3rem,12vw,5rem)">💡</div>
+      </div>
+
+      <!-- Castle 6: Picture Game — center-bottom-right -->
+      <div class="ws-castle" style="left:75%;transform:translateX(-50%);bottom:3%" onclick="snd_click();launchGame('picture')">
+        <div class="ws-castle-stars" id="castle-stars-picture">☆☆☆</div>
+        <div class="ws-castle-label">מגדל התמונות</div>
+        <div class="ws-castle-icon">🖼️</div>
       </div>
     </div>
 
@@ -1282,6 +1351,23 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Fredoka One','Rubi
     <div class="tp-title">נגמרו החיים!</div>
     <div class="tp-subtitle">ענה נכון על השאלה<br>וקבל חיים חזרה ❤️</div>
     <button class="tp-cta" onclick="reopenTrick()">לשאלה! 🤔</button>
+  </div>
+</div>
+
+<!-- משחק התמונות -->
+<div id="s-picture" class="screen">
+  <div class="pg-gamebar">
+    <button class="back-btn" onclick="snd_click();exitPictureGame()" style="position:static;transform:none;font-size:1.3rem;background:none;border:none;cursor:pointer">🏠</button>
+    <span class="pg-lives" id="pg-lives">❤️❤️❤️</span>
+    <span class="pg-score">💎 <span id="pg-score">0</span></span>
+  </div>
+  <div class="pg-body">
+    <div class="pg-image-wrap" id="pg-image-wrap">
+      <span class="pg-emoji-display">🖼️</span>
+    </div>
+    <button class="pg-speak-btn" onclick="pgSpeak()">🔊 שמע שוב</button>
+    <div class="pg-feedback" id="pg-feedback"></div>
+    <div class="pg-choices" id="pg-choices"></div>
   </div>
 </div>
 
@@ -1627,6 +1713,107 @@ function _checkPin(){
   }
 }
 
+// ── משחק התמונות — ניהול שאלות בפאנל הורים ──
+let _ppPGForm = {open:false, imageData:null};
+
+function _ppPGHtml(player){
+  const questions = (player.pictureQuestions || []);
+  const listHtml = questions.length
+    ? questions.map((q,i)=>`
+      <div style="display:flex;align-items:center;gap:.7rem;padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.07)">
+        <img src="${q.imageData}" style="width:48px;height:48px;object-fit:cover;border-radius:10px;border:2px solid rgba(0,229,200,.3);flex-shrink:0">
+        <div style="flex:1;display:flex;flex-direction:column;gap:.15rem">
+          ${q.options.map(o=>`<span style="font-size:.9rem;color:${o===q.correct?'#00e5c8':'rgba(255,255,255,.55)'}">${o===q.correct?'✓ ':''}${o}</span>`).join('')}
+        </div>
+        <button onclick="_ppPGDelete(${i})" style="background:rgba(255,80,80,.2);border:1px solid rgba(255,80,80,.4);color:#ff8a80;border-radius:8px;padding:.3rem .7rem;font-family:inherit;cursor:pointer;flex-shrink:0">✕</button>
+      </div>`).join('')
+    : '<div class="pp-empty" style="margin-bottom:.5rem">אין שאלות עדיין</div>';
+
+  const formHtml = _ppPGForm.open ? `
+    <div style="display:flex;flex-direction:column;gap:.7rem;margin-top:.8rem;padding:.8rem;background:rgba(255,255,255,.04);border-radius:14px;border:1.5px solid rgba(0,229,200,.2)">
+      <div style="color:var(--teal);font-weight:700;font-size:.95rem">➕ שאלה חדשה</div>
+
+      <!-- תמונה -->
+      <div style="display:flex;align-items:center;gap:.8rem">
+        ${_ppPGForm.imageData
+          ? `<img src="${_ppPGForm.imageData}" style="width:72px;height:72px;object-fit:cover;border-radius:12px;border:2px solid rgba(0,229,200,.4)">`
+          : `<div style="width:72px;height:72px;border-radius:12px;border:2px dashed rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.8rem">🖼️</div>`}
+        <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:.4rem;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:.6rem;cursor:pointer;font-size:.9rem">
+          📁 בחר תמונה
+          <input type="file" accept="image/*" onchange="_ppPGImagePick(this)" style="display:none">
+        </label>
+      </div>
+
+      <!-- 3 מילים + סימון נכונה -->
+      <div style="color:rgba(255,255,255,.6);font-size:.85rem">כתבי 3 מילים וסמני את הנכונה ✓</div>
+      ${[0,1,2].map(i=>`
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <input type="radio" name="pg-correct" value="${i}" id="pg-r${i}" style="width:18px;height:18px;accent-color:var(--teal);cursor:pointer">
+          <input id="pp-pg-opt${i}" placeholder="מילה ${i+1}" class="name-inp" style="flex:1;font-size:1rem;direction:rtl;margin:0">
+        </div>`).join('')}
+
+      <!-- לכל השחקנים -->
+      <div style="display:flex;align-items:center;gap:.5rem;font-size:.9rem;color:rgba(255,255,255,.7)">
+        <input type="checkbox" id="pp-pg-forall" style="width:18px;height:18px;cursor:pointer;accent-color:var(--teal)">
+        <label for="pp-pg-forall">הצג לכל השחקנים שלי</label>
+      </div>
+
+      <div style="display:flex;gap:.5rem">
+        <button onclick="_ppPGSave()" class="pp-wb-save-btn">שמור ✓</button>
+        <button onclick="_ppPGForm.open=false;_renderParentPanel()" class="pp-wb-cancel-btn">ביטול</button>
+      </div>
+    </div>` : `
+    <button onclick="_ppPGForm={open:true,imageData:null};_renderParentPanel()" style="margin-top:.6rem;width:100%;padding:.6rem;border-radius:12px;border:1.5px dashed rgba(0,229,200,.4);background:rgba(0,229,200,.06);color:var(--teal);font-family:inherit;font-size:.95rem;cursor:pointer">
+      ➕ הוסף שאלה חדשה
+    </button>`;
+
+  return `<div style="display:flex;flex-direction:column">${listHtml}${formHtml}</div>`;
+}
+
+function _ppPGImagePick(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => { _ppPGForm.imageData = e.target.result; _renderParentPanel(); };
+  reader.readAsDataURL(file);
+}
+
+function _ppPGSave(){
+  if(!_ppPGForm.imageData){alert('נא לבחור תמונה');return;}
+  const opts = [0,1,2].map(i=>(document.getElementById('pp-pg-opt'+i).value||'').trim());
+  if(opts.some(o=>!o)){alert('נא למלא את כל 3 המילים');return;}
+  const radioEl = document.querySelector('input[name="pg-correct"]:checked');
+  if(!radioEl){alert('נא לסמן את המילה הנכונה');return;}
+  const correctIdx = parseInt(radioEl.value);
+  const forAll = document.getElementById('pp-pg-forall').checked;
+  const q = {imageData:_ppPGForm.imageData, options:opts, correct:opts[correctIdx], forAll};
+
+  const players = loadPlayers();
+  if(forAll){
+    players.forEach(pl=>{
+      if(!pl.pictureQuestions) pl.pictureQuestions=[];
+      pl.pictureQuestions.push(q);
+    });
+  } else {
+    const p = players[_ppPlayerIdx];
+    if(!p.pictureQuestions) p.pictureQuestions=[];
+    p.pictureQuestions.push(q);
+  }
+  _saveLocal(players);
+  _ppPGForm = {open:false, imageData:null};
+  snd_ok();
+  _renderParentPanel();
+}
+
+function _ppPGDelete(idx){
+  const players = loadPlayers();
+  const p = players[_ppPlayerIdx];
+  if(!p.pictureQuestions) return;
+  p.pictureQuestions.splice(idx,1);
+  _saveLocal(players);
+  _renderParentPanel();
+}
+
 // ── Render ──
 function _renderParentPanel(){
   const players=loadPlayers();
@@ -1717,6 +1904,10 @@ function _renderParentPanel(){
       <div class="pp-sessions">${sessionsHtml}</div>
     </div>
     ${(()=>{try{return _ppWBStatsHtml(p);}catch(e){console.error('ppWBStats error:',e);return '';}})()}
+    <div class="pp-card">
+      <div class="pp-card-title">🖼️ בנק מילים — "משחק התמונות"</div>
+      <div id="pp-pg-container">${_ppPGHtml(p)}</div>
+    </div>
     <div class="pp-card">
       <div class="pp-card-title">🔤 בנק מילים — "הרכב מילה"</div>
       <div id="pp-wb-container">${_ppWBHtml()}</div>
@@ -2368,6 +2559,7 @@ function launchGame(type){
   if(type==='fall'){G.trickCaller='fall';goScreen('s-fall');initFall()}
   else if(type==='race'){G.trickCaller='race';goScreen('s-race');setTimeout(initRace,50)}
   else if(type==='trace'){goScreen('s-trace');setTimeout(initTrace,50)}
+  else if(type==='picture'){goScreen('s-picture');setTimeout(initPicture,50)}
   else{initLetters();goScreen('s-letters')}
 }
 
@@ -3163,6 +3355,210 @@ function _ppWBSave(){
   snd_ok();
   _wbForm.open = false;
   _renderParentPanel();
+}
+
+// ═══════════════════════════════════════════════
+//  משחק התמונות — Picture Word Game
+// ═══════════════════════════════════════════════
+
+const PICTURE_WORDS = [
+  {word:'גזר',   speak:'גֶּזֶר',   emoji:'🥕'},
+  {word:'כלב',   speak:'כֶּלֶב',   emoji:'🐕'},
+  {word:'חתול',  speak:'חָתוּל',  emoji:'🐱'},
+  {word:'תפוח',  speak:'תַּפּוּחַ', emoji:'🍎'},
+  {word:'בית',   speak:'בַּיִת',   emoji:'🏠'},
+  {word:'ספר',   speak:'סֵפֶר',   emoji:'📚'},
+  {word:'ירח',   speak:'יָרֵחַ',  emoji:'🌕'},
+  {word:'שמש',   speak:'שֶׁמֶשׁ',  emoji:'☀️'},
+  {word:'דג',    speak:'דָּג',    emoji:'🐟'},
+  {word:'עץ',    speak:'עֵץ',    emoji:'🌳'},
+  {word:'פרח',   speak:'פֶּרַח',  emoji:'🌸'},
+  {word:'אריה',  speak:'אַרְיֵה',  emoji:'🦁'},
+  {word:'פיל',   speak:'פִּיל',   emoji:'🐘'},
+  {word:'כדור',  speak:'כַּדּוּר', emoji:'⚽'},
+  {word:'מכונית',speak:'מְכוֹנִית',emoji:'🚗'},
+  {word:'עיפרון',speak:'עִפָּרוֹן',emoji:'✏️'},
+  {word:'כוס',   speak:'כּוֹס',   emoji:'🥛'},
+  {word:'לחם',   speak:'לֶחֶם',   emoji:'🍞'},
+  {word:'ביצה',  speak:'בֵּיצָה',  emoji:'🥚'},
+  {word:'גשם',   speak:'גֶּשֶׁם',  emoji:'🌧️'},
+  {word:'שלג',   speak:'שֶׁלֶג',   emoji:'❄️'},
+  {word:'כוכב',  speak:'כּוֹכָב',  emoji:'⭐'},
+  {word:'לב',    speak:'לֵב',    emoji:'❤️'},
+  {word:'פרפר',  speak:'פַּרְפַּר', emoji:'🦋'},
+  {word:'צפור',  speak:'צִפּוֹר',  emoji:'🐦'},
+];
+
+const PRAISE_PICTURE = [
+  'כֹּל הַכָּבוֹד!','מְצוּיָן!','אֵיזֶה חָכָם!',
+  'וָואוּ, נָכוֹן!','יוֹפִי שֶׁל תְּשׁוּבָה!','פַנְטַסְטִי!'
+];
+const ENCOURAGE_PICTURE = [
+  'נַסֶּה שׁוּב!','כִּמְעַט! נַסֶּה עוֹד פַּעַם',
+  'אַל תִּוַּתֵּר, עוֹד פַּעַם!','לֹא נוֹרָא, עוֹד נִיסָּיוֹן!'
+];
+
+const PG = {
+  words:[], idx:0, current:null, score:0, lives:3,
+  roundSize:5, answered:false, canAnswer:true
+};
+
+function initPicture(){
+  PG.score = 0;
+  PG.lives = 3;
+  PG.idx   = 0;
+  PG.answered = false;
+  PG.canAnswer = true;
+  // מזג מילי ברירת מחדל + שאלות הורה של השחקן הנוכחי
+  const players = loadPlayers();
+  const currentPlayer = players[G_playerIdx] || {};
+  const parentQuestions = (currentPlayer.pictureQuestions || []).map(q=>({
+    word: q.correct, speak: q.correct,
+    imageData: q.imageData,
+    _options: q.options  // אפשרויות קבועות שהורה הגדיר
+  }));
+  PG.words = _pgShuffle([...PICTURE_WORDS, ...parentQuestions]);
+  _pgUpdateTopbar();
+  _pgLoadQuestion();
+}
+
+function _pgShuffle(arr){
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+
+function _pgUpdateTopbar(){
+  document.getElementById('pg-score').textContent = PG.score;
+  document.getElementById('pg-lives').textContent = Array.from({length:3},(_,i)=>i<PG.lives?'❤️':'🖤').join('');
+}
+
+function _pgLoadQuestion(){
+  if(PG.idx >= PG.words.length) PG.words = _pgShuffle([...PICTURE_WORDS]);
+  PG.current   = PG.words[PG.idx % PG.words.length];
+  PG.answered  = false;
+  PG.canAnswer = true;
+  document.getElementById('pg-feedback').textContent = '';
+
+  // תמונה / emoji / imageData
+  const wrap = document.getElementById('pg-image-wrap');
+  if(PG.current.imageData){
+    wrap.innerHTML = `<img src="${PG.current.imageData}" alt="${PG.current.word}">`;
+  } else if(PG.current.imageUrl){
+    wrap.innerHTML = `<img src="${PG.current.imageUrl}" alt="${PG.current.word}" onerror="this.parentElement.innerHTML='<span class=pg-emoji-display>${PG.current.emoji||'🖼️'}</span>'">`;
+  } else {
+    wrap.innerHTML = `<span class="pg-emoji-display">${PG.current.emoji||'🖼️'}</span>`;
+  }
+
+  // 3 אפשרויות: אם הורה הגדיר options קבועות — השתמש בהן; אחרת בחר אקראי
+  let choiceWords;
+  if(PG.current._options && PG.current._options.length===3){
+    choiceWords = _pgShuffle([...PG.current._options]);
+  } else {
+    const distractors = _pgShuffle(PICTURE_WORDS.filter(w=>w.word!==PG.current.word)).slice(0,2);
+    choiceWords = _pgShuffle([PG.current.word, ...distractors.map(d=>d.word)]);
+  }
+
+  const choicesEl = document.getElementById('pg-choices');
+  choicesEl.innerHTML = choiceWords.map(w=>`
+    <button class="choice-btn" onclick="pgChoose('${w}')">${w}</button>
+  `).join('');
+
+  // הקראה אוטומטית
+  setTimeout(()=>pgSpeak(), 600);
+}
+
+function pgSpeak(){
+  if(!PG.current) return;
+  speak(PG.current.speak || PG.current.word);
+}
+
+function pgChoose(word){
+  if(!PG.canAnswer) return;
+  PG.canAnswer = false;
+  const correct = word === PG.current.word;
+  const fbEl = document.getElementById('pg-feedback');
+
+  // סמן כפתורים — cc/cw/cy כמו במשחק האותיות
+  const btns = document.querySelectorAll('#pg-choices .choice-btn');
+  btns.forEach(btn=>{
+    if(btn.textContent.trim()===word){
+      btn.classList.add(correct?'cc':'cw');
+    } else {
+      btn.classList.add('cy');
+    }
+    btn.onclick=null;
+  });
+
+  if(correct){
+    snd_ok();
+    PG.score++;
+    _pgUpdateTopbar();
+    const praise = PRAISE_PICTURE[Math.floor(Math.random()*PRAISE_PICTURE.length)];
+    fbEl.textContent = '✅ ' + praise.replace(/[ְ-ׇ]/g,''); // ללא ניקוד בטקסט
+    speak(praise);
+    PG.idx++;
+    // אחרי כל 5 — חגיגה
+    if(PG.idx % PG.roundSize === 0){
+      setTimeout(()=>_pgRoundComplete(), 1200);
+    } else {
+      setTimeout(()=>_pgLoadQuestion(), 1200);
+    }
+  } else {
+    snd_no();
+    PG.lives = Math.max(0, PG.lives-1);
+    _pgUpdateTopbar();
+    const enc = ENCOURAGE_PICTURE[Math.floor(Math.random()*ENCOURAGE_PICTURE.length)];
+    fbEl.textContent = '❌ ' + enc.replace(/[ְ-ׇ]/g,'');
+    speak(enc);
+    if(PG.lives <= 0){
+      setTimeout(()=>_pgGameOver(), 1500);
+    } else {
+      setTimeout(()=>{
+        // איפוס כפתורים
+        document.querySelectorAll('#pg-choices .choice-btn').forEach(b=>{
+          b.classList.remove('cw','cy','cc');
+          const word = b.textContent.trim();
+          b.onclick = ()=>pgChoose(word);
+        });
+        document.getElementById('pg-feedback').textContent='';
+        PG.canAnswer = true;
+      }, 1500);
+    }
+  }
+}
+
+function _pgRoundComplete(){
+  speak('כֹּל הַכָּבוֹד! סִיַּמְתָּ סִבּוּב!');
+  const overlay = document.createElement('div');
+  overlay.className = 'pg-round-done';
+  overlay.innerHTML = `
+    <div style="font-size:3rem">🎉</div>
+    <h2>כל הכבוד!</h2>
+    <div class="pg-rd-score">ענית נכון על ${PG.roundSize} שאלות!</div>
+    <div class="pg-rd-score">💎 ${PG.score} נקודות</div>
+    <button class="btn-gold" onclick="this.closest('.pg-round-done').remove();_pgLoadQuestion()" style="margin-top:.5rem">המשך ▶</button>
+    <button onclick="this.closest('.pg-round-done').remove();exitPictureGame()" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:12px;padding:.6rem 1.2rem;font-family:inherit;font-size:1rem;cursor:pointer">חזרה למפה 🗺️</button>
+  `;
+  document.getElementById('s-picture').appendChild(overlay);
+}
+
+function _pgGameOver(){
+  speak('לֹא נוֹרָא! נַסֶּה שׁוּב!');
+  const overlay = document.createElement('div');
+  overlay.className = 'pg-round-done';
+  overlay.innerHTML = `
+    <div style="font-size:3rem">💪</div>
+    <h2 style="color:#fff">לא נורא!</h2>
+    <div class="pg-rd-score">💎 ${PG.score} נקודות</div>
+    <button class="btn-gold" onclick="this.closest('.pg-round-done').remove();initPicture()" style="margin-top:.5rem">שחק שוב 🔄</button>
+    <button onclick="this.closest('.pg-round-done').remove();exitPictureGame()" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:12px;padding:.6rem 1.2rem;font-family:inherit;font-size:1rem;cursor:pointer">חזרה למפה 🗺️</button>
+  `;
+  document.getElementById('s-picture').appendChild(overlay);
+}
+
+function exitPictureGame(){
+  PG.current = null;
+  goScreen('s-map');
 }
 
 function initFall(){
