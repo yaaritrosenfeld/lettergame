@@ -3483,14 +3483,14 @@ function pgChoose(word){
 function _pgRoundComplete(){
   speak('כֹּל הַכָּבוֹד! סִיַּמְתָּ סִבּוּב!');
   const overlay = document.createElement('div');
-  overlay.className = 'pg-round-done';
+  overlay.className = 'pg-overlay';
   overlay.innerHTML = `
     <div style="font-size:3rem">🎉</div>
     <h2>כל הכבוד!</h2>
-    <div class="pg-rd-score">ענית נכון על ${PG.roundSize} שאלות!</div>
-    <div class="pg-rd-score">💎 ${PG.score} נקודות</div>
-    <button class="btn-gold" onclick="this.closest('.pg-round-done').remove();_pgLoadQuestion()" style="margin-top:.5rem">המשך ▶</button>
-    <button onclick="this.closest('.pg-round-done').remove();exitPictureGame()" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:12px;padding:.6rem 1.2rem;font-family:inherit;font-size:1rem;cursor:pointer">חזרה למפה 🗺️</button>
+    <div class="pg-sub">ענית נכון על ${PG.roundSize} שאלות!</div>
+    <div class="pg-sub">💎 ${PG.score} נקודות</div>
+    <button class="btn-gold" onclick="this.closest('.pg-overlay').remove();_pgLoadQuestion()" style="margin-top:.5rem">המשך ▶</button>
+    <button onclick="this.closest('.pg-overlay').remove();exitPictureGame()" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:12px;padding:.6rem 1.2rem;font-family:inherit;font-size:1rem;cursor:pointer">חזרה למפה 🗺️</button>
   `;
   document.getElementById('s-picture').appendChild(overlay);
 }
@@ -3498,19 +3498,20 @@ function _pgRoundComplete(){
 function _pgGameOver(){
   speak('לֹא נוֹרָא! נַסֶּה שׁוּב!');
   const overlay = document.createElement('div');
-  overlay.className = 'pg-round-done';
+  overlay.className = 'pg-overlay';
   overlay.innerHTML = `
     <div style="font-size:3rem">💪</div>
     <h2 style="color:#fff">לא נורא!</h2>
-    <div class="pg-rd-score">💎 ${PG.score} נקודות</div>
-    <button class="btn-gold" onclick="this.closest('.pg-round-done').remove();initPicture()" style="margin-top:.5rem">שחק שוב 🔄</button>
-    <button onclick="this.closest('.pg-round-done').remove();exitPictureGame()" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:12px;padding:.6rem 1.2rem;font-family:inherit;font-size:1rem;cursor:pointer">חזרה למפה 🗺️</button>
+    <div class="pg-sub">💎 ${PG.score} נקודות</div>
+    <button class="btn-gold" onclick="this.closest('.pg-overlay').remove();initPicture()" style="margin-top:.5rem">שחק שוב 🔄</button>
+    <button onclick="this.closest('.pg-overlay').remove();exitPictureGame()" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:12px;padding:.6rem 1.2rem;font-family:inherit;font-size:1rem;cursor:pointer">חזרה למפה 🗺️</button>
   `;
   document.getElementById('s-picture').appendChild(overlay);
 }
 
 function exitPictureGame(){
   PG.current = null;
+  _saveGameExit('castle-stars-picture', PG.score||0);
   goScreen('s-map');
 }
 
