@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>דמו — המסע של דייב</title>
 <style>
   :root{
@@ -52,7 +52,11 @@
   @keyframes flashpop{0%{opacity:0;}18%{opacity:1;}100%{opacity:0;}}
 
   .controls{display:flex;justify-content:space-between;align-items:center;gap:10px;
-    width:100%;max-width:960px;}
+    padding:14px;}
+  .fsbtn{flex-shrink:0;pointer-events:auto;width:34px;height:34px;border-radius:9px;
+    border:1px solid var(--panel-brd);background:rgba(10,4,30,.55);color:#fff;
+    display:flex;align-items:center;justify-content:center;}
+  .fsbtn svg{width:16px;height:16px;}
   .pad{display:flex;gap:8px;}
   .btn{width:56px;height:56px;border-radius:16px;border:1px solid var(--panel-brd);
     background:linear-gradient(180deg,#2a1a52,#190f34);color:#fff;font-size:22px;
@@ -100,11 +104,22 @@
     #app{display:none;}
   }
 
-  /* short landscape viewports (phones on their side): shrink chrome, maximize game area */
+  /* short landscape viewports (phones on their side): full-bleed, no browser-page chrome */
   @media (orientation:landscape) and (max-height:520px){
-    body{gap:6px;padding:6px;}
-    h1{font-size:13px;margin:0;}
-    .sub,.footer-note{display:none;}
+    body{gap:0;padding:0;}
+    h1,.sub,.footer-note{display:none;}
+    #app{width:100dvw;height:100dvh;}
+    .stage{width:100dvw !important;height:100dvh !important;max-width:none;
+      border-radius:0;box-shadow:none;}
+    canvas{width:100% !important;height:100% !important;}
+    .hud{top:calc(8px + env(safe-area-inset-top));
+      left:calc(8px + env(safe-area-inset-left));right:calc(8px + env(safe-area-inset-right));}
+    .controls{position:absolute;padding:0;
+      bottom:calc(10px + env(safe-area-inset-bottom));
+      left:calc(10px + env(safe-area-inset-left));right:calc(10px + env(safe-area-inset-right));}
+    /* translucent so the game world stays visible under the overlaid buttons */
+    .btn{width:48px;height:48px;background:rgba(42,26,82,.55);backdrop-filter:blur(2px);}
+    .btn.jump{background:rgba(58,42,122,.55);}
   }
 </style>
 </head>
@@ -131,7 +146,15 @@
         <div class="power-label">מד כוח</div>
         <div class="power-bar"><div class="power-fill" id="powerFill"></div></div>
       </div>
-      <div class="lives" id="livesBox"></div>
+      <div style="display:flex;align-items:flex-start;gap:8px;pointer-events:auto;">
+        <div class="lives" id="livesBox"></div>
+        <button class="fsbtn" id="btnFullscreen" title="מסך מלא" aria-label="מסך מלא">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 3h3a2 2 0 0 1 2 2v3"></path>
+            <path d="M8 21H5a2 2 0 0 1-2-2v-3"></path><path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div class="msg" id="msg"></div>
@@ -148,17 +171,17 @@
       <p>עברת את השלב עם כל כדורי האנרגיה</p>
       <button class="restart" id="restartBtn2">שחק שוב</button>
     </div>
-  </div>
 
-  <div class="controls">
-    <div class="pad">
-      <div class="btn" id="btnLeft">◀</div>
-      <div class="btn" id="btnRight">▶</div>
-    </div>
-    <div class="pad">
-      <div class="btn" id="btnDown">▼</div>
-      <div class="btn" id="btnUp">▲</div>
-      <div class="btn jump" id="btnJump">⤴</div>
+    <div class="controls">
+      <div class="pad">
+        <div class="btn" id="btnLeft">◀</div>
+        <div class="btn" id="btnRight">▶</div>
+      </div>
+      <div class="pad">
+        <div class="btn" id="btnDown">▼</div>
+        <div class="btn" id="btnUp">▲</div>
+        <div class="btn jump" id="btnJump">⤴</div>
+      </div>
     </div>
   </div>
 
@@ -179,26 +202,27 @@
   const qopts = document.getElementById('qopts');
   const winScreen = document.getElementById('winScreen');
   const stageEl = document.getElementById('stage');
-  const controlsEl = document.querySelector('.controls');
   const headerEl = document.querySelector('#app > h1');
   const subEl = document.querySelector('.sub');
   const footerEl = document.querySelector('.footer-note');
+  const btnFullscreen = document.getElementById('btnFullscreen');
 
   function fitStage(){
     if(window.innerHeight >= window.innerWidth) return; // portrait: rotate-prompt covers the screen
+    // controls now overlay the canvas (position:absolute), so only header/footer text competes for height
     const chromeH = (headerEl && getComputedStyle(headerEl).display!=='none' ? headerEl.offsetHeight : 0)
       + (subEl && getComputedStyle(subEl).display!=='none' ? subEl.offsetHeight : 0)
-      + controlsEl.offsetHeight
       + (footerEl && getComputedStyle(footerEl).display!=='none' ? footerEl.offsetHeight : 0)
-      + 48; // gaps + body padding
+      + 32; // gaps + body padding
     const availW = window.innerWidth - 24;
     const availH = window.innerHeight - chromeH;
-    const scale = Math.max(0.2, Math.min(availW/W, availH/H));
+    const scale = Math.max(0.2, Math.min(availW/W, availH/H, 1));
     stageEl.style.width = cv.style.width = Math.round(W*scale)+'px';
     cv.style.height = Math.round(H*scale)+'px';
   }
   window.addEventListener('resize', fitStage);
   window.addEventListener('orientationchange', ()=>setTimeout(fitStage, 300));
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', fitStage);
 
   // best-effort: force landscape where the platform allows it (ignored on iOS Safari / non-standalone tabs)
   function tryLockLandscape(){
@@ -209,6 +233,22 @@
   tryLockLandscape();
   window.addEventListener('click', tryLockLandscape, {once:true});
   window.addEventListener('touchstart', tryLockLandscape, {once:true});
+
+  // real browser chrome (address bar) can only be hidden via the Fullscreen API
+  if(!document.documentElement.requestFullscreen && !document.documentElement.webkitRequestFullscreen){
+    btnFullscreen.style.display = 'none';
+  } else {
+    btnFullscreen.addEventListener('click', ()=>{
+      const el = document.documentElement;
+      if(document.fullscreenElement || document.webkitFullscreenElement){
+        (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      } else {
+        (el.requestFullscreen || el.webkitRequestFullscreen).call(el).catch(()=>{});
+        tryLockLandscape();
+      }
+    });
+    document.addEventListener('fullscreenchange', fitStage);
+  }
 
   const GROUND_Y = 500;
   const platforms = [
