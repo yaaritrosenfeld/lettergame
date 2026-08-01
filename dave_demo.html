@@ -87,10 +87,39 @@
   .win p{margin:0;color:var(--text-dim);font-size:14px;}
   .restart{margin-top:8px;padding:10px 22px;border-radius:12px;border:none;font-weight:800;
     background:linear-gradient(90deg,var(--energy1),var(--energy2));color:#0d0620;font-size:14px;}
+
+  /* landscape-only game: ask for rotation on tall/portrait phones */
+  .rotate-prompt{display:none;position:fixed;inset:0;z-index:50;background:#08041a;color:#fff;
+    flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;}
+  .rotate-prompt .icon{width:56px;height:56px;color:var(--energy1);
+    animation:rotateHint 1.6s ease-in-out infinite;}
+  @keyframes rotateHint{0%,100%{transform:rotate(0deg);}50%{transform:rotate(90deg);}}
+  .rotate-prompt p{margin:0;font-size:15px;color:var(--text-dim);max-width:260px;line-height:1.6;}
+  @media (orientation:portrait) and (max-width:900px){
+    .rotate-prompt{display:flex;}
+    #app{display:none;}
+  }
+
+  /* short landscape viewports (phones on their side): shrink chrome, maximize game area */
+  @media (orientation:landscape) and (max-height:520px){
+    body{gap:6px;padding:6px;}
+    h1{font-size:13px;margin:0;}
+    .sub,.footer-note{display:none;}
+  }
 </style>
 </head>
 <body>
 
+  <div class="rotate-prompt" id="rotatePrompt">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="2" width="14" height="20" rx="2"></rect>
+      <line x1="12" y1="18" x2="12.01" y2="18"></line>
+    </svg>
+    <h1 style="font-size:17px;">סובבי את המכשיר</h1>
+    <p>המשחק הזה בנוי לתצוגה רוחבית — הטי את הטלפון/טאבלט לצדדים כדי לשחק.</p>
+  </div>
+
+  <div id="app">
   <h1>דמו אופליין — המסע של דייב</h1>
   <p class="sub">אב-טיפוס לבדיקת תחושה בלבד: ריצה + קפיצה + סולמות, איסוף כל כדורי האנרגיה של האות א׳, הימנעות מהאויב, ומד כוח שנטען עד לפתיחת הדלת.</p>
 
@@ -134,6 +163,7 @@
   </div>
 
   <p class="footer-note">שליטה במקלדת: חצים / A D לתנועה, W או רווח לקפיצה, למעלה/למטה לטיפוס על סולם.<br>זהו קובץ הדגמה נפרד — לא חלק מהמשחק הראשי, ולא נשמר בשום מקום.</p>
+  </div>
 
 <script>
 (function(){
@@ -148,6 +178,27 @@
   const qoverlay = document.getElementById('qoverlay');
   const qopts = document.getElementById('qopts');
   const winScreen = document.getElementById('winScreen');
+  const stageEl = document.getElementById('stage');
+  const controlsEl = document.querySelector('.controls');
+  const headerEl = document.querySelector('#app > h1');
+  const subEl = document.querySelector('.sub');
+  const footerEl = document.querySelector('.footer-note');
+
+  function fitStage(){
+    if(window.innerHeight >= window.innerWidth) return; // portrait: rotate-prompt covers the screen
+    const chromeH = (headerEl && getComputedStyle(headerEl).display!=='none' ? headerEl.offsetHeight : 0)
+      + (subEl && getComputedStyle(subEl).display!=='none' ? subEl.offsetHeight : 0)
+      + controlsEl.offsetHeight
+      + (footerEl && getComputedStyle(footerEl).display!=='none' ? footerEl.offsetHeight : 0)
+      + 48; // gaps + body padding
+    const availW = window.innerWidth - 24;
+    const availH = window.innerHeight - chromeH;
+    const scale = Math.max(0.2, Math.min(availW/W, availH/H));
+    stageEl.style.width = cv.style.width = Math.round(W*scale)+'px';
+    cv.style.height = Math.round(H*scale)+'px';
+  }
+  window.addEventListener('resize', fitStage);
+  window.addEventListener('orientationchange', ()=>setTimeout(fitStage, 300));
 
   const GROUND_Y = 500;
   const platforms = [
@@ -537,6 +588,7 @@
   }
 
   resetLevel();
+  fitStage();
   loop();
 })();
 </script>
