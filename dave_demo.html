@@ -92,47 +92,44 @@
   .restart{margin-top:8px;padding:10px 22px;border-radius:12px;border:none;font-weight:800;
     background:linear-gradient(90deg,var(--energy1),var(--energy2));color:#0d0620;font-size:14px;}
 
-  /* landscape-only game: ask for rotation on tall/portrait phones */
-  .rotate-prompt{display:none;position:fixed;inset:0;z-index:50;background:#08041a;color:#fff;
-    flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;}
-  .rotate-prompt .icon{width:56px;height:56px;color:var(--energy1);
-    animation:rotateHint 1.6s ease-in-out infinite;}
-  @keyframes rotateHint{0%,100%{transform:rotate(0deg);}50%{transform:rotate(90deg);}}
-  .rotate-prompt p{margin:0;font-size:15px;color:var(--text-dim);max-width:260px;line-height:1.6;}
-  @media (orientation:portrait) and (max-width:900px){
-    .rotate-prompt{display:flex;}
-    #app{display:none;}
-  }
-
-  /* short landscape viewports (phones on their side): full-bleed, no browser-page chrome */
-  @media (orientation:landscape) and (max-height:520px){
+  /* full-bleed game chrome: applies whenever we render as a landscape strip —
+     either a real landscape phone, or a portrait phone showing the CSS-rotated view below */
+  @media (orientation:landscape) and (max-height:520px), (orientation:portrait) and (max-width:900px){
     body{gap:0;padding:0;}
     h1,.sub,.footer-note{display:none;}
-    #app{width:100dvw;height:100dvh;}
-    .stage{width:100dvw !important;height:100dvh !important;max-width:none;
+    .stage{width:100% !important;height:100% !important;max-width:none;
       border-radius:0;box-shadow:none;}
     canvas{width:100% !important;height:100% !important;}
-    .hud{top:calc(8px + env(safe-area-inset-top));
-      left:calc(8px + env(safe-area-inset-left));right:calc(8px + env(safe-area-inset-right));}
-    .controls{position:absolute;padding:0;
-      bottom:calc(10px + env(safe-area-inset-bottom));
-      left:calc(10px + env(safe-area-inset-left));right:calc(10px + env(safe-area-inset-right));}
+    .controls{position:absolute;padding:0;bottom:10px;left:10px;right:10px;}
     /* translucent so the game world stays visible under the overlaid buttons */
     .btn{width:48px;height:48px;background:rgba(42,26,82,.55);backdrop-filter:blur(2px);}
     .btn.jump{background:rgba(58,42,122,.55);}
   }
+
+  /* real landscape phone: fill the true viewport */
+  @media (orientation:landscape) and (max-height:520px){
+    #app{width:100dvw;height:100dvh;}
+    .hud{top:calc(8px + env(safe-area-inset-top));
+      left:calc(8px + env(safe-area-inset-left));right:calc(8px + env(safe-area-inset-right));}
+    .controls{bottom:calc(10px + env(safe-area-inset-bottom));
+      left:calc(10px + env(safe-area-inset-left));right:calc(10px + env(safe-area-inset-right));}
+  }
+
+  /* portrait phone: rotate the whole app 90° so the game still renders landscape,
+     even when the OS/browser's own rotation lock refuses to rotate the real viewport */
+  @media (orientation:portrait) and (max-width:900px){
+    body{overflow:hidden;}
+    #app{
+      position:fixed;top:50%;left:50%;
+      width:100vh;height:100vw;
+      transform-origin:50% 50%;
+      transform:rotate(90deg);
+      margin-top:-50vw;margin-left:-50vh;
+    }
+  }
 </style>
 </head>
 <body>
-
-  <div class="rotate-prompt" id="rotatePrompt">
-    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="5" y="2" width="14" height="20" rx="2"></rect>
-      <line x1="12" y1="18" x2="12.01" y2="18"></line>
-    </svg>
-    <h1 style="font-size:17px;">סובבו את המכשיר</h1>
-    <p>המשחק הזה בנוי לתצוגה רוחבית —<br>הטו את הטלפון לצדדים כדי לשחק</p>
-  </div>
 
   <div id="app">
   <h1>דמו אופליין — המסע של דייב</h1>
