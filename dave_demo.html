@@ -373,8 +373,9 @@
     updateHUD();
     flashHit();
     if(livesState.n <= 0){
+      showMsg('נגמרו החיים… מתחילים מחדש', true);
+      setTimeout(resetLevel, 1400);
       gameOver = true;
-      openQuestion('death');
       return;
     }
     showMsg('אוץ! נפגעת');
@@ -399,12 +400,10 @@
     doorOpen = true;
   }
 
-  function openQuestion(context){
+  function openQuestion(){
     gameOver = true;
     qTitle.textContent = 'איזו אות זו?';
-    qSub.textContent = context==='death'
-      ? 'תשובה נכונה = חיים חדשים וממשיכים!'
-      : 'ענה נכון כדי לעבור את הדלת';
+    qSub.textContent = 'ענה נכון כדי לעבור את הדלת';
     const opts = [LETTER,'ב','ל'].sort(()=>Math.random()-0.5);
     qopts.innerHTML = '';
     opts.forEach(letter=>{
@@ -414,28 +413,10 @@
       b.onclick = ()=>{
         if(letter === LETTER){
           b.classList.add('correct');
-          setTimeout(()=>{
-            qoverlay.classList.remove('show');
-            if(context==='death'){
-              livesState.n = 2;
-              updateHUD();
-              player.x = 50; player.y = GROUND_Y-player.h; player.vx=0; player.vy=0;
-              gameOver = false;
-              showMsg('חזרת למשחק עם 2 חיים!');
-            } else {
-              winScreen.classList.add('show');
-              won = true;
-            }
-          }, 400);
+          setTimeout(()=>{ qoverlay.classList.remove('show'); winScreen.classList.add('show'); won=true; }, 400);
         } else {
           b.classList.add('wrong');
-          setTimeout(()=>{
-            b.classList.remove('wrong');
-            if(context==='death'){
-              qoverlay.classList.remove('show');
-              resetLevel();
-            }
-          }, 500);
+          setTimeout(()=>b.classList.remove('wrong'), 400);
         }
       };
       qopts.appendChild(b);
@@ -528,7 +509,7 @@
 
     // door
     if(doorOpen && rectsOverlap(playerBox(player.x,player.y), doorRect)){
-      openQuestion('door');
+      openQuestion();
     }
   }
 
