@@ -21,10 +21,12 @@
     -webkit-background-clip:text;background-clip:text;color:transparent;}
   .sub{color:var(--text-dim);font-size:13px;margin:0 0 4px;text-align:center;max-width:560px;line-height:1.6;}
 
-  .stage{position:relative;width:100%;max-width:960px;flex-shrink:0;border-radius:18px;overflow:hidden;
+  .stage{display:flex;flex-direction:column;position:relative;width:100%;max-width:960px;flex-shrink:0;
+    border-radius:18px;overflow:hidden;
     box-shadow:0 20px 60px rgba(0,0,0,.55), inset 0 0 0 1px var(--panel-brd);
     background:radial-gradient(120% 140% at 50% -10%, var(--bg3), var(--bg2) 55%, var(--bg1) 100%);}
-  canvas{display:block;width:100%;height:auto;touch-action:none;}
+  .game-area{position:relative;flex:1;min-height:0;}
+  canvas{display:block;width:100%;height:100%;touch-action:none;}
 
   .hud{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;
     align-items:flex-start;pointer-events:none;font-weight:700;}
@@ -51,8 +53,8 @@
   .flash.play{animation:flashpop .7s ease-out;}
   @keyframes flashpop{0%{opacity:0;}18%{opacity:1;}100%{opacity:0;}}
 
-  .controls{display:flex;justify-content:space-between;align-items:center;gap:10px;
-    padding:14px;}
+  .controls{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:12px 14px;background:rgba(8,4,24,.55);border-top:1px solid var(--panel-brd);}
   .fsbtn{flex-shrink:0;pointer-events:auto;width:34px;height:34px;border-radius:9px;
     border:1px solid var(--panel-brd);background:rgba(10,4,30,.55);color:#fff;
     display:flex;align-items:center;justify-content:center;}
@@ -99,11 +101,8 @@
     h1,.sub,.footer-note{display:none;}
     .stage{width:100% !important;height:100% !important;max-width:none;
       border-radius:0;box-shadow:none;}
-    canvas{width:100% !important;height:100% !important;}
-    .controls{position:absolute;padding:0;bottom:10px;left:10px;right:10px;}
-    /* translucent so the game world stays visible under the overlaid buttons */
-    .btn{width:48px;height:48px;background:rgba(42,26,82,.55);backdrop-filter:blur(2px);}
-    .btn.jump{background:rgba(58,42,122,.55);}
+    .controls{padding:8px 10px calc(8px + env(safe-area-inset-bottom));}
+    .btn{width:48px;height:48px;}
   }
 
   /* real landscape phone: fill the true viewport */
@@ -111,8 +110,6 @@
     #app{width:100dvw;height:100dvh;}
     .hud{top:calc(8px + env(safe-area-inset-top));
       left:calc(8px + env(safe-area-inset-left));right:calc(8px + env(safe-area-inset-right));}
-    .controls{bottom:calc(10px + env(safe-area-inset-bottom));
-      left:calc(10px + env(safe-area-inset-left));right:calc(10px + env(safe-area-inset-right));}
   }
 
   /* portrait phone: rotate the whole app 90° so the game still renders landscape,
@@ -136,6 +133,7 @@
   <p class="sub">אב-טיפוס לבדיקת תחושה בלבד: ריצה + קפיצה + סולמות, איסוף כל כדורי האנרגיה של האות א׳, הימנעות מהאויב, ומד כוח שנטען עד לפתיחת הדלת.</p>
 
   <div class="stage" id="stage">
+    <div class="game-area" id="gameArea">
     <canvas id="c" width="960" height="540"></canvas>
 
     <div class="hud">
@@ -158,8 +156,8 @@
     <div class="flash" id="flash"></div>
 
     <div class="qoverlay" id="qoverlay">
-      <h2>איזו אות זו?</h2>
-      <p>ענה נכון כדי לעבור את הדלת</p>
+      <h2 id="qTitle">איזו אות זו?</h2>
+      <p id="qSub">ענה נכון כדי לעבור את הדלת</p>
       <div class="qopts" id="qopts"></div>
     </div>
 
@@ -167,6 +165,7 @@
       <h2>ניצחון!</h2>
       <p>עברת את השלב עם כל כדורי האנרגיה</p>
       <button class="restart" id="restartBtn2">שחק שוב</button>
+    </div>
     </div>
 
     <div class="controls">
@@ -196,26 +195,31 @@
   const msgEl = document.getElementById('msg');
   const flashEl = document.getElementById('flash');
   const qoverlay = document.getElementById('qoverlay');
+  const qTitle = document.getElementById('qTitle');
+  const qSub = document.getElementById('qSub');
   const qopts = document.getElementById('qopts');
   const winScreen = document.getElementById('winScreen');
   const stageEl = document.getElementById('stage');
+  const controlsEl = document.querySelector('.controls');
   const headerEl = document.querySelector('#app > h1');
   const subEl = document.querySelector('.sub');
   const footerEl = document.querySelector('.footer-note');
   const btnFullscreen = document.getElementById('btnFullscreen');
 
+  // canvas/game-area size is driven purely by stageEl's own width/height (flexbox splits
+  // game-area vs. the controls bar automatically) — this fits both width AND height limits.
   function fitStage(){
-    if(window.innerHeight >= window.innerWidth) return; // portrait: rotate-prompt covers the screen
-    // controls now overlay the canvas (position:absolute), so only header/footer text competes for height
+    if(window.innerHeight >= window.innerWidth) return; // portrait: the CSS rotation handles sizing itself
+    const controlsH = controlsEl.offsetHeight;
     const chromeH = (headerEl && getComputedStyle(headerEl).display!=='none' ? headerEl.offsetHeight : 0)
       + (subEl && getComputedStyle(subEl).display!=='none' ? subEl.offsetHeight : 0)
       + (footerEl && getComputedStyle(footerEl).display!=='none' ? footerEl.offsetHeight : 0)
       + 32; // gaps + body padding
     const availW = window.innerWidth - 24;
-    const availH = window.innerHeight - chromeH;
+    const availH = window.innerHeight - chromeH - controlsH;
     const scale = Math.max(0.2, Math.min(availW/W, availH/H, 1));
-    stageEl.style.width = cv.style.width = Math.round(W*scale)+'px';
-    cv.style.height = Math.round(H*scale)+'px';
+    stageEl.style.width = Math.round(W*scale)+'px';
+    stageEl.style.height = Math.round(H*scale)+controlsH+'px';
   }
   window.addEventListener('resize', fitStage);
   window.addEventListener('orientationchange', ()=>setTimeout(fitStage, 300));
@@ -249,12 +253,12 @@
 
   const GROUND_Y = 500;
   const platforms = [
-    {x:0,   y:GROUND_Y, w:960, h:40},   // ground
-    {x:60,  y:380, w:220, h:20},        // A left-mid
-    {x:680, y:380, w:220, h:20},        // B right-mid
-    {x:400, y:440, w:160, h:20},        // C center step
-    {x:60,  y:220, w:220, h:20},        // D left-high
-    {x:680, y:220, w:220, h:20},        // E right-high (door here)
+    {x:0,   y:GROUND_Y, w:960, h:40},                    // ground — always solid
+    {x:60,  y:380, w:220, h:20, oneWay:true},            // A left-mid
+    {x:680, y:380, w:220, h:20, oneWay:true},             // B right-mid
+    {x:400, y:440, w:160, h:20, oneWay:true},             // C center step
+    {x:60,  y:220, w:220, h:20, oneWay:true},             // D left-high
+    {x:680, y:220, w:220, h:20, oneWay:true},             // E right-high (door here)
   ];
 
   const ladders = [
@@ -331,6 +335,7 @@
   function resolveX(nx){
     const box = playerBox(nx, player.y);
     for(const p of platforms){
+      if(p.oneWay) continue; // pass through freely from the side — only the top surface is solid
       if(rectsOverlap(box,p)){
         if(nx > player.x) nx = p.x - player.w; else if(nx < player.x) nx = p.x + p.w;
       }
@@ -340,6 +345,10 @@
   function resolveY(ny){
     let onGround = false;
     for(const p of platforms){
+      if(p.oneWay){
+        if(player.vy < 0) continue;              // jumping up: pass straight through
+        if(player.y + player.h > p.y + 1) continue; // wasn't already above it: still passing through
+      }
       const box = playerBox(player.x, ny);
       if(rectsOverlap(box,p)){
         if(player.vy >= 0){ ny = p.y - player.h; player.vy = 0; onGround = true; }
@@ -364,9 +373,8 @@
     updateHUD();
     flashHit();
     if(livesState.n <= 0){
-      showMsg('נגמרו החיים… מתחילים מחדש', true);
-      setTimeout(resetLevel, 1400);
       gameOver = true;
+      openQuestion('death');
       return;
     }
     showMsg('אוץ! נפגעת');
@@ -391,8 +399,12 @@
     doorOpen = true;
   }
 
-  function openQuestion(){
+  function openQuestion(context){
     gameOver = true;
+    qTitle.textContent = 'איזו אות זו?';
+    qSub.textContent = context==='death'
+      ? 'תשובה נכונה = חיים חדשים וממשיכים!'
+      : 'ענה נכון כדי לעבור את הדלת';
     const opts = [LETTER,'ב','ל'].sort(()=>Math.random()-0.5);
     qopts.innerHTML = '';
     opts.forEach(letter=>{
@@ -402,10 +414,28 @@
       b.onclick = ()=>{
         if(letter === LETTER){
           b.classList.add('correct');
-          setTimeout(()=>{ qoverlay.classList.remove('show'); winScreen.classList.add('show'); won=true; }, 400);
+          setTimeout(()=>{
+            qoverlay.classList.remove('show');
+            if(context==='death'){
+              livesState.n = 2;
+              updateHUD();
+              player.x = 50; player.y = GROUND_Y-player.h; player.vx=0; player.vy=0;
+              gameOver = false;
+              showMsg('חזרת למשחק עם 2 חיים!');
+            } else {
+              winScreen.classList.add('show');
+              won = true;
+            }
+          }, 400);
         } else {
           b.classList.add('wrong');
-          setTimeout(()=>b.classList.remove('wrong'), 400);
+          setTimeout(()=>{
+            b.classList.remove('wrong');
+            if(context==='death'){
+              qoverlay.classList.remove('show');
+              resetLevel();
+            }
+          }, 500);
         }
       };
       qopts.appendChild(b);
@@ -498,7 +528,7 @@
 
     // door
     if(doorOpen && rectsOverlap(playerBox(player.x,player.y), doorRect)){
-      openQuestion();
+      openQuestion('door');
     }
   }
 
